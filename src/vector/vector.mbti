@@ -3,12 +3,12 @@ package KCN-judu/linear-algebra/vector
 // Values
 
 // Types and methods
-pub(all) struct VectorDbl {
+pub(all) struct Vector {
   data : Array[Double]
   size : Int
   stride : Int
 }
-impl VectorDbl {
+impl Vector {
   add_constant(Self, Double) -> Unit
   add_inplace(Self, Self) -> Unit
   at(Self, Int) -> Double
@@ -42,8 +42,8 @@ impl VectorDbl {
   swap_elements(Self, Int, Int) -> Unit
   zero_vector(Int) -> Self
 }
-impl Eq for VectorDbl
-impl Show for VectorDbl
+impl Eq for Vector
+impl Show for Vector
 
 // Type aliases
 

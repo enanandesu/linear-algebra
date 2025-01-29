@@ -14,13 +14,13 @@
 /// Example:
 ///
 /// ```moonbit
-/// test "MatrixDbl" {
-///   let m = MatrixDbl::new(2, 3) // Creates a 2x3 matrix
+/// test "Matrix" {
+///   let m = Matrix::new(2, 3) // Creates a 2x3 matrix
 ///   inspect!(m.row, content="2")
 ///   inspect!(m.col, content="3")
 /// }
 /// ```
-pub(all) struct MatrixDbl {
+pub(all) struct Matrix {
   data : Array[Double]
   col : Int
   row : Int
@@ -30,14 +30,14 @@ pub(all) struct MatrixDbl {
 //oper
 
 ///|
-pub fn MatrixDbl::new(row : Int, col : Int, stride~ : Int = col) -> MatrixDbl {
+pub fn Matrix::new(row : Int, col : Int, stride~ : Int = col) -> Matrix {
   guard row > 0 && col > 0
   let data : Array[Double] = []
   { data, col, row, stride }
 }
 
 ///|
-pub fn MatrixDbl::at(self : MatrixDbl, row : Int, col : Int) -> Double {
+pub fn Matrix::at(self : Matrix, row : Int, col : Int) -> Double {
   guard row < self.row && col < self.col && row >= 0 && col >= 0
   let index = row * self.stride + col
   guard index < self.data.length()
@@ -45,29 +45,29 @@ pub fn MatrixDbl::at(self : MatrixDbl, row : Int, col : Int) -> Double {
 }
 
 ///|
-pub fn MatrixDbl::map(self : MatrixDbl, f : (Double) -> Double) -> MatrixDbl {
+pub fn Matrix::map(self : Matrix, f : (Double) -> Double) -> Matrix {
   let stride = self.stride
   let data = self.data.map(f)
   { data, col: self.col, row: self.row, stride }
 }
 
 ///|
-pub fn MatrixDbl::map_inplace(self : MatrixDbl, f : (Double) -> Double) -> Unit {
+pub fn Matrix::map_inplace(self : Matrix, f : (Double) -> Double) -> Unit {
   self.data.map_inplace(f)
 }
 
 ///|
-pub fn MatrixDbl::scale(self : MatrixDbl, scalar : Double) -> Unit {
+pub fn Matrix::scale(self : Matrix, scalar : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x * scalar })
 }
 
 ///|
-pub fn MatrixDbl::add_constant(self : MatrixDbl, constant : Double) -> Unit {
+pub fn Matrix::add_constant(self : Matrix, constant : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x + constant })
 }
 
 ///|
-pub fn MatrixDbl::add_diagonal(self : MatrixDbl, constant : Double) -> Unit {
+pub fn Matrix::add_diagonal(self : Matrix, constant : Double) -> Unit {
   guard self.row == self.col
   let stride = self.stride
   for i = 0; i < self.row; i = i + 1 {
@@ -76,10 +76,7 @@ pub fn MatrixDbl::add_diagonal(self : MatrixDbl, constant : Double) -> Unit {
 }
 
 ///|
-pub fn MatrixDbl::scale_col(
-  self : MatrixDbl,
-  scalar : @vector.VectorDbl
-) -> Unit {
+pub fn Matrix::scale_col(self : Matrix, scalar : @vector.Vector) -> Unit {
   guard self.col == scalar.size
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
@@ -90,10 +87,7 @@ pub fn MatrixDbl::scale_col(
 }
 
 ///|
-pub fn MatrixDbl::scale_row(
-  self : MatrixDbl,
-  scalar : @vector.VectorDbl
-) -> Unit {
+pub fn Matrix::scale_row(self : Matrix, scalar : @vector.Vector) -> Unit {
   guard self.row == scalar.size
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
@@ -104,14 +98,11 @@ pub fn MatrixDbl::scale_row(
 }
 
 ///|
-pub fn MatrixDbl::mul_elements(
-  self : MatrixDbl,
-  other : MatrixDbl
-) -> MatrixDbl {
+pub fn Matrix::mul_elements(self : Matrix, other : Matrix) -> Matrix {
   guard self.col == other.col && self.row == other.row
   let stride_self = self.stride
   let stride_other = other.stride
-  let matrix_mul = MatrixDbl::new(self.row, self.col)
+  let matrix_mul = Matrix::new(self.row, self.col)
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
       matrix_mul.data.push(
@@ -123,10 +114,7 @@ pub fn MatrixDbl::mul_elements(
 }
 
 ///|
-pub fn MatrixDbl::mul_elements_inplace(
-  self : MatrixDbl,
-  other : MatrixDbl
-) -> Unit {
+pub fn Matrix::mul_elements_inplace(self : Matrix, other : Matrix) -> Unit {
   guard self.col == other.col && self.row == other.row
   let stride_self = self.stride
   let stride_other = other.stride
@@ -139,14 +127,11 @@ pub fn MatrixDbl::mul_elements_inplace(
 }
 
 ///|
-pub fn MatrixDbl::div_elements(
-  self : MatrixDbl,
-  other : MatrixDbl
-) -> MatrixDbl {
+pub fn Matrix::div_elements(self : Matrix, other : Matrix) -> Matrix {
   guard self.col == other.col && self.row == other.row
   let stride_self = self.stride
   let stride_other = other.stride
-  let matrix_div = MatrixDbl::new(self.row, self.col)
+  let matrix_div = Matrix::new(self.row, self.col)
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
       matrix_div.data.push(
@@ -158,10 +143,7 @@ pub fn MatrixDbl::div_elements(
 }
 
 ///|
-pub fn MatrixDbl::div_elements_inplace(
-  self : MatrixDbl,
-  other : MatrixDbl
-) -> Unit {
+pub fn Matrix::div_elements_inplace(self : Matrix, other : Matrix) -> Unit {
   guard self.col == other.col && self.row == other.row
   let stride_self = self.stride
   let stride_other = other.stride
@@ -174,10 +156,10 @@ pub fn MatrixDbl::div_elements_inplace(
 }
 
 ///|@coverage.skip
-fn MatrixDbl::std_mul(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
+fn Matrix::std_mul(self : Matrix, other : Matrix) -> Matrix {
   let stride_self = self.stride
   let stride_other = other.stride
-  let matrix_mul = MatrixDbl::new(self.row, other.col)
+  let matrix_mul = Matrix::new(self.row, other.col)
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < other.col; j = j + 1 {
       let mut sum = 0.0
@@ -192,11 +174,11 @@ fn MatrixDbl::std_mul(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
 }
 
 ///|
-pub fn MatrixDbl::op_add(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
+pub fn Matrix::op_add(self : Matrix, other : Matrix) -> Matrix {
   guard self.col == other.col && self.row == other.row
   let stride_self = self.stride
   let stride_other = other.stride
-  let matrix_add = MatrixDbl::new(self.row, self.col)
+  let matrix_add = Matrix::new(self.row, self.col)
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
       matrix_add.data.push(
@@ -208,11 +190,11 @@ pub fn MatrixDbl::op_add(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
 }
 
 ///|
-pub fn MatrixDbl::op_sub(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
+pub fn Matrix::op_sub(self : Matrix, other : Matrix) -> Matrix {
   guard self.col == other.col && self.row == other.row
   let stride_self = self.stride
   let stride_other = other.stride
-  let matrix_sub = MatrixDbl::new(self.row, self.col)
+  let matrix_sub = Matrix::new(self.row, self.col)
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
       matrix_sub.data.push(
@@ -224,25 +206,21 @@ pub fn MatrixDbl::op_sub(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
 }
 
 ///|
-pub fn MatrixDbl::op_mul(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
+pub fn Matrix::op_mul(self : Matrix, other : Matrix) -> Matrix {
   guard self.col == other.row
-  MatrixDbl::std_mul(self, other)
+  Matrix::std_mul(self, other)
 }
 
 //init
 
 ///|
-pub fn MatrixDbl::copy(self : MatrixDbl) -> MatrixDbl {
+pub fn Matrix::copy(self : Matrix) -> Matrix {
   let data = self.data.copy()
   { data, col: self.col, row: self.row, stride: self.stride }
 }
 
 ///|
-pub fn MatrixDbl::filled_matrix(
-  row : Int,
-  col : Int,
-  num : Double
-) -> MatrixDbl {
+pub fn Matrix::filled_matrix(row : Int, col : Int, num : Double) -> Matrix {
   let stride = col
   let data : Array[Double] = (fn() -> Array[Double] {
     let filled_matrix = []
@@ -255,18 +233,18 @@ pub fn MatrixDbl::filled_matrix(
 }
 
 ///|
-pub fn MatrixDbl::zero_matrix(row : Int, col : Int) -> MatrixDbl {
-  MatrixDbl::filled_matrix(row, col, 0.0)
+pub fn Matrix::zero_matrix(row : Int, col : Int) -> Matrix {
+  Matrix::filled_matrix(row, col, 0.0)
 }
 
 //prop
 ///|
-pub impl Eq for MatrixDbl with op_equal(self : MatrixDbl, other : MatrixDbl) -> Bool {
+pub impl Eq for Matrix with op_equal(self : Matrix, other : Matrix) -> Bool {
   self.row == other.row && self.col == other.col && self.data == other.data
 }
 
 ///|
-pub fn MatrixDbl::is_null(self : MatrixDbl) -> Bool {
+pub fn Matrix::is_null(self : Matrix) -> Bool {
   let n = self.row * self.col
   for i = 0; i < n; i = i + 1 {
     if self.data[i] != 0.0 {
@@ -277,7 +255,7 @@ pub fn MatrixDbl::is_null(self : MatrixDbl) -> Bool {
 }
 
 ///|
-pub fn MatrixDbl::is_pos(self : MatrixDbl) -> Bool {
+pub fn Matrix::is_pos(self : Matrix) -> Bool {
   let n = self.row * self.col
   for i = 0; i < n; i = i + 1 {
     if self.data[i] <= 0.0 {
@@ -288,7 +266,7 @@ pub fn MatrixDbl::is_pos(self : MatrixDbl) -> Bool {
 }
 
 ///|
-pub fn MatrixDbl::is_neg(self : MatrixDbl) -> Bool {
+pub fn Matrix::is_neg(self : Matrix) -> Bool {
   let n = self.row * self.col
   for i = 0; i < n; i = i + 1 {
     if self.data[i] >= 0.0 {
@@ -299,7 +277,7 @@ pub fn MatrixDbl::is_neg(self : MatrixDbl) -> Bool {
 }
 
 ///|
-pub fn MatrixDbl::is_non_neg(self : MatrixDbl) -> Bool {
+pub fn Matrix::is_non_neg(self : Matrix) -> Bool {
   let n = self.row * self.col
   for i = 0; i < n; i = i + 1 {
     if self.data[i] < 0.0 {
@@ -310,24 +288,24 @@ pub fn MatrixDbl::is_non_neg(self : MatrixDbl) -> Bool {
 }
 
 ///|
-pub fn MatrixDbl::norm_1(self : MatrixDbl) -> Double {
+pub fn Matrix::norm_1(self : Matrix) -> Double {
   let mut max_sum = 0.0
   for j = 0; j < self.col; j = j + 1 {
     let mut sum = 0.0
     for i = 0; i < self.row; i = i + 1 {
       sum = sum + self.data[i * self.stride + j]
     }
-    max_sum = @basic.max(max_sum, sum)
+    max_sum = @luna_utils.max(max_sum, sum)
   }
   max_sum
 }
 
 //vectorize
 ///|
-pub fn MatrixDbl::row_vec(self : MatrixDbl, row : Int) -> @vector.VectorDbl {
+pub fn Matrix::row_vec(self : Matrix, row : Int) -> @vector.Vector {
   guard row < self.row && row >= 0
   let size_vec = self.col
-  let vec = @vector.VectorDbl::new(size_vec)
+  let vec = @vector.Vector::new(size_vec)
   for i = 0; i < size_vec; i = i + 1 {
     vec.data.push(self.data[row * self.stride + i])
   }
@@ -335,10 +313,10 @@ pub fn MatrixDbl::row_vec(self : MatrixDbl, row : Int) -> @vector.VectorDbl {
 }
 
 ///|
-pub fn MatrixDbl::col_vec(self : MatrixDbl, col : Int) -> @vector.VectorDbl {
+pub fn Matrix::col_vec(self : Matrix, col : Int) -> @vector.Vector {
   guard col < self.col && col >= 0
   let size_vec = self.row
-  let vec = @vector.VectorDbl::new(size_vec)
+  let vec = @vector.Vector::new(size_vec)
   for i = 0; i < size_vec; i = i + 1 {
     vec.data.push(self.data[i * self.stride + col])
   }
@@ -346,9 +324,9 @@ pub fn MatrixDbl::col_vec(self : MatrixDbl, col : Int) -> @vector.VectorDbl {
 }
 
 ///|
-pub fn MatrixDbl::diagonal_vec(self : MatrixDbl) -> @vector.VectorDbl {
-  let short_side = @basic.min(self.row, self.col)
-  let vec = @vector.VectorDbl::new(short_side)
+pub fn Matrix::diagonal_vec(self : Matrix) -> @vector.Vector {
+  let short_side = @luna_utils.min(self.row, self.col)
+  let vec = @vector.Vector::new(short_side)
   for i = 0; i < short_side; i = i + 1 {
     vec.data.push(self.data[i * self.stride + i])
   }
@@ -356,9 +334,9 @@ pub fn MatrixDbl::diagonal_vec(self : MatrixDbl) -> @vector.VectorDbl {
 }
 
 ///|
-pub fn MatrixDbl::subdiagonal_vec(self : MatrixDbl) -> @vector.VectorDbl {
-  let short_side = @basic.min(self.row, self.col)
-  let vec = @vector.VectorDbl::new(short_side - 1)
+pub fn Matrix::subdiagonal_vec(self : Matrix) -> @vector.Vector {
+  let short_side = @luna_utils.min(self.row, self.col)
+  let vec = @vector.Vector::new(short_side - 1)
   for i = 0; i < short_side - 1; i = i + 1 {
     vec.data.push(self.data[(i + 1) * self.stride + i])
   }
@@ -366,9 +344,9 @@ pub fn MatrixDbl::subdiagonal_vec(self : MatrixDbl) -> @vector.VectorDbl {
 }
 
 ///|
-pub fn MatrixDbl::superdiagonal_vec(self : MatrixDbl) -> @vector.VectorDbl {
-  let short_side = @basic.min(self.row, self.col)
-  let vec = @vector.VectorDbl::new(short_side - 1)
+pub fn Matrix::superdiagonal_vec(self : Matrix) -> @vector.Vector {
+  let short_side = @luna_utils.min(self.row, self.col)
+  let vec = @vector.Vector::new(short_side - 1)
   for i = 0; i < short_side - 1; i = i + 1 {
     vec.data.push(self.data[i * self.stride + (i + 1)])
   }
@@ -376,15 +354,15 @@ pub fn MatrixDbl::superdiagonal_vec(self : MatrixDbl) -> @vector.VectorDbl {
 }
 
 ///|
-pub fn MatrixDbl::subrow_vec(
-  self : MatrixDbl,
+pub fn Matrix::subrow_vec(
+  self : Matrix,
   row : Int,
   start : Int,
   num : Int
-) -> @vector.VectorDbl {
+) -> @vector.Vector {
   guard row < self.row && row >= 0
   guard start >= 0 && num > 0 && start + num <= self.col
-  let vec = @vector.VectorDbl::new(num)
+  let vec = @vector.Vector::new(num)
   for i = 0; i < num; i = i + 1 {
     vec.data.push(self.data[row * self.stride + start + i])
   }
@@ -392,15 +370,15 @@ pub fn MatrixDbl::subrow_vec(
 }
 
 ///|
-pub fn MatrixDbl::subcol_vec(
-  self : MatrixDbl,
+pub fn Matrix::subcol_vec(
+  self : Matrix,
   col : Int,
   start : Int,
   num : Int
-) -> @vector.VectorDbl {
+) -> @vector.Vector {
   guard col < self.col && col >= 0
   guard start >= 0 && num > 0 && start + num <= self.row
-  let vec = @vector.VectorDbl::new(num)
+  let vec = @vector.Vector::new(num)
   for i = 0; i < num; i = i + 1 {
     vec.data.push(self.data[(start + i) * self.stride + col])
   }
@@ -421,8 +399,8 @@ pub enum ViewMode {
 } derive(Show, Eq)
 
 ///|
-pub(all) struct MatrixViewDbl {
-  matrix : MatrixDbl
+pub(all) struct MatrixView {
+  matrix : Matrix
   index : Int
   start : Int
   num : Int
@@ -430,27 +408,27 @@ pub(all) struct MatrixViewDbl {
 }
 
 ///|
-pub fn MatrixDbl::op_as_view(
-  self : MatrixDbl,
+pub fn Matrix::op_as_view(
+  self : Matrix,
   index~ : Int = 0,
   view_mode : ViewMode
-) -> MatrixViewDbl {
+) -> MatrixView {
   guard view_mode == ViewMode::SuperDiagonal ||
     view_mode == ViewMode::SubDiagonal ||
     view_mode == ViewMode::Diagonal ||
     (index >= 0 && index < self.row && view_mode == ViewMode::Row) ||
     (index >= 0 && index < self.col && view_mode == ViewMode::Col)
-  MatrixViewDbl::{ matrix: self, index, start: 0, num: 0, view_mode }
+  MatrixView::{ matrix: self, index, start: 0, num: 0, view_mode }
 }
 
 ///|
-pub fn MatrixDbl::view(
-  self : MatrixDbl,
+pub fn Matrix::view(
+  self : Matrix,
   index~ : Int = 0,
   start~ : Int = 0,
   num~ : Int = 0,
   view_mode : ViewMode
-) -> MatrixViewDbl {
+) -> MatrixView {
   guard (
       index >= 0 &&
       (
@@ -469,14 +447,14 @@ pub fn MatrixDbl::view(
     view_mode == ViewMode::Diagonal ||
     view_mode == ViewMode::SubDiagonal ||
     view_mode == ViewMode::SuperDiagonal
-  MatrixViewDbl::{ matrix: self, index, start, num, view_mode }
+  MatrixView::{ matrix: self, index, start, num, view_mode }
 }
 
 //view oper
 
 ///|
-pub fn MatrixViewDbl::map_inplace(
-  self : MatrixViewDbl,
+pub fn MatrixView::map_inplace(
+  self : MatrixView,
   f : (Double) -> Double
 ) -> Unit {
   match self.view_mode {
@@ -493,7 +471,7 @@ pub fn MatrixViewDbl::map_inplace(
         )
       }
     ViewMode::Diagonal => {
-      let short_side = @basic.min(self.matrix.row, self.matrix.col)
+      let short_side = @luna_utils.min(self.matrix.row, self.matrix.col)
       for i = 0; i < short_side; i = i + 1 {
         self.matrix.data[i * self.matrix.stride + i] = f(
           self.matrix.data[i * self.matrix.stride + i],
@@ -501,7 +479,7 @@ pub fn MatrixViewDbl::map_inplace(
       }
     }
     ViewMode::SubDiagonal => {
-      let short_side = @basic.min(self.matrix.row, self.matrix.col)
+      let short_side = @luna_utils.min(self.matrix.row, self.matrix.col)
       for i = 0; i < short_side - 1; i = i + 1 {
         self.matrix.data[(i + 1) * self.matrix.stride + i] = f(
           self.matrix.data[(i + 1) * self.matrix.stride + i],
@@ -509,7 +487,7 @@ pub fn MatrixViewDbl::map_inplace(
       }
     }
     ViewMode::SuperDiagonal => {
-      let short_side = @basic.min(self.matrix.row, self.matrix.col)
+      let short_side = @luna_utils.min(self.matrix.row, self.matrix.col)
       for i = 0; i < short_side - 1; i = i + 1 {
         self.matrix.data[i * self.matrix.stride + (i + 1)] = f(
           self.matrix.data[i * self.matrix.stride + (i + 1)],
@@ -532,10 +510,7 @@ pub fn MatrixViewDbl::map_inplace(
 }
 
 ///|
-pub fn MatrixViewDbl::scale_view(
-  self : MatrixViewDbl,
-  scalar : Double
-) -> MatrixViewDbl {
+pub fn MatrixView::scale_view(self : MatrixView, scalar : Double) -> MatrixView {
   self.map_inplace(fn(x) -> Double { x * scalar })
   self
 }

@@ -16,14 +16,14 @@
 /// Example:
 ///
 /// ```moonbit
-/// test "VectorDbl" {
-///   let v = VectorDbl::{ data: [1.0, 2.0, 3.0, 4.0], size: 2, stride: 2 }
+/// test "Vector" {
+///   let v = Vector::{ data: [1.0, 2.0, 3.0, 4.0], size: 2, stride: 2 }
 ///   // v effectively represents [1.0, 3.0] with stride 2
 ///   inspect!(v.at(0), content="1.0")
 ///   inspect!(v.at(1), content="3.0")
 /// }
 /// ```
-pub(all) struct VectorDbl {
+pub(all) struct Vector {
   data : Array[Double]
   size : Int
   mut stride : Int
@@ -32,38 +32,38 @@ pub(all) struct VectorDbl {
 //oper
 
 ///|
-pub fn VectorDbl::map(self : VectorDbl, f : (Double) -> Double) -> VectorDbl {
+pub fn Vector::map(self : Vector, f : (Double) -> Double) -> Vector {
   let data = self.data.map(f)
   { data, size: self.size, stride: self.stride }
 }
 
 ///|
-pub fn VectorDbl::map_inplace(self : VectorDbl, f : (Double) -> Double) -> Unit {
+pub fn Vector::map_inplace(self : Vector, f : (Double) -> Double) -> Unit {
   self.data.map_inplace(f)
 }
 
 ///|
-pub fn VectorDbl::scale(self : VectorDbl, scalar : Double) -> Unit {
+pub fn Vector::scale(self : Vector, scalar : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x * scalar })
 }
 
 ///|
-pub fn VectorDbl::add_constant(self : VectorDbl, constant : Double) -> Unit {
+pub fn Vector::add_constant(self : Vector, constant : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x + constant })
 }
 
 ///|
-pub fn VectorDbl::ax_plus_by(
-  self : VectorDbl,
-  y : VectorDbl,
+pub fn Vector::ax_plus_by(
+  self : Vector,
+  y : Vector,
   a : Double,
   b : Double
-) -> VectorDbl {
+) -> Vector {
   let n = self.size
   guard n == y.size
   let stride_self = self.stride
   let stride_y = y.stride
-  let vector_ax_plus_by = VectorDbl::new(n)
+  let vector_ax_plus_by = Vector::new(n)
   for i = 0; i < n; i = i + 1 {
     vector_ax_plus_by.data.push(
       a * self.data[i * stride_self] + b * y.data[i * stride_y],
@@ -73,9 +73,9 @@ pub fn VectorDbl::ax_plus_by(
 }
 
 ///|
-pub fn VectorDbl::ax_plus_by_inplace(
-  self : VectorDbl,
-  y : VectorDbl,
+pub fn Vector::ax_plus_by_inplace(
+  self : Vector,
+  y : Vector,
   a : Double,
   b : Double
 ) -> Unit {
@@ -90,12 +90,12 @@ pub fn VectorDbl::ax_plus_by_inplace(
 }
 
 ///|
-pub fn VectorDbl::sum(self : VectorDbl) -> Double {
-  @basic.arr_sum_dbl(self.data)
+pub fn Vector::sum(self : Vector) -> Double {
+  @luna_utils.arr_sum_dbl(self.data)
 }
 
 ///|
-pub fn VectorDbl::add_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
+pub fn Vector::add_inplace(self : Vector, other : Vector) -> Unit {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
@@ -107,7 +107,7 @@ pub fn VectorDbl::add_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
 }
 
 ///|
-pub fn VectorDbl::sub_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
+pub fn Vector::sub_inplace(self : Vector, other : Vector) -> Unit {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
@@ -119,7 +119,7 @@ pub fn VectorDbl::sub_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
 }
 
 ///|
-pub fn VectorDbl::mul_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
+pub fn Vector::mul_inplace(self : Vector, other : Vector) -> Unit {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
@@ -131,7 +131,7 @@ pub fn VectorDbl::mul_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
 }
 
 ///|
-pub fn VectorDbl::div_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
+pub fn Vector::div_inplace(self : Vector, other : Vector) -> Unit {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
@@ -143,12 +143,12 @@ pub fn VectorDbl::div_inplace(self : VectorDbl, other : VectorDbl) -> Unit {
 }
 
 ///|
-pub fn op_add(self : VectorDbl, other : VectorDbl) -> VectorDbl {
+pub fn op_add(self : Vector, other : Vector) -> Vector {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
   let stride_other = other.stride
-  let vector_add = VectorDbl::new(n)
+  let vector_add = Vector::new(n)
   for i = 0; i < n; i = i + 1 {
     vector_add.data.push(
       self.data[i * stride_self] + other.data[i * stride_other],
@@ -158,12 +158,12 @@ pub fn op_add(self : VectorDbl, other : VectorDbl) -> VectorDbl {
 }
 
 ///|
-pub fn op_sub(self : VectorDbl, other : VectorDbl) -> VectorDbl {
+pub fn op_sub(self : Vector, other : Vector) -> Vector {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
   let stride_other = other.stride
-  let vector_sub = VectorDbl::new(n)
+  let vector_sub = Vector::new(n)
   for i = 0; i < n; i = i + 1 {
     vector_sub.data.push(
       self.data[i * stride_self] - other.data[i * stride_other],
@@ -173,12 +173,12 @@ pub fn op_sub(self : VectorDbl, other : VectorDbl) -> VectorDbl {
 }
 
 ///|
-pub fn op_mul(self : VectorDbl, other : VectorDbl) -> VectorDbl {
+pub fn op_mul(self : Vector, other : Vector) -> Vector {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
   let stride_other = other.stride
-  let vector_mul = VectorDbl::new(n)
+  let vector_mul = Vector::new(n)
   for i = 0; i < n; i = i + 1 {
     vector_mul.data.push(
       self.data[i * stride_self] * other.data[i * stride_other],
@@ -188,12 +188,12 @@ pub fn op_mul(self : VectorDbl, other : VectorDbl) -> VectorDbl {
 }
 
 ///|
-pub fn op_div(self : VectorDbl, other : VectorDbl) -> VectorDbl {
+pub fn op_div(self : Vector, other : Vector) -> Vector {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
   let stride_other = other.stride
-  let vector_div = VectorDbl::new(n)
+  let vector_div = Vector::new(n)
   for i = 0; i < n; i = i + 1 {
     vector_div.data.push(
       self.data[i * stride_self] / other.data[i * stride_other],
@@ -204,20 +204,20 @@ pub fn op_div(self : VectorDbl, other : VectorDbl) -> VectorDbl {
 
 //init
 ///|
-pub fn VectorDbl::new(size : Int, stride~ : Int = 1) -> VectorDbl {
+pub fn Vector::new(size : Int, stride~ : Int = 1) -> Vector {
   guard size > 0 && stride > 0
   let data = []
   { data, size, stride }
 }
 
 ///|
-pub fn VectorDbl::at(self : VectorDbl, index : Int) -> Double {
+pub fn Vector::at(self : Vector, index : Int) -> Double {
   guard index < self.size && index >= 0
   self.data[index * self.stride]
 }
 
 ///|
-pub fn VectorDbl::filled_vector(size : Int, num : Double) -> VectorDbl {
+pub fn Vector::filled_vector(size : Int, num : Double) -> Vector {
   let data = (fn() -> Array[Double] {
     let filled_vector = []
     for i = 0; i < size; i = i + 1 {
@@ -229,39 +229,39 @@ pub fn VectorDbl::filled_vector(size : Int, num : Double) -> VectorDbl {
 }
 
 ///|
-pub fn VectorDbl::zero_vector(size : Int) -> VectorDbl {
-  VectorDbl::filled_vector(size, 0.0)
+pub fn Vector::zero_vector(size : Int) -> Vector {
+  Vector::filled_vector(size, 0.0)
 }
 
 ///|
-pub fn op_get(self : VectorDbl, index : Int) -> Double {
+pub fn op_get(self : Vector, index : Int) -> Double {
   self.data[index * self.stride]
 }
 
 ///|
-pub fn VectorDbl::set_all(self : VectorDbl, num : Double) -> Unit {
+pub fn Vector::set_all(self : Vector, num : Double) -> Unit {
   self.map_inplace(fn(_) -> Double { num })
 }
 
 ///|
-pub fn VectorDbl::set_zero(self : VectorDbl) -> Unit {
+pub fn Vector::set_zero(self : Vector) -> Unit {
   self.set_all(0.0)
 }
 
 ///|
-pub fn VectorDbl::set_at(self : VectorDbl, index : Int, num : Double) -> Unit {
+pub fn Vector::set_at(self : Vector, index : Int, num : Double) -> Unit {
   guard index < self.size && index >= 0
   self.data[index * self.stride] = num
 }
 
 ///|
-pub fn VectorDbl::set_basis(self : VectorDbl, index : Int) -> Unit {
+pub fn Vector::set_basis(self : Vector, index : Int) -> Unit {
   self.set_zero()
   self.set_at(index, 1.0)
 }
 
 ///|
-pub fn VectorDbl::copy(self : VectorDbl) -> VectorDbl {
+pub fn Vector::copy(self : Vector) -> Vector {
   let data = self.data.copy()
   { data, size: self.size, stride: self.stride }
 }
@@ -269,7 +269,7 @@ pub fn VectorDbl::copy(self : VectorDbl) -> VectorDbl {
 //prop
 
 ///|
-pub impl Eq for VectorDbl with op_equal(self, other) {
+pub impl Eq for Vector with op_equal(self, other) {
   let n = self.size
   guard n == other.size
   let stride_self = self.stride
@@ -283,7 +283,7 @@ pub impl Eq for VectorDbl with op_equal(self, other) {
 }
 
 ///|
-pub fn VectorDbl::is_null(self : VectorDbl) -> Bool {
+pub fn Vector::is_null(self : Vector) -> Bool {
   let n = self.size
   let stride = self.stride
   for i = 0; i < n; i = i + 1 {
@@ -295,7 +295,7 @@ pub fn VectorDbl::is_null(self : VectorDbl) -> Bool {
 }
 
 ///|
-pub fn VectorDbl::is_pos(self : VectorDbl) -> Bool {
+pub fn Vector::is_pos(self : Vector) -> Bool {
   let n = self.size
   let stride = self.stride
   for i = 0; i < n; i = i + 1 {
@@ -307,7 +307,7 @@ pub fn VectorDbl::is_pos(self : VectorDbl) -> Bool {
 }
 
 ///|
-pub fn VectorDbl::is_neg(self : VectorDbl) -> Bool {
+pub fn Vector::is_neg(self : Vector) -> Bool {
   let n = self.size
   let stride = self.stride
   for i = 0; i < n; i = i + 1 {
@@ -319,7 +319,7 @@ pub fn VectorDbl::is_neg(self : VectorDbl) -> Bool {
 }
 
 ///|
-pub fn VectorDbl::is_non_neg(self : VectorDbl) -> Bool {
+pub fn Vector::is_non_neg(self : Vector) -> Bool {
   let n = self.size
   let stride = self.stride
   for i = 0; i < n; i = i + 1 {
@@ -331,7 +331,7 @@ pub fn VectorDbl::is_non_neg(self : VectorDbl) -> Bool {
 }
 
 ///|
-pub fn VectorDbl::swap(self : VectorDbl, other : VectorDbl) -> Unit {
+pub fn Vector::swap(self : Vector, other : Vector) -> Unit {
   let n = self.size
   let m = other.size
   guard n == m
@@ -345,7 +345,7 @@ pub fn VectorDbl::swap(self : VectorDbl, other : VectorDbl) -> Unit {
 }
 
 ///|
-pub fn VectorDbl::swap_elements(self : VectorDbl, i : Int, j : Int) -> Unit {
+pub fn Vector::swap_elements(self : Vector, i : Int, j : Int) -> Unit {
   guard i < self.size && j < self.size
   let stride = self.stride
   let temp = self.data[i * stride]
@@ -354,7 +354,7 @@ pub fn VectorDbl::swap_elements(self : VectorDbl, i : Int, j : Int) -> Unit {
 }
 
 ///|
-pub fn VectorDbl::reverse(self : VectorDbl) -> Unit {
+pub fn Vector::reverse(self : Vector) -> Unit {
   let n = self.size
   let stride = self.stride
   let mut left = 0

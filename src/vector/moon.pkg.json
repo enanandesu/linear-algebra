@@ -1,5 +1,8 @@
 {
   "import": [
-    "KCN-judu/linear-algebra/basic"
+    {
+      "path": "KCN-judu/luna-utils",
+      "alias": "luna_utils"
+    }
   ]
 }

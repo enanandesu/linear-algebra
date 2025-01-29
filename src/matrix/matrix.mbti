@@ -5,19 +5,19 @@ alias @KCN-judu/linear-algebra/vector as @vector
 // Values
 
 // Types and methods
-pub(all) struct MatrixDbl {
+pub(all) struct Matrix {
   data : Array[Double]
   col : Int
   row : Int
   stride : Int
 }
-impl MatrixDbl {
+impl Matrix {
   add_constant(Self, Double) -> Unit
   add_diagonal(Self, Double) -> Unit
   at(Self, Int, Int) -> Double
-  col_vec(Self, Int) -> @vector.VectorDbl
+  col_vec(Self, Int) -> @vector.Vector
   copy(Self) -> Self
-  diagonal_vec(Self) -> @vector.VectorDbl
+  diagonal_vec(Self) -> @vector.Vector
   div_elements(Self, Self) -> Self
   div_elements_inplace(Self, Self) -> Unit
   filled_matrix(Int, Int, Double) -> Self
@@ -32,31 +32,31 @@ impl MatrixDbl {
   new(Int, Int, stride~ : Int = ..) -> Self
   norm_1(Self) -> Double
   op_add(Self, Self) -> Self
-  op_as_view(Self, index~ : Int = .., ViewMode) -> MatrixViewDbl
+  op_as_view(Self, index~ : Int = .., ViewMode) -> MatrixView
   op_mul(Self, Self) -> Self
   op_sub(Self, Self) -> Self
-  row_vec(Self, Int) -> @vector.VectorDbl
+  row_vec(Self, Int) -> @vector.Vector
   scale(Self, Double) -> Unit
-  scale_col(Self, @vector.VectorDbl) -> Unit
-  scale_row(Self, @vector.VectorDbl) -> Unit
-  subcol_vec(Self, Int, Int, Int) -> @vector.VectorDbl
-  subdiagonal_vec(Self) -> @vector.VectorDbl
-  subrow_vec(Self, Int, Int, Int) -> @vector.VectorDbl
-  superdiagonal_vec(Self) -> @vector.VectorDbl
-  view(Self, index~ : Int = .., start~ : Int = .., num~ : Int = .., ViewMode) -> MatrixViewDbl
+  scale_col(Self, @vector.Vector) -> Unit
+  scale_row(Self, @vector.Vector) -> Unit
+  subcol_vec(Self, Int, Int, Int) -> @vector.Vector
+  subdiagonal_vec(Self) -> @vector.Vector
+  subrow_vec(Self, Int, Int, Int) -> @vector.Vector
+  superdiagonal_vec(Self) -> @vector.Vector
+  view(Self, index~ : Int = .., start~ : Int = .., num~ : Int = .., ViewMode) -> MatrixView
   zero_matrix(Int, Int) -> Self
 }
-impl Eq for MatrixDbl
-impl Show for MatrixDbl
+impl Eq for Matrix
+impl Show for Matrix
 
-pub(all) struct MatrixViewDbl {
-  matrix : MatrixDbl
+pub(all) struct MatrixView {
+  matrix : Matrix
   index : Int
   start : Int
   num : Int
   view_mode : ViewMode
 }
-impl MatrixViewDbl {
+impl MatrixView {
   map_inplace(Self, (Double) -> Double) -> Unit
   scale_view(Self, Double) -> Self
 }
