@@ -1,0 +1,6 @@
+{
+	"import": [
+    	"KCN-judu/linear-algebra/vector",
+		"KCN-judu/linear-algebra/basic"
+	]
+}
