@@ -28,21 +28,21 @@ test "scale" {
 }
 
 ///|
-test "add_constant & add_constant_inplace" {
+test "add_constant" {
   let m = MatrixDbl::filled_matrix(2, 3, 1.0)
   m.add_constant(2.0)
   assert_eq!(m.data, [3.0, 3.0, 3.0, 3.0, 3.0, 3.0])
 }
 
 ///|
-test "add_diagonal & add_diagonal_inplace" {
+test "add_diagonal" {
   let m = MatrixDbl::zero_matrix(2, 2)
   m.add_diagonal(2.0)
   assert_eq!(m.data, [2.0, 0.0, 0.0, 2.0])
 }
 
 ///|
-test "scale_col_inplace & scale_row_inplace" {
+test "scale_col & scale" {
   let m = MatrixDbl::filled_matrix(3, 3, 1.0)
   let v = @vector.VectorDbl::new(3)
   v.data.push(1.0)
