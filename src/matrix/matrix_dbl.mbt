@@ -57,50 +57,17 @@ pub fn MatrixDbl::map_inplace(self : MatrixDbl, f : (Double) -> Double) -> Unit 
 }
 
 ///|
-pub fn MatrixDbl::scale(self : MatrixDbl, scalar : Double) -> MatrixDbl {
-  self.map(fn(x) -> Double { x * scalar })
-}
-
-///|
-pub fn MatrixDbl::scale_inplace(self : MatrixDbl, scalar : Double) -> Unit {
+pub fn MatrixDbl::scale(self : MatrixDbl, scalar : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x * scalar })
 }
 
 ///|
-pub fn MatrixDbl::add_constant(
-  self : MatrixDbl,
-  constant : Double
-) -> MatrixDbl {
-  self.map(fn(x) -> Double { x + constant })
-}
-
-///|
-pub fn MatrixDbl::add_constant_inplace(
-  self : MatrixDbl,
-  constant : Double
-) -> Unit {
+pub fn MatrixDbl::add_constant(self : MatrixDbl, constant : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x + constant })
 }
 
 ///|
-pub fn MatrixDbl::add_diagonal(
-  self : MatrixDbl,
-  constant : Double
-) -> MatrixDbl {
-  guard self.row == self.col
-  let stride = self.stride
-  let data = self.data.copy()
-  for i = 0; i < self.row; i = i + 1 {
-    data[i * stride + i] = data[i * stride + i] + constant
-  }
-  { data, col: self.col, row: self.row, stride }
-}
-
-///|
-pub fn MatrixDbl::add_diagonal_inplace(
-  self : MatrixDbl,
-  constant : Double
-) -> Unit {
+pub fn MatrixDbl::add_diagonal(self : MatrixDbl, constant : Double) -> Unit {
   guard self.row == self.col
   let stride = self.stride
   for i = 0; i < self.row; i = i + 1 {
@@ -109,7 +76,7 @@ pub fn MatrixDbl::add_diagonal_inplace(
 }
 
 ///|
-pub fn MatrixDbl::scale_col_inplace(
+pub fn MatrixDbl::scale_col(
   self : MatrixDbl,
   scalar : @vector.VectorDbl
 ) -> Unit {
@@ -123,7 +90,7 @@ pub fn MatrixDbl::scale_col_inplace(
 }
 
 ///|
-pub fn MatrixDbl::scale_row_inplace(
+pub fn MatrixDbl::scale_row(
   self : MatrixDbl,
   scalar : @vector.VectorDbl
 ) -> Unit {
@@ -263,6 +230,12 @@ pub fn MatrixDbl::op_mul(self : MatrixDbl, other : MatrixDbl) -> MatrixDbl {
 }
 
 //init
+
+///|
+pub fn MatrixDbl::copy(self : MatrixDbl) -> MatrixDbl {
+  let data = self.data.copy()
+  { data, col: self.col, row: self.row, stride: self.stride }
+}
 
 ///|
 pub fn MatrixDbl::filled_matrix(

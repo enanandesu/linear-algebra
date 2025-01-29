@@ -9,8 +9,7 @@ pub(all) struct VectorDbl {
   stride : Int
 }
 impl VectorDbl {
-  add_constant(Self, Double) -> Self
-  add_constant_inplace(Self, Double) -> Unit
+  add_constant(Self, Double) -> Unit
   add_inplace(Self, Self) -> Unit
   at(Self, Int) -> Double
   ax_plus_by(Self, Self, Double, Double) -> Self
@@ -31,10 +30,8 @@ impl VectorDbl {
   op_get(Self, Int) -> Double
   op_mul(Self, Self) -> Self
   op_sub(Self, Self) -> Self
-  reverse(Self) -> Self
-  reverse_inplace(Self) -> Unit
-  scale(Self, Double) -> Self
-  scale_inplace(Self, Double) -> Unit
+  reverse(Self) -> Unit
+  scale(Self, Double) -> Unit
   set_all(Self, Double) -> Unit
   set_at(Self, Int, Double) -> Unit
   set_basis(Self, Int) -> Unit

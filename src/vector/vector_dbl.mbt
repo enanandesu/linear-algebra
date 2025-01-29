@@ -43,28 +43,12 @@ pub fn VectorDbl::map_inplace(self : VectorDbl, f : (Double) -> Double) -> Unit 
 }
 
 ///|
-pub fn VectorDbl::scale(self : VectorDbl, scalar : Double) -> VectorDbl {
-  self.map(fn(x) -> Double { x * scalar })
-}
-
-///|
-pub fn VectorDbl::scale_inplace(self : VectorDbl, scalar : Double) -> Unit {
+pub fn VectorDbl::scale(self : VectorDbl, scalar : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x * scalar })
 }
 
 ///|
-pub fn VectorDbl::add_constant(
-  self : VectorDbl,
-  constant : Double
-) -> VectorDbl {
-  self.map(fn(x) -> Double { x + constant })
-}
-
-///|
-pub fn VectorDbl::add_constant_inplace(
-  self : VectorDbl,
-  constant : Double
-) -> Unit {
+pub fn VectorDbl::add_constant(self : VectorDbl, constant : Double) -> Unit {
   self.map_inplace(fn(x) -> Double { x + constant })
 }
 
@@ -370,18 +354,7 @@ pub fn VectorDbl::swap_elements(self : VectorDbl, i : Int, j : Int) -> Unit {
 }
 
 ///|
-pub fn VectorDbl::reverse(self : VectorDbl) -> VectorDbl {
-  let n = self.size
-  let stride = self.stride
-  let reversed_vector = VectorDbl::new(n)
-  for i = n - 1; i >= 0; i = i - 1 {
-    reversed_vector.data.push(self.data[i * stride])
-  }
-  reversed_vector
-}
-
-///|
-pub fn VectorDbl::reverse_inplace(self : VectorDbl) -> Unit {
+pub fn VectorDbl::reverse(self : VectorDbl) -> Unit {
   let n = self.size
   let stride = self.stride
   let mut left = 0

@@ -5,6 +5,6 @@ src/basic/const.mbt: 0/0
 src/basic/define.mbt: 0/0
 src/basic/integer.mbt: 0/0
 src/basic/integral.mbt: 13/13
-src/matrix/matrix_dbl.mbt: 159/194
-src/vector/vector_dbl.mbt: 119/119
-Total: 362/397
+src/matrix/matrix_dbl.mbt: 150/186
+src/vector/vector_dbl.mbt: 111/111
+Total: 345/381

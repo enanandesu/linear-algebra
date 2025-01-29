@@ -12,12 +12,11 @@ pub(all) struct MatrixDbl {
   stride : Int
 }
 impl MatrixDbl {
-  add_constant(Self, Double) -> Self
-  add_constant_inplace(Self, Double) -> Unit
-  add_diagonal(Self, Double) -> Self
-  add_diagonal_inplace(Self, Double) -> Unit
+  add_constant(Self, Double) -> Unit
+  add_diagonal(Self, Double) -> Unit
   at(Self, Int, Int) -> Double
   col_vec(Self, Int) -> @vector.VectorDbl
+  copy(Self) -> Self
   diagonal_vec(Self) -> @vector.VectorDbl
   div_elements(Self, Self) -> Self
   div_elements_inplace(Self, Self) -> Unit
@@ -37,10 +36,9 @@ impl MatrixDbl {
   op_mul(Self, Self) -> Self
   op_sub(Self, Self) -> Self
   row_vec(Self, Int) -> @vector.VectorDbl
-  scale(Self, Double) -> Self
-  scale_col_inplace(Self, @vector.VectorDbl) -> Unit
-  scale_inplace(Self, Double) -> Unit
-  scale_row_inplace(Self, @vector.VectorDbl) -> Unit
+  scale(Self, Double) -> Unit
+  scale_col(Self, @vector.VectorDbl) -> Unit
+  scale_row(Self, @vector.VectorDbl) -> Unit
   subcol_vec(Self, Int, Int, Int) -> @vector.VectorDbl
   subdiagonal_vec(Self) -> @vector.VectorDbl
   subrow_vec(Self, Int, Int, Int) -> @vector.VectorDbl

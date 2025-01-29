@@ -21,29 +21,23 @@ test "map & map_inplace" {
 }
 
 ///|
-test "scale & scale_inplace" {
+test "scale" {
   let m = MatrixDbl::filled_matrix(2, 3, 1.0)
-  let m2 = m.scale(2.0)
-  m.scale_inplace(2.0)
-  assert_eq!(m2.data, [2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
+  m.scale(2.0)
   assert_eq!(m.data, [2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
 }
 
 ///|
 test "add_constant & add_constant_inplace" {
   let m = MatrixDbl::filled_matrix(2, 3, 1.0)
-  let m2 = m.add_constant(2.0)
-  m.add_constant_inplace(2.0)
-  assert_eq!(m2.data, [3.0, 3.0, 3.0, 3.0, 3.0, 3.0])
+  m.add_constant(2.0)
   assert_eq!(m.data, [3.0, 3.0, 3.0, 3.0, 3.0, 3.0])
 }
 
 ///|
 test "add_diagonal & add_diagonal_inplace" {
   let m = MatrixDbl::zero_matrix(2, 2)
-  let m2 = m.add_diagonal(2.0)
-  m.add_diagonal_inplace(2.0)
-  assert_eq!(m2.data, [2.0, 0.0, 0.0, 2.0])
+  m.add_diagonal(2.0)
   assert_eq!(m.data, [2.0, 0.0, 0.0, 2.0])
 }
 
@@ -54,9 +48,9 @@ test "scale_col_inplace & scale_row_inplace" {
   v.data.push(1.0)
   v.data.push(2.0)
   v.data.push(3.0)
-  m.scale_col_inplace(v)
+  m.scale_col(v)
   assert_eq!(m.data, [1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0, 3.0])
-  m.scale_row_inplace(v)
+  m.scale_row(v)
   assert_eq!(m.data, [1.0, 2.0, 3.0, 2.0, 4.0, 6.0, 3.0, 6.0, 9.0])
 }
 

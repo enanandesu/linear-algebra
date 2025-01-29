@@ -13,19 +13,18 @@ test "panic_at" {
 test "panic_add_diagonal" {
   let m = MatrixDbl::zero_matrix(2, 3)
   m.add_diagonal(2.0) |> ignore
-  m.add_diagonal_inplace(2.0) |> ignore
 }
 
 ///|
-test "panic_scale_col&row_inplace" {
+test "panic_scale_col&row" {
   let m = MatrixDbl::filled_matrix(3, 3, 1.0)
   let v = @vector.VectorDbl::new(4)
   v.data.push(1.0)
   v.data.push(2.0)
   v.data.push(3.0)
   v.data.push(4.0)
-  m.scale_col_inplace(v) |> ignore
-  m.scale_row_inplace(v) |> ignore
+  m.scale_col(v) |> ignore
+  m.scale_row(v) |> ignore
 }
 
 ///|

@@ -20,25 +20,13 @@ test "map_inplace" {
 
 test "scale" {
   let v = VectorDbl::filled_vector(2, 1.0)
-  let v2 = v.scale(2.0)
-  assert_eq!(v2.data, [2.0, 2.0])
-}
-
-test "scale_inplace" {
-  let v = VectorDbl::filled_vector(2, 1.0)
-  v.scale_inplace(2.0)
+  v.scale(2.0)
   assert_eq!(v.data, [2.0, 2.0])
 }
 
 test "add_constant" {
   let v = VectorDbl::filled_vector(2, 1.0)
-  let v2 = v.add_constant(2.0)
-  assert_eq!(v2.data, [3.0, 3.0])
-}
-
-test "add_constant_inplace" {
-  let v = VectorDbl::filled_vector(2, 1.0)
-  v.add_constant_inplace(2.0)
+  v.add_constant(2.0)
   assert_eq!(v.data, [3.0, 3.0])
 }
 
@@ -229,13 +217,6 @@ test "reverse" {
   let v = VectorDbl::new(2)
   v.data.push(1.0)
   v.data.push(2.0)
-  assert_eq!(v.reverse().data, [2.0, 1.0])
-}
-
-test "reverse_inplace" {
-  let v = VectorDbl::new(2)
-  v.data.push(1.0)
-  v.data.push(2.0)
-  v.reverse_inplace()
+  v.reverse()
   assert_eq!(v.data, [2.0, 1.0])
 }
