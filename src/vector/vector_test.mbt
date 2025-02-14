@@ -18,18 +18,21 @@ test "map_inplace" {
   assert_eq!(v.data, [2.0, 2.0])
 }
 
+///|
 test "scale" {
   let v = Vector::filled_vector(2, 1.0)
   v.scale(2.0)
   assert_eq!(v.data, [2.0, 2.0])
 }
 
+///|
 test "add_constant" {
   let v = Vector::filled_vector(2, 1.0)
   v.add_constant(2.0)
   assert_eq!(v.data, [3.0, 3.0])
 }
 
+///|
 test "ax_plus_by" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -37,6 +40,7 @@ test "ax_plus_by" {
   assert_eq!(v3.data, [8.0, 8.0])
 }
 
+///|
 test "ax_plus_by_inplace" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -44,11 +48,13 @@ test "ax_plus_by_inplace" {
   assert_eq!(v.data, [8.0, 8.0])
 }
 
+///|
 test "sum" {
   let v = Vector::filled_vector(2, 1.0)
   assert_eq!(v.sum(), 2.0)
 }
 
+///|
 test "add_inplace" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -56,6 +62,7 @@ test "add_inplace" {
   assert_eq!(v.data, [3.0, 3.0])
 }
 
+///|
 test "sub_inplace" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -63,6 +70,7 @@ test "sub_inplace" {
   assert_eq!(v.data, [-1.0, -1.0])
 }
 
+///|
 test "mul_inplace" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -70,6 +78,7 @@ test "mul_inplace" {
   assert_eq!(v.data, [2.0, 2.0])
 }
 
+///|
 test "div_inplace" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -77,6 +86,7 @@ test "div_inplace" {
   assert_eq!(v.data, [0.5, 0.5])
 }
 
+///|
 test "op_add" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -84,6 +94,7 @@ test "op_add" {
   assert_eq!(v3.data, [3.0, 3.0])
 }
 
+///|
 test "op_sub" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -91,6 +102,7 @@ test "op_sub" {
   assert_eq!(v3.data, [-1.0, -1.0])
 }
 
+///|
 test "op_mul" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -98,6 +110,7 @@ test "op_mul" {
   assert_eq!(v3.data, [2.0, 2.0])
 }
 
+///|
 test "op_div" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -105,56 +118,66 @@ test "op_div" {
   assert_eq!(v3.data, [0.5, 0.5])
 }
 
+///|
 test "at" {
   let v = Vector::filled_vector(2, 1.0)
   assert_eq!(v.at(0), 1.0)
 }
 
+///|
 test "filled_vector" {
   let v = Vector::filled_vector(2, 1.0)
   assert_eq!(v.data, [1.0, 1.0])
 }
 
+///|
 test "zero_vector" {
   let v = Vector::zero_vector(2)
   assert_eq!(v.data, [0.0, 0.0])
 }
 
+///|
 test "op_get" {
   let v = Vector::filled_vector(2, 1.0)
   assert_eq!(v[0], 1.0)
 }
 
+///|
 test "set_all" {
   let v = Vector::filled_vector(2, 1.0)
   v.set_all(2.0)
   assert_eq!(v.data, [2.0, 2.0])
 }
 
+///|
 test "set_zero" {
   let v = Vector::filled_vector(2, 1.0)
   v.set_zero()
   assert_eq!(v.data, [0.0, 0.0])
 }
 
+///|
 test "set_at" {
   let v = Vector::filled_vector(2, 1.0)
   v.set_at(0, 2.0)
   assert_eq!(v.data, [2.0, 1.0])
 }
 
+///|
 test "set_basis" {
   let v = Vector::filled_vector(2, 1.0)
   v.set_basis(0)
   assert_eq!(v.data, [1.0, 0.0])
 }
 
+///|
 test "copy" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = v.copy()
   assert_eq!(v2, v)
 }
 
+///|
 test "op_eq" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 1.0)
@@ -163,6 +186,7 @@ test "op_eq" {
   assert_false!(v3 == v)
 }
 
+///|
 test "is_null" {
   let v = Vector::filled_vector(2, 1.0)
   assert_false!(v.is_null())
@@ -170,6 +194,7 @@ test "is_null" {
   assert_true!(v3.is_null())
 }
 
+///|
 test "is_pos" {
   let v = Vector::filled_vector(2, 1.0)
   assert_true!(v.is_pos())
@@ -179,6 +204,7 @@ test "is_pos" {
   assert_false!(v3.is_pos())
 }
 
+///|
 test "is_neg" {
   let v = Vector::filled_vector(2, -1.0)
   assert_true!(v.is_neg())
@@ -188,6 +214,7 @@ test "is_neg" {
   assert_false!(v3.is_neg())
 }
 
+///|
 test "is_non_neg" {
   let v = Vector::filled_vector(2, 1.0)
   assert_true!(v.is_non_neg())
@@ -197,6 +224,7 @@ test "is_non_neg" {
   assert_true!(v3.is_non_neg())
 }
 
+///|
 test "swap" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(2, 2.0)
@@ -205,6 +233,7 @@ test "swap" {
   assert_eq!(v2.data, [1.0, 1.0])
 }
 
+///|
 test "swap_elements" {
   let v = Vector::new(2)
   v.data.push(1.0)
@@ -213,6 +242,7 @@ test "swap_elements" {
   assert_eq!(v.data, [2.0, 1.0])
 }
 
+///|
 test "reverse" {
   let v = Vector::new(2)
   v.data.push(1.0)

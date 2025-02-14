@@ -4,6 +4,7 @@ test "panic_new" {
   Vector::new(1, stride=0) |> ignore()
 }
 
+///|
 test "panic_calc" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(3, 2.0)
@@ -17,42 +18,49 @@ test "panic_calc" {
   v / v2 |> ignore()
 }
 
+///|
 test "panic_at" {
   let v = Vector::filled_vector(2, 1.0)
   v.at(2) |> ignore()
   v.at(-1) |> ignore()
 }
 
+///|
 test "panic_op_get" {
   let v = Vector::filled_vector(2, 1.0)
   v[2] |> ignore()
   v[-1] |> ignore()
 }
 
+///|
 test "panic_set_at" {
   let v = Vector::filled_vector(2, 1.0)
   v.set_at(2, 1.0) |> ignore()
   v.set_at(-1, 1.0) |> ignore()
 }
 
+///|
 test "panic_set_basis" {
   let v = Vector::filled_vector(2, 1.0)
   v.set_basis(2) |> ignore()
   v.set_basis(-1) |> ignore()
 }
 
+///|
 test "panic_op_eq" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(3, 2.0)
   v == v2 |> ignore()
 }
 
+///|
 test "panic_swap" {
   let v = Vector::filled_vector(2, 1.0)
   let v2 = Vector::filled_vector(3, 2.0)
   v.swap(v2) |> ignore()
 }
 
+///|
 test "panic_swap_elements" {
   let v = Vector::filled_vector(2, 1.0)
   v.swap_elements(0, 2) |> ignore()
