@@ -91,7 +91,7 @@ pub fn Vector::ax_plus_by_inplace(
 
 ///|
 pub fn Vector::sum(self : Vector) -> Double {
-  @luna_utils.arr_sum_dbl(self.data)
+  @luna_utils.arr_sum(self.data)
 }
 
 ///|

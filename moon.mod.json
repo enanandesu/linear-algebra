@@ -1,8 +1,8 @@
 {
   "name": "KCN-judu/linear-algebra",
-  "version": "0.0.1-alpha-2",
+  "version": "0.0.1-alpha-3",
   "deps": {
-    "KCN-judu/luna-utils": "0.0.1-alpha-2"
+    "KCN-judu/luna-utils": "0.0.1-alpha-5"
   },
   "readme": "README.md",
   "repository": "https://github.com/Luna-Flow/linear-algebra",

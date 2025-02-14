@@ -295,7 +295,7 @@ pub fn Matrix::norm_1(self : Matrix) -> Double {
     for i = 0; i < self.row; i = i + 1 {
       sum = sum + self.data[i * self.stride + j]
     }
-    max_sum = @luna_utils.max(max_sum, sum)
+    max_sum = @math.maximum(max_sum, sum)
   }
   max_sum
 }
@@ -325,7 +325,7 @@ pub fn Matrix::col_vec(self : Matrix, col : Int) -> @vector.Vector {
 
 ///|
 pub fn Matrix::diagonal_vec(self : Matrix) -> @vector.Vector {
-  let short_side = @luna_utils.min(self.row, self.col)
+  let short_side = @math.minimum(self.row, self.col)
   let vec = @vector.Vector::new(short_side)
   for i = 0; i < short_side; i = i + 1 {
     vec.data.push(self.data[i * self.stride + i])
@@ -335,7 +335,7 @@ pub fn Matrix::diagonal_vec(self : Matrix) -> @vector.Vector {
 
 ///|
 pub fn Matrix::subdiagonal_vec(self : Matrix) -> @vector.Vector {
-  let short_side = @luna_utils.min(self.row, self.col)
+  let short_side = @math.minimum(self.row, self.col)
   let vec = @vector.Vector::new(short_side - 1)
   for i = 0; i < short_side - 1; i = i + 1 {
     vec.data.push(self.data[(i + 1) * self.stride + i])
@@ -345,7 +345,7 @@ pub fn Matrix::subdiagonal_vec(self : Matrix) -> @vector.Vector {
 
 ///|
 pub fn Matrix::superdiagonal_vec(self : Matrix) -> @vector.Vector {
-  let short_side = @luna_utils.min(self.row, self.col)
+  let short_side = @math.minimum(self.row, self.col)
   let vec = @vector.Vector::new(short_side - 1)
   for i = 0; i < short_side - 1; i = i + 1 {
     vec.data.push(self.data[i * self.stride + (i + 1)])
@@ -471,7 +471,7 @@ pub fn MatrixView::map_inplace(
         )
       }
     ViewMode::Diagonal => {
-      let short_side = @luna_utils.min(self.matrix.row, self.matrix.col)
+      let short_side = @math.minimum(self.matrix.row, self.matrix.col)
       for i = 0; i < short_side; i = i + 1 {
         self.matrix.data[i * self.matrix.stride + i] = f(
           self.matrix.data[i * self.matrix.stride + i],
@@ -479,7 +479,7 @@ pub fn MatrixView::map_inplace(
       }
     }
     ViewMode::SubDiagonal => {
-      let short_side = @luna_utils.min(self.matrix.row, self.matrix.col)
+      let short_side = @math.minimum(self.matrix.row, self.matrix.col)
       for i = 0; i < short_side - 1; i = i + 1 {
         self.matrix.data[(i + 1) * self.matrix.stride + i] = f(
           self.matrix.data[(i + 1) * self.matrix.stride + i],
@@ -487,7 +487,7 @@ pub fn MatrixView::map_inplace(
       }
     }
     ViewMode::SuperDiagonal => {
-      let short_side = @luna_utils.min(self.matrix.row, self.matrix.col)
+      let short_side = @math.minimum(self.matrix.row, self.matrix.col)
       for i = 0; i < short_side - 1; i = i + 1 {
         self.matrix.data[i * self.matrix.stride + (i + 1)] = f(
           self.matrix.data[i * self.matrix.stride + (i + 1)],
