@@ -10,8 +10,7 @@ struct Matrix[T] {
 
 ///|
 struct Indexed[T] {
-  index : (Int) -> Int
-  src : IArray[T]
+  index : (Int) -> T
 }
 
 ///|
@@ -65,12 +64,12 @@ pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
 
 ///|
 pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Indexed[T] {
-  { index: fn { c => c + self.col * row }, src: self.data }
+  { index: fn { c => self.data[c + self.col * row] } }
 }
 
 ///|
 pub fn op_get[T](self : Indexed[T], col : Int) -> T {
-  self.src[(self.index)(col)]
+  (self.index)(col)
 }
 
 ///|
@@ -163,6 +162,11 @@ pub fn null[T : Compare + @internal.Zero](self : Matrix[T]) -> Bool {
   } else {
     true
   }
+}
+
+///|
+pub fn adjoint[T : @internal.Conjugate](self : Matrix[T]) -> Matrix[T] {
+  self.map(T::conjugate)
 }
 
 ///|
