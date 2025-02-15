@@ -1,1 +1,8 @@
-{}
+{
+    "import": [
+        {
+            "path": "KCN-judu/linear-algebra/internal",
+            "alias": "internal"
+        }
+    ]
+}

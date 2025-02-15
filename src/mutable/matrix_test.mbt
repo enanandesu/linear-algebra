@@ -44,7 +44,7 @@ test "add_diagonal" {
 ///|
 test "scale_col & scale" {
   let m = Matrix::filled_matrix(3, 3, 1.0)
-  let v = @vector.Vector::new(3)
+  let v = Vector::new(3)
   v.data.push(1.0)
   v.data.push(2.0)
   v.data.push(3.0)

@@ -87,7 +87,10 @@ test {
 }
 
 ///|
-pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub fn op_mul[T : @internal.Mul + @internal.Add](
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   let row = self.row
   let col = other.col
   let inner = self.col
@@ -105,7 +108,10 @@ pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub fn op_add[T : @internal.Add](
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
   let mut i = 0
@@ -118,27 +124,30 @@ pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn op_neg[T : Neg](self : Matrix[T]) -> Matrix[T] {
+pub fn op_neg[T : @internal.Neg](self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 
 ///|
-pub fn op_sub[T : Add + Neg](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub fn op_sub[T : @internal.Add + @internal.Neg](
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   self + -other
 }
 
 ///|
-pub fn scale[T : Mul](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn scale[T : @internal.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x * cst })
 }
 
 ///|
-pub fn add_constant[T : Add](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn add_constant[T : @internal.Add](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x + cst })
 }
 
 ///|
-pub fn identity[T : One + Zero](size : Int) -> Matrix[T] {
+pub fn identity[T : @internal.One + @internal.Zero](size : Int) -> Matrix[T] {
   Matrix::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -146,7 +155,7 @@ pub fn identity[T : One + Zero](size : Int) -> Matrix[T] {
 }
 
 ///|
-pub fn null[T : Compare + Zero](self : Matrix[T]) -> Bool {
+pub fn null[T : Compare + @internal.Zero](self : Matrix[T]) -> Bool {
   for x in self.data {
     if x != T::zero() {
       break false
