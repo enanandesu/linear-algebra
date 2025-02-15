@@ -1,0 +1,34 @@
+package KCN-judu/linear-algebra/immut
+
+alias @KCN-judu/linear-algebra/internal as @internal
+
+// Values
+fn identity[T : @internal.One + @internal.Zero](Int) -> Matrix[T]
+
+// Types and methods
+type Indexed[T]
+impl Indexed {
+  op_get[T](Self[T], Int) -> T
+}
+
+type Matrix[T]
+impl Matrix {
+  add_constant[T : @internal.Add](Self[T], T) -> Self[T]
+  from_2d_array[T](Array[Array[T]]) -> Self[T]
+  make[T](Int, Int, (Int, Int) -> T) -> Self[T]
+  map[T, U](Self[T], (T) -> U) -> Self[U]
+  new[T](Int, Int, T) -> Self[T]
+  null[T : Compare + @internal.Zero](Self[T]) -> Bool
+  op_add[T : @internal.Add](Self[T], Self[T]) -> Self[T]
+  op_get[T](Self[T], Int) -> Indexed[T]
+  op_mul[T : @internal.Mul + @internal.Add](Self[T], Self[T]) -> Self[T]
+  op_neg[T : @internal.Neg](Self[T]) -> Self[T]
+  op_sub[T : @internal.Add + @internal.Neg](Self[T], Self[T]) -> Self[T]
+  scale[T : @internal.Mul](Self[T], T) -> Self[T]
+}
+impl[T : Eq] Eq for Matrix[T]
+
+// Type aliases
+
+// Traits
+

@@ -76,7 +76,7 @@ pub fn Matrix::add_diagonal(self : Matrix, constant : Double) -> Unit {
 }
 
 ///|
-pub fn Matrix::scale_col(self : Matrix, scalar : @vector.Vector) -> Unit {
+pub fn Matrix::scale_col(self : Matrix, scalar : Vector) -> Unit {
   guard self.col == scalar.size
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
@@ -87,7 +87,7 @@ pub fn Matrix::scale_col(self : Matrix, scalar : @vector.Vector) -> Unit {
 }
 
 ///|
-pub fn Matrix::scale_row(self : Matrix, scalar : @vector.Vector) -> Unit {
+pub fn Matrix::scale_row(self : Matrix, scalar : Vector) -> Unit {
   guard self.row == scalar.size
   for i = 0; i < self.row; i = i + 1 {
     for j = 0; j < self.col; j = j + 1 {
@@ -302,10 +302,10 @@ pub fn Matrix::norm_1(self : Matrix) -> Double {
 
 //vectorize
 ///|
-pub fn Matrix::row_vec(self : Matrix, row : Int) -> @vector.Vector {
+pub fn Matrix::row_vec(self : Matrix, row : Int) -> Vector {
   guard row < self.row && row >= 0
   let size_vec = self.col
-  let vec = @vector.Vector::new(size_vec)
+  let vec = Vector::new(size_vec)
   for i = 0; i < size_vec; i = i + 1 {
     vec.data.push(self.data[row * self.stride + i])
   }
@@ -313,10 +313,10 @@ pub fn Matrix::row_vec(self : Matrix, row : Int) -> @vector.Vector {
 }
 
 ///|
-pub fn Matrix::col_vec(self : Matrix, col : Int) -> @vector.Vector {
+pub fn Matrix::col_vec(self : Matrix, col : Int) -> Vector {
   guard col < self.col && col >= 0
   let size_vec = self.row
-  let vec = @vector.Vector::new(size_vec)
+  let vec = Vector::new(size_vec)
   for i = 0; i < size_vec; i = i + 1 {
     vec.data.push(self.data[i * self.stride + col])
   }
@@ -324,9 +324,9 @@ pub fn Matrix::col_vec(self : Matrix, col : Int) -> @vector.Vector {
 }
 
 ///|
-pub fn Matrix::diagonal_vec(self : Matrix) -> @vector.Vector {
+pub fn Matrix::diagonal_vec(self : Matrix) -> Vector {
   let short_side = @math.minimum(self.row, self.col)
-  let vec = @vector.Vector::new(short_side)
+  let vec = Vector::new(short_side)
   for i = 0; i < short_side; i = i + 1 {
     vec.data.push(self.data[i * self.stride + i])
   }
@@ -334,9 +334,9 @@ pub fn Matrix::diagonal_vec(self : Matrix) -> @vector.Vector {
 }
 
 ///|
-pub fn Matrix::subdiagonal_vec(self : Matrix) -> @vector.Vector {
+pub fn Matrix::subdiagonal_vec(self : Matrix) -> Vector {
   let short_side = @math.minimum(self.row, self.col)
-  let vec = @vector.Vector::new(short_side - 1)
+  let vec = Vector::new(short_side - 1)
   for i = 0; i < short_side - 1; i = i + 1 {
     vec.data.push(self.data[(i + 1) * self.stride + i])
   }
@@ -344,9 +344,9 @@ pub fn Matrix::subdiagonal_vec(self : Matrix) -> @vector.Vector {
 }
 
 ///|
-pub fn Matrix::superdiagonal_vec(self : Matrix) -> @vector.Vector {
+pub fn Matrix::superdiagonal_vec(self : Matrix) -> Vector {
   let short_side = @math.minimum(self.row, self.col)
-  let vec = @vector.Vector::new(short_side - 1)
+  let vec = Vector::new(short_side - 1)
   for i = 0; i < short_side - 1; i = i + 1 {
     vec.data.push(self.data[i * self.stride + (i + 1)])
   }
@@ -359,10 +359,10 @@ pub fn Matrix::subrow_vec(
   row : Int,
   start : Int,
   num : Int
-) -> @vector.Vector {
+) -> Vector {
   guard row < self.row && row >= 0
   guard start >= 0 && num > 0 && start + num <= self.col
-  let vec = @vector.Vector::new(num)
+  let vec = Vector::new(num)
   for i = 0; i < num; i = i + 1 {
     vec.data.push(self.data[row * self.stride + start + i])
   }
@@ -375,10 +375,10 @@ pub fn Matrix::subcol_vec(
   col : Int,
   start : Int,
   num : Int
-) -> @vector.Vector {
+) -> Vector {
   guard col < self.col && col >= 0
   guard start >= 0 && num > 0 && start + num <= self.row
-  let vec = @vector.Vector::new(num)
+  let vec = Vector::new(num)
   for i = 0; i < num; i = i + 1 {
     vec.data.push(self.data[(start + i) * self.stride + col])
   }
@@ -513,4 +513,73 @@ pub fn MatrixView::map_inplace(
 pub fn MatrixView::scale_view(self : MatrixView, scalar : Double) -> MatrixView {
   self.map_inplace(fn(x) -> Double { x * scalar })
   self
+}
+
+///|
+test "panic_new" {
+  Vector::new(0) |> ignore()
+  Vector::new(1, stride=0) |> ignore()
+}
+
+///|
+test "panic_calc" {
+  let v = Vector::filled_vector(2, 1.0)
+  let v2 = Vector::filled_vector(3, 2.0)
+  v.add_inplace(v2) |> ignore()
+  v.sub_inplace(v2) |> ignore()
+  v.mul_inplace(v2) |> ignore()
+  v.div_inplace(v2) |> ignore()
+  v + v2 |> ignore()
+  v - v2 |> ignore()
+  v * v2 |> ignore()
+  v / v2 |> ignore()
+}
+
+///|
+test "panic_at" {
+  let v = Vector::filled_vector(2, 1.0)
+  v.at(2) |> ignore()
+  v.at(-1) |> ignore()
+}
+
+///|
+test "panic_op_get" {
+  let v = Vector::filled_vector(2, 1.0)
+  v[2] |> ignore()
+  v[-1] |> ignore()
+}
+
+///|
+test "panic_set_at" {
+  let v = Vector::filled_vector(2, 1.0)
+  v.set_at(2, 1.0) |> ignore()
+  v.set_at(-1, 1.0) |> ignore()
+}
+
+///|
+test "panic_set_basis" {
+  let v = Vector::filled_vector(2, 1.0)
+  v.set_basis(2) |> ignore()
+  v.set_basis(-1) |> ignore()
+}
+
+///|
+test "panic_op_eq" {
+  let v = Vector::filled_vector(2, 1.0)
+  let v2 = Vector::filled_vector(3, 2.0)
+  v == v2 |> ignore()
+}
+
+///|
+test "panic_swap" {
+  let v = Vector::filled_vector(2, 1.0)
+  let v2 = Vector::filled_vector(3, 2.0)
+  v.swap(v2) |> ignore()
+}
+
+///|
+test "panic_swap_elements" {
+  let v = Vector::filled_vector(2, 1.0)
+  v.swap_elements(0, 2) |> ignore()
+  v.swap_elements(-1, 0) |> ignore()
 }
