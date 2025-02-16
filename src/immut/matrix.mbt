@@ -73,6 +73,16 @@ pub fn op_get[T](self : Indexed[T], col : Int) -> T {
 }
 
 ///|
+pub fn Matrix::set[T](
+  self : Matrix[T],
+  i : Int,
+  j : Int,
+  elem : T
+) -> Matrix[T] {
+  { row: self.row, col: self.col, data: self.data.set(i * self.col + j, elem) }
+}
+
+///|
 test {
   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
   inspect!(
@@ -113,13 +123,11 @@ pub fn op_add[T : @internal.Add](
 ) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
-  let mut i = 0
-  let data = self.data.map(fn(x) {
-    let r = x + other.data[i]
-    i += 1
-    r
-  })
-  { data, row: self.row, col: self.col }
+  {
+    data: array_zip_with(self.data, other.data, T::op_add),
+    row: self.row,
+    col: self.col,
+  }
 }
 
 ///|
@@ -169,6 +177,33 @@ pub fn adjoint[T : @internal.Conjugate](self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
 
+///| Compute the transpose of a matrix
+pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
+  Matrix::make(self.col, self.row, fn(i, j) { self[j][i] })
+}
+
+///| Compute the determinant of a matrix
+pub fn determinant[T : @internal.Mul + @internal.Add + @internal.One + @internal.Neg + @internal.Zero](
+  self : Matrix[T]
+) -> T {
+  let n = self.row
+  guard n == self.col
+  fn go {
+    f, 1 => f(0, 0)
+    f, n => {
+      let mut det = T::zero()
+      for i in 0..<n {
+        let sub_view = fn { j, k => f(j + 1, if k < i { k } else { k + 1 }) }
+        let sign = if i % 2 == 0 { T::one() } else { -T::one() }
+        det = det + sign * f(0, i) * go(sub_view, n - 1)
+      }
+      det
+    }
+  }
+
+  go(fn { i, j => self[i][j] }, n)
+}
+
 ///|
 test {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
@@ -196,4 +231,32 @@ test {
       #||-3, -4|
     ,
   )
+  inspect!(
+    m1.scale(10),
+    content=
+      #||10, 20|
+      #||30, 40|
+    ,
+  )
+  let m5 : Matrix[Int] = identity(5)
+  inspect!(
+    m5,
+    content=
+      #||1, 0, 0, 0, 0|
+      #||0, 1, 0, 0, 0|
+      #||0, 0, 1, 0, 0|
+      #||0, 0, 0, 1, 0|
+      #||0, 0, 0, 0, 1|
+    ,
+  )
+  inspect!(
+    m4.add_constant(10),
+    content=
+      #||12, 12|
+      #||13, 15|
+    ,
+  )
+  inspect!(m4.determinant(), content="4")
+  inspect!(m1.determinant(), content="-2")
+  inspect!(m5.determinant(), content="1")
 }
