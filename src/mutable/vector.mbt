@@ -2,7 +2,7 @@
 type Vector[A] Array[A]
 
 ///|
-impl[T : Show] Show for Vector[T] with to_string(self) {
+pub impl[T : Show] Show for Vector[T] with to_string(self) {
   let mut re = ""
   for i = 0; i < self.length(); i = i + 1 {
     re = re + self[i].to_string()
@@ -14,7 +14,7 @@ impl[T : Show] Show for Vector[T] with to_string(self) {
 }
 
 ///|
-impl[T : Show] Show for Vector[T] with output(self, l) {
+pub impl[T : Show] Show for Vector[T] with output(self, l) {
   l.write_string(self.to_string())
 }
 
@@ -165,11 +165,11 @@ pub fn tensor_product[T : @internal.Mul](
 }
 
 ///|
-pub fn Vector::add_const[T : @internal.Add](
+pub fn Vector::add_constant[T : @internal.Add](
   self : Vector[T],
-  constant : T
+  cst : T
 ) -> Vector[T] {
-  self.map(fn(x) -> T { x + constant })
+  self.map(fn(x) -> T { x + cst })
 }
 
 ///|
