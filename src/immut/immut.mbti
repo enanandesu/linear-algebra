@@ -52,6 +52,25 @@ impl Vector {
   zip_with[T, U, V](Self[T], Self[U], (T, U) -> V) -> Self[V]
 }
 
+type Vector[T]
+impl Vector {
+  from_array[T](Array[T]) -> Self[T]
+  left_scale[T : @internal.Mul](Self[T], T) -> Self[T]
+  length[T](Self[T]) -> Int
+  lerp[T : @internal.One + @internal.Mul + @internal.Add + @internal.Neg](Self[T], Self[T], T) -> Self[T]
+  make[T](Int, T) -> Self[T]
+  makei[T](Int, (Int) -> T) -> Self[T]
+  map[T, U](Self[T], (T) -> U) -> Self[U]
+  op_add[T : @internal.Add](Self[T], Self[T]) -> Self[T]
+  op_get[T](Self[T], Int) -> T
+  op_mul[T : @internal.Mul](Self[T], Self[T]) -> Self[T]
+  right_scale[T : @internal.Mul](Self[T], T) -> Self[T]
+  scaled_matrix[T : @internal.Mul + @internal.Zero](Self[T]) -> Matrix[T]
+  set[T](Self[T], Int, T) -> Self[T]
+  tensor_product[T : @internal.Mul](Self[T], Self[T]) -> Matrix[T]
+  zip_with[T, U, V](Self[T], Self[U], (T, U) -> V) -> Self[V]
+}
+
 // Type aliases
 
 // Traits
