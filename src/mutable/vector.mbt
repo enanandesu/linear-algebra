@@ -2,9 +2,7 @@
 type Vector[A] Array[A]
 
 ///|
-
 pub impl[T : Show] Show for Vector[T] with to_string(self) {
-
   let mut re = ""
   for i = 0; i < self.length(); i = i + 1 {
     re = re + self[i].to_string()
@@ -13,7 +11,6 @@ pub impl[T : Show] Show for Vector[T] with to_string(self) {
     }
   }
   "|\{re}|"
-
 }
 
 ///|
@@ -184,4 +181,3 @@ pub fn lin_comb[T : @internal.Add + @internal.Mul](
 ) -> Vector[T] {
   self.left_scale(scalar_a) + other.left_scale(scalar_b)
 }
-
