@@ -3,21 +3,41 @@ package KCN-judu/linear-algebra/mutable
 alias @KCN-judu/linear-algebra/internal as @internal
 
 // Values
+fn lin_comb[T : @internal.Add + @internal.Mul](T, Vector[T], T, Vector[T]) -> Vector[T]
 
 // Types and methods
+
+type Matrix[T]
+impl Matrix {
+  make[A](Int, Int, (Int, Int) -> A) -> Self[A]
+}
+impl[T : Eq] Eq for Matrix[T]
+
 type Vector[A]
 impl Vector {
+  add_const[T : @internal.Add](Self[T], T) -> Self[T]
+  copy[A](Self[A]) -> Self[A]
+  from_array[T](Array[T]) -> Self[T]
   left_scale[A : @internal.Mul](Self[A], A) -> Self[A]
   left_scale_inplace[A : @internal.Mul](Self[A], A) -> Unit
   length[A](Self[A]) -> Int
+  lerp[T : @internal.One + @internal.Mul + @internal.Add + @internal.Neg](Self[T], Self[T], T) -> Self[T]
+
   make[A](Int, A) -> Self[A]
   makei[A](Int, (Int) -> A) -> Self[A]
   map[A, B](Self[A], (A) -> B) -> Self[B]
   map_inplace[A](Self[A], (A) -> A) -> Unit
+
+  op_add[T : @internal.Add](Self[T], Self[T]) -> Self[T]
   op_get[A](Self[A], Int) -> A
+  op_mul[T : @internal.Mul](Self[T], Self[T]) -> Self[T]
+  op_neg[T : @internal.Neg](Self[T]) -> Self[T]
   op_set[A](Self[A], Int, A) -> Unit
   right_scale[A : @internal.Mul](A, Self[A]) -> Self[A]
   right_scale_inplace[A : @internal.Mul](A, Self[A]) -> Unit
+  scaled_matrix[T : @internal.Mul + @internal.Zero](Self[T]) -> Matrix[T]
+  tensor_product[T : @internal.Mul](Self[T], Self[T]) -> Matrix[T]
+
   zip_with[A, U, V](Self[A], Self[U], (A, U) -> V) -> Self[V]
 }
 

@@ -14,7 +14,7 @@ struct Indexed[T] {
 }
 
 ///|
-impl[T : Show] Show for Matrix[T] with to_string(s) {
+pub impl[T : Show] Show for Matrix[T] with to_string(s) {
   let mut res = ""
   for i = 0; i < s.row; i = i + 1 {
     res = res + "|"
@@ -33,7 +33,7 @@ impl[T : Show] Show for Matrix[T] with to_string(s) {
 }
 
 ///|
-impl[T : Show] Show for Matrix[T] with output(s, l) {
+pub impl[T : Show] Show for Matrix[T] with output(s, l) {
   l.write_string(s.to_string())
 }
 
@@ -58,8 +58,7 @@ pub fn Matrix::new[T](row : Int, col : Int, elem : T) -> Matrix[T] {
 
 ///|
 pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
-  let data = Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
-  data
+  Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
 }
 
 ///|
