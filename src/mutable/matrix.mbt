@@ -1,11 +1,8 @@
 ///|
-typealias IArray[T] = @immut/array.T[T]
-
-///|
 struct Matrix[T] {
   row : Int
   col : Int
-  data : IArray[T]
+  data : Array[T]
 } derive(Eq)
 
 ///|
@@ -43,12 +40,8 @@ pub fn map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
-pub fn Matrix::make[T](row : Int, col : Int, f : (Int, Int) -> T) -> Matrix[T] {
-  {
-    row,
-    col,
-    data: @immut/array.makei(row * col, fn(i) { f(i / col, i % col) }),
-  }
+pub fn Matrix::make[A](row : Int, col : Int, f : (Int, Int) -> A) -> Matrix[A] {
+  { row, col, data: Array::makei(row * col, fn(i) { f(i / col, i % col) }) }
 }
 
 ///|
@@ -72,26 +65,8 @@ pub fn op_get[T](self : Indexed[T], col : Int) -> T {
 }
 
 ///|
-pub fn Matrix::set[T](
-  self : Matrix[T],
-  i : Int,
-  j : Int,
-  elem : T
-) -> Matrix[T] {
-  { row: self.row, col: self.col, data: self.data.set(i * self.col + j, elem) }
-}
-
-///|
-test {
-  let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-  inspect!(
-    m,
-    content=
-      #||2, 3, 4|
-      #||1, 2, 3|
-    ,
-  )
-  inspect!(m[0][1], content="3")
+pub fn Matrix::set[T](self : Matrix[T], i : Int, j : Int, elem : T) -> Unit {
+  self.data[i * self.col + j] = elem
 }
 
 ///|
@@ -103,7 +78,7 @@ pub fn op_mul[T : @internal.Mul + @internal.Add](
   let col = other.col
   let inner = self.col
   guard inner == other.row
-  let data = @immut/array.makei(row * col, fn(i) {
+  let data = Array::makei(row * col, fn(i) {
     let r = i / col
     let c = i % col
     let mut sum = self[r][0] * other[0][c]
@@ -176,86 +151,7 @@ pub fn adjoint[T : @internal.Conjugate](self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
 
-///| Compute the transpose of a matrix
+///|
 pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
   Matrix::make(self.col, self.row, fn(i, j) { self[j][i] })
-}
-
-///| Compute the determinant of a matrix
-pub fn determinant[T : @internal.Mul + @internal.Add + @internal.One + @internal.Neg + @internal.Zero](
-  self : Matrix[T]
-) -> T {
-  let n = self.row
-  guard n == self.col
-  fn go {
-    f, 1 => f(0, 0)
-    f, n => {
-      let mut det = T::zero()
-      for i in 0..<n {
-        let sub_view = fn { j, k => f(j + 1, if k < i { k } else { k + 1 }) }
-        let sign = if i % 2 == 0 { T::one() } else { -T::one() }
-        det = det + sign * f(0, i) * go(sub_view, n - 1)
-      }
-      det
-    }
-  }
-
-  go(fn { i, j => self[i][j] }, n)
-}
-
-///|
-test {
-  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-  let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
-  let m3 = m1 * m2
-  let m4 = m1 + m2
-  inspect!(
-    m3,
-    content=
-      #||1, 2|
-      #||3, 4|
-    ,
-  )
-  inspect!(
-    m4,
-    content=
-      #||2, 2|
-      #||3, 5|
-    ,
-  )
-  inspect!(
-    -m1,
-    content=
-      #||-1, -2|
-      #||-3, -4|
-    ,
-  )
-  inspect!(
-    m1.scale(10),
-    content=
-      #||10, 20|
-      #||30, 40|
-    ,
-  )
-  let m5 : Matrix[Int] = identity(5)
-  inspect!(
-    m5,
-    content=
-      #||1, 0, 0, 0, 0|
-      #||0, 1, 0, 0, 0|
-      #||0, 0, 1, 0, 0|
-      #||0, 0, 0, 1, 0|
-      #||0, 0, 0, 0, 1|
-    ,
-  )
-  inspect!(
-    m4.add_constant(10),
-    content=
-      #||12, 12|
-      #||13, 15|
-    ,
-  )
-  inspect!(m4.determinant(), content="4")
-  inspect!(m1.determinant(), content="-2")
-  inspect!(m5.determinant(), content="1")
 }
