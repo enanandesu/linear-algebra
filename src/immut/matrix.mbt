@@ -24,29 +24,11 @@ struct Matrix[T] {
 /// that takes an `integer` and returns a value of type `T`.
 /// 
 struct Indexed[T] {
-  index : (Int) -> Int
-  src : IArray[T]
+  index : (Int) -> T
 }
 
 ///|
-<<<<<<< Updated upstream
-impl[T : Show] Show for Matrix[T] with to_string(s) {
-=======
-/// Implement the Show trait for the Matrix type.
-/// This allows us to print the matrix in a readable format.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-/// inspect!(m, content=
-///   #||2, 3, 4|
-///   #||1, 2, 3|
-///   ,
-/// )
-/// ```
-/// 
 pub impl[T : Show] Show for Matrix[T] with to_string(s) {
->>>>>>> Stashed changes
   let mut res = ""
   for i = 0; i < s.row; i = i + 1 {
     res = res + "|"
@@ -65,13 +47,7 @@ pub impl[T : Show] Show for Matrix[T] with to_string(s) {
 }
 
 ///|
-<<<<<<< Updated upstream
-impl[T : Show] Show for Matrix[T] with output(s, l) {
-=======
-/// Allow the `Matrix` type to be printed to the terminal.
-/// 
 pub impl[T : Show] Show for Matrix[T] with output(s, l) {
->>>>>>> Stashed changes
   l.write_string(s.to_string())
 }
 
@@ -155,8 +131,7 @@ pub fn Matrix::new[T](row : Int, col : Int, elem : T) -> Matrix[T] {
 /// ```
 /// 
 pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
-  let data = Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
-  data
+  Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
 }
 
 ///|
@@ -174,7 +149,7 @@ pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
 /// ```
 /// 
 pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Indexed[T] {
-  { index: fn { c => c + self.col * row }, src: self.data }
+  { index: fn { c => self.data[c + self.col * row] } }
 }
 
 ///|
@@ -192,30 +167,10 @@ pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Indexed[T] {
 /// ```
 /// 
 pub fn op_get[T](self : Indexed[T], col : Int) -> T {
-<<<<<<< Updated upstream
-  self.src[(self.index)(col)]
-=======
   (self.index)(col)
 }
 
 ///|
-/// Change the element of the matrix.
-/// 
-/// **Parameters**
-/// - `self`: The matrix you want to change the element of.
-/// - `i`: The row index to change the element of.
-/// - `j`: The column index to change the element of.
-/// - `elem`: The new element to change the matrix to.
-/// 
-/// **Example**
-/// ```moonbit
-/// let mut m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-/// m[0][1] = 10
-/// inspect!(m, content=
-///   #||2, 10, 4|
-///   #||1, 2, 3|
-/// )
-/// ```
 pub fn Matrix::set[T](
   self : Matrix[T],
   i : Int,
@@ -223,7 +178,6 @@ pub fn Matrix::set[T](
   elem : T
 ) -> Matrix[T] {
   { row: self.row, col: self.col, data: self.data.set(i * self.col + j, elem) }
->>>>>>> Stashed changes
 }
 
 ///|
@@ -240,25 +194,7 @@ test {
 }
 
 ///|
-/// Dot product of two matrices.
-/// Just use the `*` operator to dot two matrices together.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to dot.
-/// - `other`: The matrix to dot with.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
-/// let m3 = m1 * m2
-/// inspect!(m3, content=
-///   #||1, 2|
-///   #||3, 4|
-/// )
-/// ```
-/// 
-pub fn op_mul[T : @internal.Mul + @internal.Add](
+pub fn op_mul[T : @luna_generic.Mul + @luna_generic.Add](
   self : Matrix[T],
   other : Matrix[T]
 ) -> Matrix[T] {
@@ -279,76 +215,26 @@ pub fn op_mul[T : @internal.Mul + @internal.Add](
 }
 
 ///|
-/// Add two matrices together.
-/// Just use the `+` operator to add two matrices together.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to add.
-/// - `other`: The matrix to add with.
-///
-/// **Example**
-/// ```moonbit
-/// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
-/// let m3 = m1 + m2
-/// ```
-/// 
-pub fn op_add[T : @internal.Add](
+pub fn op_add[T : @luna_generic.Add](
   self : Matrix[T],
   other : Matrix[T]
 ) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
-  let mut i = 0
-  let data = self.data.map(fn(x) {
-    let r = x + other.data[i]
-    i += 1
-    r
-  })
-  { data, row: self.row, col: self.col }
+  {
+    data: array_zip_with(self.data, other.data, T::op_add),
+    row: self.row,
+    col: self.col,
+  }
 }
 
 ///|
-/// Negate the matrix.
-/// Just use the `-` operator to negate the matrix.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to negate.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = -m
-/// inspect!(m2, content=
-///   #||-1, -2|
-///   #||-3, -4|
-/// )
-/// ```
-/// 
-pub fn op_neg[T : @internal.Neg](self : Matrix[T]) -> Matrix[T] {
+pub fn op_neg[T : @luna_generic.Neg](self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 
 ///|
-/// Subtract two matrices.
-/// Just use the `-` operator to subtract two matrices.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to subtract.
-/// - `other`: The matrix to subtract with.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
-/// let m3 = m1 - m2
-/// inspect!(m3, content=
-///   #||0, 2|
-///   #||3, 3|
-/// )
-/// ```
-/// 
-pub fn op_sub[T : @internal.Add + @internal.Neg](
+pub fn op_sub[T : @luna_generic.Add + @luna_generic.Neg](
   self : Matrix[T],
   other : Matrix[T]
 ) -> Matrix[T] {
@@ -356,63 +242,22 @@ pub fn op_sub[T : @internal.Add + @internal.Neg](
 }
 
 ///|
-/// Scale the matrix by a constant.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to scale.
-/// - `cst`: The constant to scale the matrix by.
-///
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = m * 10
-/// inspect!(m2, content=
-///   #||10, 20|
-///   #||30, 40|
-/// )
-/// ```
-/// 
-pub fn scale[T : @internal.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn scale[T : @luna_generic.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x * cst })
 }
 
 ///|
-/// Add a constant to the matrix.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to add the constant to.
-/// - `cst`: The constant to add to the matrix.
-///
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = m + 10
-/// inspect!(m2, content=
-///   #||11, 12|
-///   #||13, 14|
-/// )
-/// ```
-/// 
-pub fn add_constant[T : @internal.Add](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn add_constant[T : @luna_generic.Add](
+  self : Matrix[T],
+  cst : T
+) -> Matrix[T] {
   self.map(fn(x) { x + cst })
 }
 
 ///|
-/// Create an identity matrix.
-/// 
-/// **Parameters**
-/// - `size`: The size of the identity matrix.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::identity(2)
-/// inspect!(m, content=
-///   #||1, 0|
-///   #||0, 1|
-/// )
-/// ```
-/// 
-pub fn identity[T : @internal.One + @internal.Zero](size : Int) -> Matrix[T] {
+pub fn identity[T : @luna_generic.One + @luna_generic.Zero](
+  size : Int
+) -> Matrix[T] {
   Matrix::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -420,20 +265,7 @@ pub fn identity[T : @internal.One + @internal.Zero](size : Int) -> Matrix[T] {
 }
 
 ///|
-/// Check if the matrix is null.
-/// 
-/// **Parameters**
-/// - `self`: The matrix you want to check if it is null.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = Matrix::from_2d_array([[0, 0], [0, 0]])
-/// inspect!(m1.null(), content="false")
-/// inspect!(m2.null(), content="true")
-/// ```
-/// 
-pub fn null[T : Compare + @internal.Zero](self : Matrix[T]) -> Bool {
+pub fn null[T : Compare + @luna_generic.Zero](self : Matrix[T]) -> Bool {
   for x in self.data {
     if x != T::zero() {
       break false
@@ -444,49 +276,17 @@ pub fn null[T : Compare + @internal.Zero](self : Matrix[T]) -> Bool {
 }
 
 ///|
-<<<<<<< Updated upstream
-=======
-/// Compute the adjoint of a matrix.
-/// 
-/// **Parameters**
-/// - `self`: The matrix to compute the adjoint of.
-/// 
-pub fn adjoint[T : @internal.Conjugate](self : Matrix[T]) -> Matrix[T] {
+pub fn adjoint[T : @luna_generic.Conjugate](self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
 
-///|
-/// Compute the transpose of a matrix
-/// 
-/// **Parameters**
-/// - `self`: The matrix to compute the transpose of.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// inspect!(m.transpose(), content=
-///   #||1, 3|
-///   #||2, 4|
-/// )
-/// ```
-/// 
+///| Compute the transpose of a matrix
 pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
   Matrix::make(self.col, self.row, fn(i, j) { self[j][i] })
 }
 
-///|
-/// Compute the determinant of a matrix
-/// 
-/// **Parameters**
-/// - `self`: The matrix to compute the determinant of.
-/// 
-/// **Example**
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// inspect!(m.determinant(), content="4")
-/// ```
-/// 
-pub fn determinant[T : @internal.Mul + @internal.Add + @internal.One + @internal.Neg + @internal.Zero](
+///| Compute the determinant of a matrix
+pub fn determinant[T : @luna_generic.Mul + @luna_generic.Add + @luna_generic.One + @luna_generic.Neg + @luna_generic.Zero](
   self : Matrix[T]
 ) -> T {
   let n = self.row
@@ -508,7 +308,6 @@ pub fn determinant[T : @internal.Mul + @internal.Add + @internal.One + @internal
 }
 
 ///|
->>>>>>> Stashed changes
 test {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
@@ -535,4 +334,32 @@ test {
       #||-3, -4|
     ,
   )
+  inspect!(
+    m1.scale(10),
+    content=
+      #||10, 20|
+      #||30, 40|
+    ,
+  )
+  let m5 : Matrix[Int] = identity(5)
+  inspect!(
+    m5,
+    content=
+      #||1, 0, 0, 0, 0|
+      #||0, 1, 0, 0, 0|
+      #||0, 0, 1, 0, 0|
+      #||0, 0, 0, 1, 0|
+      #||0, 0, 0, 0, 1|
+    ,
+  )
+  inspect!(
+    m4.add_constant(10),
+    content=
+      #||12, 12|
+      #||13, 15|
+    ,
+  )
+  inspect!(m4.determinant(), content="4")
+  inspect!(m1.determinant(), content="-2")
+  inspect!(m5.determinant(), content="1")
 }
