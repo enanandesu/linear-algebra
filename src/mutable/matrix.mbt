@@ -155,16 +155,12 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 
 ///|
 pub fn matrix_pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
-  let mut p = power
-  let mut temp_matrix = self
-  let mut res = identity(self.col)
-  while p >= 1 {
-    let flag = p % 2
-    p = p / 2
-    if flag == 1 {
-      res = res * temp_matrix
+  loop identity(self.col), power, self {
+    s, 1, m => s * m
+    s, p, m => {
+      let next_p = p / 2
+      let next_m = m * m
+      continue if (p & 1) == 1 { s * m } else { s }, next_p, next_m
     }
-    temp_matrix = temp_matrix * temp_matrix
   }
-  res
 }
