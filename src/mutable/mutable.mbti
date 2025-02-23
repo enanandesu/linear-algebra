@@ -1,4 +1,4 @@
-package KCN-judu/linear-algebra/mutable
+package Luna-Flow/linear-algebra/mutable
 
 alias @Luna-Flow/luna-generic as @luna-generic
 
@@ -20,6 +20,7 @@ impl Matrix {
   from_2d_array[T](Array[Array[T]]) -> Self[T]
   make[A](Int, Int, (Int, Int) -> A) -> Self[A]
   map[T, U](Self[T], (T) -> U) -> Self[U]
+  matrix_pow[T : @luna-generic.Semiring](Self[T], Int) -> Self[T]
   new[T](Int, Int, T) -> Self[T]
   null[T : Compare + @luna-generic.Zero](Self[T]) -> Bool
   op_add[T : @luna-generic.Add](Self[T], Self[T]) -> Self[T]
