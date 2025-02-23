@@ -298,35 +298,7 @@ test {
 }
 
 ///|
-/// Performs matrix multiplication between two matrices.
-///
-/// Parameters:
-///
-/// * `left` : The left matrix in the multiplication.
-/// * `right` : The right matrix in the multiplication. The number of columns in
-/// the left matrix must equal the number of rows in the right matrix.
-///
-/// Returns a new matrix that is the product of the multiplication. The resulting
-/// matrix has the same number of rows as the left matrix and the same number of
-/// columns as the right matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::op_mul" {
-///   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   let m2 = Matrix::from_2d_array([[5, 6], [7, 8]])
-///   inspect!(
-///     m1 * m2,
-///     content=
-///       #||19, 22|
-///       #||43, 50|
-///     ,
-///   )
-/// }
-/// ```
-pub fn op_mul[T : @luna_generic.Mul + @luna_generic.Add](
+pub fn op_mul[T : @lg.Mul + @lg.Add](
   self : Matrix[T],
   other : Matrix[T]
 ) -> Matrix[T] {
@@ -347,37 +319,7 @@ pub fn op_mul[T : @luna_generic.Mul + @luna_generic.Add](
 }
 
 ///|
-/// Adds two matrices of the same dimensions element-wise. The matrices must have
-/// the same number of rows and columns.
-///
-/// Parameters:
-///
-/// * `self` : The first matrix to be added.
-/// * `other` : The second matrix to be added.
-///
-/// Returns a new matrix where each element is the sum of the corresponding
-/// elements from the input matrices.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::op_add" {
-///   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   let m2 = Matrix::from_2d_array([[5, 6], [7, 8]])
-///   inspect!(
-///     m1 + m2,
-///     content=
-///       #||6, 8|
-///       #||10, 12|
-///     ,
-///   )
-/// }
-/// ```
-pub fn op_add[T : @luna_generic.Add](
-  self : Matrix[T],
-  other : Matrix[T]
-) -> Matrix[T] {
+pub fn op_add[T : @lg.Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
   {
@@ -388,64 +330,12 @@ pub fn op_add[T : @luna_generic.Add](
 }
 
 ///|
-/// Negates all elements in a matrix. Produces a new matrix where each element is
-/// the negation of the corresponding element in the input matrix.
-///
-/// Parameters:
-///
-/// * `matrix` : The matrix to be negated. The elements in the matrix must
-/// implement the `Neg` trait.
-///
-/// Returns a new matrix with all elements negated.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::op_neg" {
-///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   inspect!(
-///     -m,
-///     content=
-///       #||-1, -2|
-///       #||-3, -4|
-///     ,
-///   )
-/// }
-/// ```
-pub fn op_neg[T : @luna_generic.Neg](self : Matrix[T]) -> Matrix[T] {
+pub fn op_neg[T : @lg.Neg](self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 
 ///|
-/// Subtracts one matrix from another element-wise. The matrices must have the
-/// same number of rows and columns.
-///
-/// Parameters:
-///
-/// * `matrix1` : The matrix from which to subtract.
-/// * `matrix2` : The matrix to be subtracted.
-///
-/// Returns a new matrix where each element is the difference of the
-/// corresponding elements from the input matrices.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::op_sub" {
-///   let m1 = Matrix::from_2d_array([[5, 6], [7, 8]])
-///   let m2 = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   inspect!(
-///     m1 - m2,
-///     content=
-///       #||4, 4|
-///       #||4, 4|
-///     ,
-///   )
-/// }
-/// ```
-pub fn op_sub[T : @luna_generic.Add + @luna_generic.Neg](
+pub fn op_sub[T : @lg.Add + @lg.Neg](
   self : Matrix[T],
   other : Matrix[T]
 ) -> Matrix[T] {
@@ -453,101 +343,17 @@ pub fn op_sub[T : @luna_generic.Add + @luna_generic.Neg](
 }
 
 ///|
-/// Performs scalar multiplication on a matrix, multiplying each element by a
-/// constant value.
-///
-/// Parameters:
-///
-/// * `matrix` : The input matrix to be scaled.
-/// * `constant` : The scalar value to multiply with each element of the matrix.
-///
-/// Returns a new matrix where each element is the product of the corresponding
-/// element in the input matrix and the constant value.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::scale" {
-///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   inspect!(
-///     m.scale(2),
-///     content=
-///       #||2, 4|
-///       #||6, 8|
-///     ,
-///   )
-/// }
-/// ```
-pub fn scale[T : @luna_generic.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn scale[T : @lg.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x * cst })
 }
 
 ///|
-/// Adds a constant value to each element of a matrix.
-///
-/// Parameters:
-///
-/// * `matrix` : The input matrix with elements of type `T`.
-/// * `constant` : The value to be added to each element of the matrix.
-///
-/// Returns a new matrix where each element is the sum of the corresponding
-/// element in the input matrix and the constant value.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::add_constant" {
-///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   inspect!(
-///     m.add_constant(10),
-///     content=
-///       #||11, 12|
-///       #||13, 14|
-///     ,
-///   )
-/// }
-/// ```
-pub fn add_constant[T : @luna_generic.Add](
-  self : Matrix[T],
-  cst : T
-) -> Matrix[T] {
+pub fn add_constant[T : @lg.Add](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x + cst })
 }
 
 ///|
-/// Creates an identity matrix of the specified size. An identity matrix is a
-/// square matrix with ones on the main diagonal and zeros elsewhere.
-///
-/// Parameters:
-///
-/// * `size` : The dimension of the square matrix. Must be a non-negative
-/// integer.
-/// * `T` : The type parameter that must implement both `One` and `Zero` traits,
-/// representing the type of elements in the matrix.
-///
-/// Returns a new identity matrix of type `Matrix[T]` with the specified size.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "identity" {
-///   let m : Matrix[Int] = identity(3)
-///   inspect!(
-///     m,
-///     content=
-///       #||1, 0, 0|
-///       #||0, 1, 0|
-///       #||0, 0, 1|
-///     ,
-///   )
-/// }
-/// ```
-pub fn identity[T : @luna_generic.One + @luna_generic.Zero](
-  size : Int
-) -> Matrix[T] {
+pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
   Matrix::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -555,29 +361,7 @@ pub fn identity[T : @luna_generic.One + @luna_generic.Zero](
 }
 
 ///|
-/// Checks if a matrix is a null matrix (all elements are zero).
-///
-/// Parameters:
-///
-/// * `matrix` : The matrix to be checked. The elements in the matrix must
-/// implement the `Compare` trait for equality comparison and the `Zero` trait to
-/// provide a zero value.
-///
-/// Returns a boolean value indicating whether the matrix is a null matrix
-/// (`true`) or not (`false`).
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "null" {
-///   let zero_matrix = Matrix::make(2, 2, fn { _, _ => 0 })
-///   let non_zero_matrix = Matrix::from_2d_array([[1, 0], [0, 0]])
-///   inspect!(zero_matrix.null(), content="true")
-///   inspect!(non_zero_matrix.null(), content="false")
-/// }
-/// ```
-pub fn null[T : Compare + @luna_generic.Zero](self : Matrix[T]) -> Bool {
+pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
   for x in self.data {
     if x != T::zero() {
       break false
@@ -588,33 +372,7 @@ pub fn null[T : Compare + @luna_generic.Zero](self : Matrix[T]) -> Bool {
 }
 
 ///|
-/// Computes the adjoint (conjugate transpose) of a matrix by applying the
-/// conjugate operation to each element.
-///
-/// Parameters:
-///
-/// * `matrix` : The input matrix whose elements implement the `Conjugate` trait.
-///
-/// Returns a new matrix that is the adjoint of the input matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "Matrix::adjoint" {
-///   let m = Matrix::from_2d_array([
-///     [Complex::new(1.0, 2.0), Complex::new(3.0, 4.0)],
-///   ])
-///   inspect!(
-///     m.adjoint(),
-///     content=
-///       #||1.0-2.0i|
-///       #||3.0-4.0i|
-///     ,
-///   )
-/// }
-/// ```
-pub fn adjoint[T : @luna_generic.Conjugate](self : Matrix[T]) -> Matrix[T] {
+pub fn adjoint[T : @lg.Conjugate](self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
 
@@ -650,32 +408,8 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
   Matrix::make(self.col, self.row, fn(i, j) { self[j][i] })
 }
 
-///|
-/// Computes the determinant of a square matrix using the Laplace expansion
-/// method.
-/// The calculation is performed recursively along the first row of the matrix.
-///
-/// Parameters:
-///
-/// * `matrix` : A square matrix whose elements implement the following traits:
-///  * `Mul` for multiplication
-///  * `Add` for addition
-///  * `One` for multiplicative identity
-///  * `Neg` for negation
-///  * `Zero` for additive identity
-///
-/// Returns the determinant of the matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// ///|
-/// test "determinant" {
-///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   inspect!(m.determinant(), content="-2")
-/// }
-/// ```
-pub fn determinant[T : @luna_generic.Mul + @luna_generic.Add + @luna_generic.One + @luna_generic.Neg + @luna_generic.Zero](
+///| Compute the determinant of a matrix
+pub fn determinant[T : @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Zero](
   self : Matrix[T]
 ) -> T {
   let n = self.row
@@ -693,6 +427,111 @@ pub fn determinant[T : @luna_generic.Mul + @luna_generic.Add + @luna_generic.One
     }
   }
   go(fn { i, j => self[i][j] }, n)
+}
+
+///|
+pub fn matrix_pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
+  let mut p = power
+  let mut temp_matrix = self
+  let mut res = identity(self.col)
+  while p >= 1 {
+    let flag = p % 2
+    p = p / 2
+    if flag == 1 {
+      res = res * temp_matrix
+    }
+    temp_matrix = temp_matrix * temp_matrix
+  }
+  res
+}
+
+///|
+pub fn horizontal_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+  let r1 = self.row
+  let c1 = self.col
+  let r2 = other.row
+  let c2 = other.col
+  guard r1 == r2
+  Matrix::make(r1, c1 + c2, fn(i, j) {
+    if j < c1 {
+      self[i][j]
+    } else {
+      other[i][j - c1]
+    }
+  })
+}
+
+///|
+pub fn vertical_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+  Matrix::horizontal_combine(self.transpose(), other.transpose()).transpose()
+}
+
+///|
+test "matrix_combine" {
+  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+  let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
+  let m3 = horizontal_combine(m1, m2)
+  let m4 = vertical_combine(m1, m2)
+  inspect!(
+    m3,
+    content=
+      #||1, 2, 1, 0|
+      #||3, 4, 0, 1|
+    ,
+  )
+  inspect!(
+    m4,
+    content=
+      #||1, 2|
+      #||3, 4|
+      #||1, 0|
+      #||0, 1|
+    ,
+  )
+}
+
+///|
+pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
+  guard r1 < self.row && r2 < self.row
+  guard r1 >= 0 && r2 >= 0
+  guard r1 != r2
+  let new_matrix = Matrix::make(self.row, self.col, fn(i, j) {
+    if i == r1 {
+      self[r2][j]
+    } else if i == r2 {
+      self[r1][j]
+    } else {
+      self[i][j]
+    }
+  })
+  new_matrix
+}
+
+///|
+pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Matrix[T] {
+  self.transpose().swap_rows(c1, c2).transpose()
+}
+
+///|
+test "swap_matrix" {
+  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+  let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
+  let m3 = swap_rows(m1, 0, 1)
+  let m4 = swap_cols(m2, 0, 1)
+  inspect!(
+    m3,
+    content=
+      #||3, 4|
+      #||1, 2|
+    ,
+  )
+  inspect!(
+    m4,
+    content=
+      #||0, 1|
+      #||1, 0|
+    ,
+  )
 }
 
 ///|
@@ -750,4 +589,13 @@ test {
   inspect!(m4.determinant(), content="4")
   inspect!(m1.determinant(), content="-2")
   inspect!(m5.determinant(), content="1")
+  let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).matrix_pow(10)
+  inspect!(
+    m,
+    content=
+      #||0, 0, 0|
+      #||19683, 19683, 19683|
+      #||39366, 39366, 39366|
+    ,
+  )
 }

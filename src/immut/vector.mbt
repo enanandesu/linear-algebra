@@ -128,42 +128,12 @@ pub fn Vector::set[T](self : Vector[T], i : Int, x : T) -> Vector[T] {
 }
 
 ///|
-/// Left scale the vector by a number.
-/// 
-/// Parameters
-/// * `self`: The vector to scale.
-/// * `scalar`: The number to scale the vector by.
-/// 
-/// Example
-/// ```moonbit
-/// let v = Vector::from_array([1, 2, 3])
-/// let v1 = 10 * v
-/// inspect!(v1, content="|10, 20, 30|")
-/// ```
-pub fn left_scale[T : @luna_generic.Mul](
-  self : Vector[T],
-  scalar : T
-) -> Vector[T] {
+pub fn left_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => x * scalar })
 }
 
 ///|
-/// Right scale the vector by a number.
-/// 
-/// Parameters
-/// * `self`: The vector to scale.
-/// * `scalar`: The number to scale the vector by.
-/// 
-/// Example
-/// ```moonbit
-/// let v = Vector::from_array([1, 2, 3])
-/// let v1 = v * 10
-/// inspect!(v1, content="|10, 20, 30|")
-/// ```
-pub fn right_scale[T : @luna_generic.Mul](
-  self : Vector[T],
-  scalar : T
-) -> Vector[T] {
+pub fn right_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => scalar * x })
 }
 
@@ -183,20 +153,7 @@ pub fn Vector::from_array[T](arr : Array[T]) -> Vector[T] {
 }
 
 ///|
-/// Add two vectors.
-/// 
-/// Parameters
-/// * `self`: The vector to add.
-/// * `other`: The vector to add.
-/// 
-/// Example
-/// ```moonbit
-/// let v1 = Vector::from_array([1, 2, 3])
-/// let v2 = Vector::from_array([4, 5, 6])
-/// let v3 = v1 + v2
-/// inspect!(v3, content="|5, 7, 9|")
-/// ```
-pub fn Vector::op_add[T : @luna_generic.Add](
+pub fn Vector::op_add[T : @lg.Add](
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
@@ -204,42 +161,15 @@ pub fn Vector::op_add[T : @luna_generic.Add](
 }
 
 ///|
-/// Multiply two vectors.
-/// 
-/// Parameters
-/// * `self`: The vector to multiply.
-/// * `other`: The vector to multiply.
-/// 
-/// Example
-/// ```moonbit
-/// let v1 = Vector::from_array([1, 2, 3])
-/// let v2 = Vector::from_array([4, 5, 6])
-/// let v3 = v1 * v2
-/// inspect!(v3, content="|4, 10, 18|")
-/// ```
-pub fn Vector::op_mul[T : @luna_generic.Mul](
+pub fn Vector::op_mul[T : @lg.Mul](
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
   self.zip_with(other, T::op_mul)
 }
 
-///| 
-/// Linearly interpolate between two vectors.
-/// 
-/// Parameters
-/// * `self`: The vector to interpolate from.
-/// * `other`: The vector to interpolate to.
-/// * `alpha`: The interpolation factor.
-/// 
-/// Example
-/// ```moonbit
-/// let v1 = Vector::from_array([1, 2, 3])
-/// let v2 = Vector::from_array([4, 5, 6])
-/// let v3 = lerp(v1, v2, 0.5)
-/// inspect!(v3, content="|2.5, 3.5, 4.5|")
-/// ```
-pub fn lerp[T : @luna_generic.One + @luna_generic.Mul + @luna_generic.Add + @luna_generic.Neg](
+///| Linearly interpolate between two vectors
+pub fn lerp[T : @lg.One + @lg.Mul + @lg.Add + @lg.Neg](
   self : Vector[T],
   other : Vector[T],
   alpha : T
@@ -279,50 +209,14 @@ impl[T : Show] Show for Vector[T] with output(s, l) {
   l.write_string(s.to_string())
 }
 
-///|
-/// Shift the `Vector` type array to a diagonal `Matrix` type.
-/// 
-/// Parameters
-/// * `self`: The vector to shift.
-/// 
-/// Example
-/// ```moonbit
-/// let v = Vector::from_array([1, 2, 3])
-/// inspect!(
-///   v.scaled_matrix(),
-///   content=
-///     #||1, 0, 0|
-///     #||0, 2, 0|
-///     #||0, 0, 3|
-/// ,
-/// )
-/// ```
-pub fn scaled_matrix[T : @luna_generic.Mul + @luna_generic.Zero](
-  self : Vector[T]
-) -> Matrix[T] {
+///| Produce a diagonal (scale) matrix from a vector
+pub fn scaled_matrix[T : @lg.Mul + @lg.Zero](self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
 
-///|
-/// Tensor product of two `Vectors` type then generate a `Matrix` type.
-/// 
-/// Parameters
-/// * `self`: The vector to tensor product with.
-/// * `other`: The vector to tensor product with.
-/// 
-/// Example
-/// ```moonbit
-/// let v1 = Vector::from_array([1, 2, 3])
-/// let v2 = Vector::from_array([4, 5, 6])
-/// inspect!(
-///   tensor_product(v1, v2),
-///   content=
-///     #||4, 5, 6|
-///     #||8, 10, 12|
-///     #||12, 15, 18|
-/// ,
-pub fn tensor_product[T : @luna_generic.Mul](
+///| Tensor product of two vectors
+pub fn tensor_product[T : @lg.Mul](
   self : Vector[T],
   other : Vector[T]
 ) -> Matrix[T] {
