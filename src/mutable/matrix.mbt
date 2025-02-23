@@ -154,7 +154,7 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn matrix_pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
+pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
   loop identity(self.col), power, self {
     s, 0, _ => s
     s, 1, m => s * m
