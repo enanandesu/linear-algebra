@@ -71,10 +71,18 @@ pub fn Matrix::set[T](self : Matrix[T], i : Int, j : Int, elem : T) -> Unit {
   self.data[i * self.col + j] = elem
 }
 
+///|
 pub fn Indexed::op_set[T](self : Indexed[T], col : Int, elem : T) -> Unit {
   self.mat.set(self.row, col, elem)
 }
 
+///|
+test "op_set" {
+  let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
+  inspect!(m[0][1], content="3")
+  m[0][1] = 4
+  inspect!(m[0][1], content="4")
+}
 
 ///|
 pub fn op_mul[T : @lg.Mul + @lg.Add](
