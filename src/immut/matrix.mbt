@@ -208,7 +208,7 @@ pub fn determinant[T : @luna_generic.Mul + @luna_generic.Add + @luna_generic.One
   go(fn { i, j => self[i][j] }, n)
 }
 ///|
-pub fn matrix_pow[T : @luna_generic.One + @luna_generic.Zero + @luna_generic.Mul + @luna_generic.Add](
+pub fn matrix_pow[T : @luna_generic.Semiring](
   self : Matrix[T],
   power : Int
 ) -> Matrix[T] {

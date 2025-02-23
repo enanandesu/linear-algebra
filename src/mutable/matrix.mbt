@@ -161,7 +161,7 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
   Matrix::make(self.col, self.row, fn(i, j) { self[j][i] })
 }
 ///|
-pub fn matrix_pow[T : @luna_generic.One + @luna_generic.Zero + @luna_generic.Mul + @luna_generic.Add](
+pub fn matrix_pow[T : @luna_generic.Semiring](
   self : Matrix[T],
   power : Int
 ) -> Matrix[T] {
