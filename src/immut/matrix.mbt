@@ -159,13 +159,7 @@ pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
 
 ///|
 pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
-  for x in self.data {
-    if x != T::zero() {
-      break false
-    }
-  } else {
-    true
-  }
+  not(self.data.iter().any(fn(x) { x != T::zero() }))
 }
 
 ///|
@@ -191,7 +185,7 @@ pub fn determinant[T : @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Zero](
       for i in 0..<n {
         let sub_view = fn { j, k => f(j + 1, if k < i { k } else { k + 1 }) }
         let sign = if i % 2 == 0 { T::one() } else { -T::one() }
-        det = det + sign * f(0, i) * go(sub_view, n - 1)
+        det += sign * f(0, i) * go(sub_view, n - 1)
       }
       det
     }

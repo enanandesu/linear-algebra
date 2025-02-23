@@ -3,14 +3,8 @@ type Vector[A] Array[A]
 
 ///|
 pub impl[T : Show] Show for Vector[T] with to_string(self) {
-  let mut re = ""
-  for i = 0; i < self.length(); i = i + 1 {
-    re = re + self[i].to_string()
-    if i < self.length() - 1 {
-      re = re + ", "
-    }
-  }
-  "|\{re}|"
+  let sep = ", "
+  "|\{self._.map(T::to_string).join(sep)}|"
 }
 
 ///|
@@ -167,7 +161,7 @@ pub fn Vector::add_constant[T : @lg.Add](
   self : Vector[T],
   cst : T
 ) -> Vector[T] {
-  self.map(fn(x) -> T { x + cst })
+  self.map(fn(x) { x + cst })
 }
 
 ///|

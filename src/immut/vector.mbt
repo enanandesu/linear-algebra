@@ -84,14 +84,11 @@ pub fn lerp[T : @lg.One + @lg.Mul + @lg.Add + @lg.Neg](
 
 ///|
 impl[T : Show] Show for Vector[T] with to_string(self) {
-  let mut re = ""
-  for i = 0; i < self.length(); i = i + 1 {
-    re = re + self[i].to_string()
-    if i < self.length() - 1 {
-      re = re + ", "
-    }
-  }
-  "|\{re}|"
+  // Immutable array has no join method
+  // we need to convert to mutable array first
+  // wait for core to support immutable array join
+  let sep = ", "
+  "|\{self.data.to_array().map(T::to_string).join(sep)}|"
 }
 
 ///|
