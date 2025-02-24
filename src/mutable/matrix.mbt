@@ -7,6 +7,8 @@ struct Matrix[T] {
 
 ///|
 struct Indexed[T] {
+  mat : Matrix[T]
+  row : Int
   index : (Int) -> T
 }
 
@@ -56,7 +58,7 @@ pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
 
 ///|
 pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Indexed[T] {
-  { index: fn { c => self.data[c + self.col * row] } }
+  { mat: self, row, index: fn { c => self.data[c + self.col * row] } }
 }
 
 ///|
@@ -67,6 +69,19 @@ pub fn op_get[T](self : Indexed[T], col : Int) -> T {
 ///|
 pub fn Matrix::set[T](self : Matrix[T], i : Int, j : Int, elem : T) -> Unit {
   self.data[i * self.col + j] = elem
+}
+
+///|
+pub fn Indexed::op_set[T](self : Indexed[T], col : Int, elem : T) -> Unit {
+  self.mat.set(self.row, col, elem)
+}
+
+///|
+test "op_set" {
+  let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
+  inspect!(m[0][1], content="3")
+  m[0][1] = 4
+  inspect!(m[0][1], content="4")
 }
 
 ///|

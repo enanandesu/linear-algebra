@@ -11,6 +11,7 @@ fn lin_comb[T : @luna-generic.Add + @luna-generic.Mul](T, Vector[T], T, Vector[T
 type Indexed[T]
 impl Indexed {
   op_get[T](Self[T], Int) -> T
+  op_set[T](Self[T], Int, T) -> Unit
 }
 
 type Matrix[T]
