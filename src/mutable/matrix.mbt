@@ -6,10 +6,9 @@ struct Matrix[T] {
 } derive(Eq)
 
 ///|
-struct Indexed[T] {
-  mat : Matrix[T]
-  row : Int
-  index : (Int) -> T
+struct Lens[T] {
+  set : (Int, T) -> Unit
+  get : (Int) -> T
 }
 
 ///|
@@ -56,24 +55,22 @@ pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
   Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
 }
 
-///|
-pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Indexed[T] {
-  { mat: self, row, index: fn { c => self.data[c + self.col * row] } }
+///| 
+pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Lens[T] {
+  {
+    set: fn { c, v => self.data[c + self.col * row] = v },
+    get: fn { c => self.data[c + self.col * row] },
+  }
 }
 
 ///|
-pub fn op_get[T](self : Indexed[T], col : Int) -> T {
-  (self.index)(col)
+pub fn op_get[T](self : Lens[T], col : Int) -> T {
+  (self.get)(col)
 }
 
 ///|
-pub fn Matrix::set[T](self : Matrix[T], i : Int, j : Int, elem : T) -> Unit {
-  self.data[i * self.col + j] = elem
-}
-
-///|
-pub fn Indexed::op_set[T](self : Indexed[T], col : Int, elem : T) -> Unit {
-  self.mat.set(self.row, col, elem)
+pub fn Lens::op_set[T](self : Lens[T], col : Int, elem : T) -> Unit {
+  (self.set)(col, elem)
 }
 
 ///|
