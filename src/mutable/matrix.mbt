@@ -98,7 +98,7 @@ pub fn op_mul[T : @lg.Mul + @lg.Add](
     let c = i % col
     let mut sum = self[r][0] * other[0][c]
     for k = 1; k < inner; k = k + 1 {
-      sum = sum + self[r][k] * other[k][c]
+      sum += self[r][k] * other[k][c]
     }
     sum
   })
@@ -149,13 +149,7 @@ pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
 
 ///|
 pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
-  for x in self.data {
-    if x != T::zero() {
-      break false
-    }
-  } else {
-    true
-  }
+  not(self.data.iter().any(fn(x) { x != T::zero() }))
 }
 
 ///|
