@@ -20,7 +20,6 @@ impl Matrix {
   horizontal_combine[T](Self[T], Self[T]) -> Self[T]
   make[T](Int, Int, (Int, Int) -> T) -> Self[T]
   map[T, U](Self[T], (T) -> U) -> Self[U]
-  matrix_pow[T : @luna-generic.Semiring](Self[T], Int) -> Self[T]
   new[T](Int, Int, T) -> Self[T]
   null[T : Compare + @luna-generic.Zero](Self[T]) -> Bool
   op_add[T : @luna-generic.Add](Self[T], Self[T]) -> Self[T]
@@ -28,6 +27,7 @@ impl Matrix {
   op_mul[T : @luna-generic.Mul + @luna-generic.Add](Self[T], Self[T]) -> Self[T]
   op_neg[T : @luna-generic.Neg](Self[T]) -> Self[T]
   op_sub[T : @luna-generic.Add + @luna-generic.Neg](Self[T], Self[T]) -> Self[T]
+  pow[T : @luna-generic.Semiring](Self[T], Int) -> Self[T]
   scale[T : @luna-generic.Mul](Self[T], T) -> Self[T]
   set[T](Self[T], Int, Int, T) -> Self[T]
   swap_cols[T](Self[T], Int, Int) -> Self[T]

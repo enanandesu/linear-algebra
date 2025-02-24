@@ -201,19 +201,12 @@ pub fn determinant[T : @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Zero](
 }
 
 ///|
-pub fn matrix_pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
-  let mut p = power
-  let mut temp_matrix = self
-  let mut res = identity(self.col)
-  while p >= 1 {
-    let flag = p % 2
-    p = p / 2
-    if flag == 1 {
-      res = res * temp_matrix
-    }
-    temp_matrix = temp_matrix * temp_matrix
+pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
+  loop identity(self.col), power, self {
+    s, 0, _ => s
+    s, 1, m => s * m
+    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
   }
-  res
 }
 
 ///|
@@ -360,7 +353,7 @@ test {
   inspect!(m4.determinant(), content="4")
   inspect!(m1.determinant(), content="-2")
   inspect!(m5.determinant(), content="1")
-  let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).matrix_pow(10)
+  let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).pow(10)
   inspect!(
     m,
     content=
