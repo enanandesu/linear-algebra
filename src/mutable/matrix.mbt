@@ -6,8 +6,9 @@ struct Matrix[T] {
 } derive(Eq)
 
 ///|
-struct Indexed[T] {
-  index : (Int) -> T
+struct Lens[T] {
+  set : (Int, T) -> Unit
+  get : (Int) -> T
 }
 
 ///|
@@ -54,19 +55,30 @@ pub fn Matrix::from_2d_array[T](arr : Array[Array[T]]) -> Matrix[T] {
   Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
 }
 
-///|
-pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Indexed[T] {
-  { index: fn { c => self.data[c + self.col * row] } }
+///| 
+pub fn Matrix::op_get[T](self : Matrix[T], row : Int) -> Lens[T] {
+  {
+    set: fn { c, v => self.data[c + self.col * row] = v },
+    get: fn { c => self.data[c + self.col * row] },
+  }
 }
 
 ///|
-pub fn op_get[T](self : Indexed[T], col : Int) -> T {
-  (self.index)(col)
+pub fn op_get[T](self : Lens[T], col : Int) -> T {
+  (self.get)(col)
 }
 
 ///|
-pub fn Matrix::set[T](self : Matrix[T], i : Int, j : Int, elem : T) -> Unit {
-  self.data[i * self.col + j] = elem
+pub fn Lens::op_set[T](self : Lens[T], col : Int, elem : T) -> Unit {
+  (self.set)(col, elem)
+}
+
+///|
+test "op_set" {
+  let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
+  inspect!(m[0][1], content="3")
+  m[0][1] = 4
+  inspect!(m[0][1], content="4")
 }
 
 ///|
@@ -83,7 +95,7 @@ pub fn op_mul[T : @lg.Mul + @lg.Add](
     let c = i % col
     let mut sum = self[r][0] * other[0][c]
     for k = 1; k < inner; k = k + 1 {
-      sum = sum + self[r][k] * other[k][c]
+      sum += self[r][k] * other[k][c]
     }
     sum
   })
@@ -134,13 +146,7 @@ pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
 
 ///|
 pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
-  for x in self.data {
-    if x != T::zero() {
-      break false
-    }
-  } else {
-    true
-  }
+  not(self.data.iter().any(fn(x) { x != T::zero() }))
 }
 
 ///|
@@ -154,17 +160,10 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn matrix_pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
-  let mut p = power
-  let mut temp_matrix = self
-  let mut res = identity(self.col)
-  while p >= 1 {
-    let flag = p % 2
-    p = p / 2
-    if flag == 1 {
-      res = res * temp_matrix
-    }
-    temp_matrix = temp_matrix * temp_matrix
+pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
+  loop identity(self.col), power, self {
+    s, 0, _ => s
+    s, 1, m => s * m
+    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
   }
-  res
 }

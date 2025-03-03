@@ -2,15 +2,22 @@
 type Vector[A] Array[A]
 
 ///|
+impl[T : @quickcheck.Arbitrary] @quickcheck.Arbitrary for Vector[T] with arbitrary(
+  size,
+  rng
+) {
+  Vector::makei(size, fn { i => T::arbitrary(i, rng) })
+}
+
+///|
+impl[T : Eq] Eq for Vector[T] with op_equal(self, other) {
+  self._ == other._
+}
+
+///|
 pub impl[T : Show] Show for Vector[T] with to_string(self) {
-  let mut re = ""
-  for i = 0; i < self.length(); i = i + 1 {
-    re = re + self[i].to_string()
-    if i < self.length() - 1 {
-      re = re + ", "
-    }
-  }
-  "|\{re}|"
+  let sep = ", "
+  "|\{self._.map(T::to_string).join(sep)}|"
 }
 
 ///|
@@ -37,6 +44,16 @@ pub fn Vector::zip_with[A, U, V](
   f : (A, U) -> V
 ) -> Vector[V] {
   array_zip_with(self._, other._, f)
+}
+
+///|
+pub fn to_col_matrix[T](self : Vector[T]) -> Matrix[T] {
+  Matrix::make(self.length(), 1, fn(i, _) { self[i] })
+}
+
+///|
+pub fn to_row_matrix[T](self : Vector[T]) -> Matrix[T] {
+  { data: self._, row: 1, col: self.length() }
 }
 
 ///|
@@ -125,11 +142,48 @@ pub fn Vector::op_add[T : @lg.Add](
 }
 
 ///|
+test "a + a = 2 * a" {
+  fn prop(v : Vector[Int]) {
+    v + v == v.left_scale(2)
+  }
+
+  @qc.quick_check_fn!(prop)
+}
+
+///|
+test "a + b = b + a" {
+  fn prop(a : Vector[Int], b) {
+    a + b == b + a
+  }
+
+  @qc.quick_check_fn!(fn {
+    ((a : Vector[Int]), (b : Vector[Int])) => {
+      guard a.length() == b.length() else { true }
+      prop(a, b)
+    }
+  })
+}
+
+///|
 pub fn Vector::op_mul[T : @lg.Mul](
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
   self.zip_with(other, T::op_mul)
+}
+
+///|
+test "a * b * c = a * (b * c)" {
+  fn prop(a : Vector[Int], b, c) {
+    a * b * c == a * (b * c)
+  }
+
+  @qc.quick_check_fn!(fn {
+    ((a : Vector[Int]), (b : Vector[Int]), (c : Vector[Int])) => {
+      guard a.length() == b.length() && b.length() == c.length() else { true }
+      prop(a, b, c)
+    }
+  })
 }
 
 ///|
@@ -153,6 +207,21 @@ pub fn scaled_matrix[T : @lg.Mul + @lg.Zero](self : Vector[T]) -> Matrix[T] {
 }
 
 ///|
+test "S_v * p = v * p" {
+  fn prop(v : Vector[Int], p : Vector[Int]) {
+    let m = v.scaled_matrix()
+    m * p.to_col_matrix() == (v * p).to_col_matrix()
+  }
+
+  @qc.quick_check_fn!(fn {
+    ((a : Vector[Int]), (b : Vector[Int])) => {
+      guard a.length() == b.length() else { true }
+      prop(a, b)
+    }
+  })
+}
+
+///|
 pub fn tensor_product[T : @lg.Mul](
   self : Vector[T],
   other : Vector[T]
@@ -167,7 +236,7 @@ pub fn Vector::add_constant[T : @lg.Add](
   self : Vector[T],
   cst : T
 ) -> Vector[T] {
-  self.map(fn(x) -> T { x + cst })
+  self.map(fn(x) { x + cst })
 }
 
 ///|
