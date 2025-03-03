@@ -1,30 +1,30 @@
 # LINEAR-ALGEBRA
 
-[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/Collaborator-CAIMEOX-purple)](https://github.com/CAIMEOX) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/moonbit-community/calculus-numerical/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
+[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/Collaborator-CAIMEOX-purple)](https://github.com/CAIMEOX) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/linear-algebra/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
 **See the README.md in other languages here: [zh_CN](https://github.com/Luna-Flow/linear-algebra/blob/main/doc/zh_CN/README.md) | [ja_JP](https://github.com/Luna-Flow/linear-algebra/blob/main/doc/ja_JP/README.md)**
 
-# Contents
+## Contents
 
-- [Introduction](#Introduction)
-- [Feature List](#Feature-List)
-- [How to Contribute](#How-to-Contribute)
+- [Introduction](#introduction)
+- [Feature List](#feature-list)
+- [How to Contribute](#how-to-contribute)
 
-# Introduction
+## Introduction
 
 This is a linear algebra library written in [**MoonBit**](https://www.moonbitlang.cn/), designed to fill the gap in the MoonBit ecosystem for scientific computing.
 
 The project will offer high-performance implementations of foundational linear algebra methods, based on one-dimensional arrays, supporting both numerical and symbolic computation.
 
-__*Starting from the first official release, both English and Chinese documentation will be fully maintained. Japanese documentation may be added in future updates.*__
+**_Starting from the first official release, both English and Chinese documentation will be fully maintained. Japanese documentation may be added in future updates._**
 
-# Feature List
+## Feature List
 
 **[Latest]** 25.01.29: Mutable Matrix implementation
 
 - **25.01.29**: Mutable Vector implementation
 
-# How to Contribute
+## How to Contribute
 
 We welcome contributions from the community, external developers, and individual enthusiasts! Whether you want to fix a bug, add a new feature, or improve the documentation, your participation is highly encouraged. To help you contribute smoothly, here are some simple steps:
 
@@ -35,4 +35,3 @@ We welcome contributions from the community, external developers, and individual
 5. We will review your PR and may suggest improvements to ensure code quality. After approval, your contributions will be merged into the main branch.
 
 Thank you again for your participation and contributions! Every effort helps make this project better. We look forward to seeing your great code!
-
