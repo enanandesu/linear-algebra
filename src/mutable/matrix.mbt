@@ -41,6 +41,24 @@ pub fn map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
+pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Matrix[T] {
+  for i = 0; i < self.col; i = i + 1 {
+    let val = self[row][i]
+    (self[row].set)(i, f(val))
+  }
+  self
+}
+
+///|
+pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Matrix[T] {
+  for i = 0; i < self.row; i = i + 1 {
+    let val = self[i][col]
+    (self[i].set)(col, f(val))
+  }
+  self
+}
+
+///|
 pub fn Matrix::make[A](row : Int, col : Int, f : (Int, Int) -> A) -> Matrix[A] {
   { row, col, data: Array::makei(row * col, fn(i) { f(i / col, i % col) }) }
 }
@@ -164,28 +182,41 @@ pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
   let r = self.row
   let c = self.col
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
-  let store = self[r1]
-  let res = Matrix::make(r, c, fn(i, j){
-    if i == r2 {
-      store[j]
-    } else if i == r1 {
-      self[r2][j]
-    } else {
-      self[i][j]
-    }
-  })
-  res
+  if r1 == r2 {
+    return self
+  }
+  let temp = Array::makei(c, fn(i) { self[r1][i] })
+  for i = 0; i < c; i = i + 1 {
+    (self[r1].set)(i, self[r2][i])
+  }  
+  for i = 0; i < c; i = i + 1 {
+    (self[r2].set)(i, temp[i])
+  }
+  self
 }
 
 ///|
 pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Matrix[T] {
-  self.transpose().swap_rows(c1, c2).transpose()
+  let r = self.row
+  let c = self.col
+  guard c1 < c && c2 < c && c1 >= 0 && c2 >= 0
+  if c1 == c2 {
+    return self
+  }
+  let temp = Array::makei(r, fn(i) { self[i][c1] })
+  for i = 0; i < r; i = i + 1 {
+    (self[i].set)(c1, self[i][c2])
+  }
+  for i = 0; i < r; i = i + 1 {
+    (self[i].set)(c2, temp[i])
+  }
+  self
 }
 
 test "swap" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
   inspect!(m.swap_rows(0, 1), content="|4, 5, 6|\n|1, 2, 3|")
-  inspect!(m.swap_cols(0, 1), content="|2, 1, 3|\n|5, 4, 6|")
+  inspect!(m.swap_cols(0, 1), content="|5, 4, 6|\n|2, 1, 3|")
 }
 
 ///|
