@@ -1,9 +1,22 @@
 ///|
+/// Create a new type called `Vector[T]` that contains an `IArray[T]`.
+/// 
 struct Vector[T] {
   data : IArray[T]
 } derive(Eq)
 
 ///|
+/// Create a new vector with a given length and a given element.
+/// 
+/// Parameters
+/// - `n`: The length of the vector.
+/// - `elem`: The element to fill the vector with.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::make(3, 1)
+/// inspect!(v, content="|1, 1, 1|")
+/// ```
 impl[T : @quickcheck.Arbitrary] @quickcheck.Arbitrary for Vector[T] with arbitrary(
   size,
   rng
@@ -12,11 +25,37 @@ impl[T : @quickcheck.Arbitrary] @quickcheck.Arbitrary for Vector[T] with arbitra
 }
 
 ///|
+/// Apply `map` method to the `Vector` type.
+/// 
+/// Parameters
+/// * `self`: The vector to apply the map method.
+/// * `f`: The function to apply to each element of the vector.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let v1 = v.map(fn(x) { x * 2 })
+/// inspect!(v1, content="|2, 4, 6|")
+/// ```
 pub fn Vector::map[T, U](self : Vector[T], f : (T) -> U) -> Vector[U] {
   Vector::{ data: self.data.map(f) }
 }
 
 ///|
+/// Import two vectors and apply a function to both of them.
+/// 
+/// Parameters
+/// * `self`: The vector to apply the zip_with method.
+/// * `other`: The vector to zip with.
+/// * `f`: The function to apply to each element of the vector.
+///
+/// Example
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// let v3 = v1.zip_with(v2, fn(x, y) { x + y })
+/// inspect!(v3, content="|5, 7, 9|")
+/// ```
 pub fn Vector::zip_with[T, U, V](
   self : Vector[T],
   other : Vector[U],
@@ -26,11 +65,37 @@ pub fn Vector::zip_with[T, U, V](
 }
 
 ///|
+/// Convert a vector to a column matrix. Make this `Vector` to a column `Matrix`.
+/// 
+/// Parameters
+/// * `self`: The vector to convert to a column matrix.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let m = v.to_col_matrix()
+/// inspect!(m, content=
+///   #||1|
+///   #||2|
+///   #||3|
+/// )
+/// ```
 pub fn to_col_matrix[T](self : Vector[T]) -> Matrix[T] {
   Matrix::make(self.length(), 1, fn(i, _) { self[i] })
 }
 
 ///|
+/// Convert a vector to a row matrix. Make this `Vector` to a row `Matrix`.
+/// 
+/// Parameters
+/// * `self`: The vector to convert to a row matrix.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let m = v.to_row_matrix()
+/// inspect!(m, content="|1, 2, 3|")
+/// ```
 pub fn to_row_matrix[T](self : Vector[T]) -> Matrix[T] {
   { data: self.data, row: 1, col: self.length() }
 }
@@ -57,46 +122,146 @@ test "to matrix" {
 }
 
 ///|
+/// Create a new vector with a given length and a given element.
+/// 
+/// Parameters
+/// - `n`: The length of the vector.
+/// - `f`: The function to apply to each element of the vector.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::makei(3, fn(i) { i })
+/// inspect!(v, content="|0, 1, 2|")
+/// ```
 pub fn Vector::makei[T](n : Int, f : (Int) -> T) -> Vector[T] {
   Vector::{ data: @immut/array.makei(n, f) }
 }
 
 ///|
+/// Create a new vector with a given length and a given element.
+/// 
+/// Parameters
+/// * `n`: The length of the vector.
+/// * `elem`: The element to fill the vector with.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::make(3, 1)
+/// inspect!(v, content="|1, 1, 1|")
+/// ```
 pub fn Vector::make[T](n : Int, elem : T) -> Vector[T] {
   Vector::{ data: @immut/array.make(n, elem) }
 }
 
 ///|
+/// Get the length of the vector.
+/// 
+/// Parameters
+/// * `self`: The vector to get the length of.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v.length(), content=3)
+/// ```
 pub fn Vector::length[T](self : Vector[T]) -> Int {
   self.data.length()
 }
 
 ///|
+/// Get the element at index `i` of the vector.
+/// 
+/// Parameters
+/// * `self`: The vector to get the element from.
+/// * `i`: The index of the element to get.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v[1], content=2)
+/// ```
 pub fn Vector::op_get[T](self : Vector[T], i : Int) -> T {
   self.data[i]
 }
 
 ///|
+/// Set the element at index `i` of the vector to `x`.
+/// 
+/// Parameters
+/// * `self`: The vector to set the element of.
+/// * `i`: The index of the element to set.
+/// * `x`: The element to set the element to.
+///
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let v1 = v.set(1, 10)
+/// inspect!(v1, content="|1, 10, 3|")
+/// ```
 pub fn Vector::set[T](self : Vector[T], i : Int, x : T) -> Vector[T] {
   Vector::{ data: self.data.set(i, x) }
 }
 
 ///|
+/// Left scale the vector by a scalar.
+/// 
+/// Parameters
+/// * `self`: The vector to left scale.
+/// * `scalar`: The scalar to left scale the vector by.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v.left_scale(2), content="|2, 4, 6|")
+/// ```
 pub fn left_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
-  self.map(fn { x => x * scalar })
-}
-
-///|
-pub fn right_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => scalar * x })
 }
 
 ///|
+/// Right scale the vector by a scalar.
+/// 
+/// Parameters
+/// * `self`: The vector to right scale.
+/// * `scalar`: The scalar to right scale the vector by.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v.right_scale(2), content="|2, 4, 6|")
+/// ```
+pub fn right_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
+  self.map(fn { x => x * scalar })
+}
+
+///|
+/// Create a new vector from an array.
+/// 
+/// Parameters
+/// * `arr`: The array to create the vector from.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v, content="|1, 2, 3|")
+/// ```
 pub fn Vector::from_array[T](arr : Array[T]) -> Vector[T] {
   Vector::{ data: @immut/array.from_array(arr) }
 }
 
 ///|
+/// Iterate over the vector.
+/// 
+/// Parameters
+/// * `self`: The vector to iterate over.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// for x in v.iter() {
+///   inspect!(x, content=1)
+/// }
+/// ```
 pub fn Vector::iter[T](self : Vector[T]) -> Iter[T] {
   self.data.iter()
 }
@@ -111,6 +276,18 @@ test "from . to = identity" {
 }
 
 ///|
+/// Add two vectors.
+/// 
+/// Parameters
+/// * `self`: The vector to add.
+/// * `other`: The vector to add.
+/// 
+/// Example
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// inspect!(v1 + v2, content="|5, 7, 9|")
+/// ```
 pub fn Vector::op_add[T : @lg.Add](
   self : Vector[T],
   other : Vector[T]
@@ -142,6 +319,18 @@ test "a + b = b + a" {
 }
 
 ///|
+/// Multiply two vectors.
+/// 
+/// Parameters
+/// * `self`: The vector to multiply.
+/// * `other`: The vector to multiply.
+/// 
+/// Example
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// inspect!(v1 * v2, content="|4, 10, 18|")
+/// ```
 pub fn Vector::op_mul[T : @lg.Mul](
   self : Vector[T],
   other : Vector[T]
@@ -163,7 +352,21 @@ test "a * b * c = a * (b * c)" {
   })
 }
 
-///| Linearly interpolate between two vectors
+///|
+/// Linearly combine two vectors.
+/// The fomular is `(1 - alpha) * self + alpha * other`.
+/// 
+/// Parameters
+/// * `self`: The vector to interpolate from.
+/// * `other`: The vector to interpolate to.
+/// * `alpha`: The interpolation factor.
+/// 
+/// Example
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// inspect!(v1.lerp(v2, 0.5), content="|2.5, 3.5, 4.5|")
+/// ```
 pub fn lerp[T : @lg.One + @lg.Mul + @lg.Add + @lg.Neg](
   self : Vector[T],
   other : Vector[T],
@@ -173,6 +376,16 @@ pub fn lerp[T : @lg.One + @lg.Mul + @lg.Add + @lg.Neg](
 }
 
 ///|
+/// Convert the vector to a string.
+/// 
+/// Parameters
+/// * `self`: The vector to convert to a string.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v.to_string(), content="|1, 2, 3|")
+/// ```
 impl[T : Show] Show for Vector[T] with to_string(self) {
   // Immutable array has no join method
   // we need to convert to mutable array first
@@ -182,11 +395,30 @@ impl[T : Show] Show for Vector[T] with to_string(self) {
 }
 
 ///|
+/// Output the vector to a string.
+/// 
+/// Parameters
+/// * `s`: The string to output the vector to.
+/// * `l`: The length of the vector.
 impl[T : Show] Show for Vector[T] with output(s, l) {
   l.write_string(s.to_string())
 }
 
-///| Produce a diagonal (scale) matrix from a vector
+///|
+/// Produce a diagonal (scale) matrix from a vector.
+/// 
+/// Parameters
+/// * `self`: The vector to produce the diagonal matrix from.
+/// 
+/// Example
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// inspect!(v.scaled_matrix(), content=
+///   #||1, 0, 0|
+///   #||0, 2, 0|
+///   #||0, 0, 3|
+/// )
+/// ```
 pub fn scaled_matrix[T : @lg.Mul + @lg.Zero](self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
@@ -208,7 +440,23 @@ test "S_v * p = v * p" {
   })
 }
 
-///| Tensor product of two vectors
+///|
+/// Tensor product of two vectors.
+/// 
+/// Parameters
+/// * `self`: The vector to tensor product with.
+/// * `other`: The vector to tensor product with.
+/// 
+/// Example
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// inspect!(tensor_product(v1, v2), content=
+///   #||4, 5, 6|
+///   #||8, 10, 12|
+///   #||12, 15, 18|
+/// )
+/// ```
 pub fn tensor_product[T : @lg.Mul](
   self : Vector[T],
   other : Vector[T]
@@ -221,6 +469,20 @@ pub fn tensor_product[T : @lg.Mul](
 ///| utils
 
 ///|
+/// Internal function to zip two arrays with a function.
+/// Used in `zip_with` method to zip two `Vectors` type.
+/// 
+/// Parameters
+/// * `a1`: The first array to zip.
+/// * `a2`: The second array to zip.
+/// * `f`: The function to apply to each element of the arrays.
+/// 
+/// Example
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// inspect!(array_zip_with(v1.data, v2.data, fn(x, y) { x * y }), content="|4, 10, 18|")
+/// ```
 fn array_zip_with[X, Y, Z](
   a1 : IArray[X],
   a2 : IArray[Y],

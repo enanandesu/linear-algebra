@@ -1,28 +1,28 @@
 # LINEAR-ALGEBRA
 
-[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/Collaborator-CAIMEOX-purple)](https://github.com/CAIMEOX) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/moonbit-community/calculus-numerical/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
+[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/Collaborator-CAIMEOX-purple)](https://github.com/CAIMEOX) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/linear-algebra/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-# Contents
+## Contents
 
-- [Introduction](#Introduction)
-- [Feature List](#Feature-List)
-- [How to Contribute](#How-to-Contribute)
+- [Introduction](#introduction)
+- [Feature List](#feature-list)
+- [How to Contribute](#how-to-contribute)
 
-# Introduction
+## Introduction
 
 This is a linear algebra library written in [**MoonBit**](https://www.moonbitlang.cn/), designed to fill the gap in the MoonBit ecosystem for scientific computing.
 
 The project will offer high-performance implementations of foundational linear algebra methods, based on one-dimensional arrays, supporting both numerical and symbolic computation.
 
-__*Starting from the first official release, both English and Chinese documentation will be fully maintained. Japanese documentation may be added in future updates.*__
+**_Starting from the first official release, both English and Chinese documentation will be fully maintained. Japanese documentation may be added in future updates._**
 
-# Feature List
+## Feature List
 
 **[Latest]** 25.01.29: Mutable Matrix implementation
 
 - **25.01.29**: Mutable Vector implementation
 
-# How to Contribute
+## How to Contribute
 
 We welcome contributions from the community, external developers, and individual enthusiasts! Whether you want to fix a bug, add a new feature, or improve the documentation, your participation is highly encouraged. To help you contribute smoothly, here are some simple steps:
 
