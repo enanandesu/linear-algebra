@@ -2,7 +2,7 @@
 
 ## @Luna-Flow/linear-algebra/immut
 
-### 类型别名 @mutable
+### 类型别名 @immut
 
 #### `IArray[T]` : `@immut/array.T[T]`
 
@@ -58,6 +58,28 @@ struct Indexed[T] {
 `@immut/Indexed[T]`是一个基于函数式索引的不可变序列容器，为`@immut/Matrix[T]`提供类似二维数组实现的使用体验，其中：
 
 - `index` - 索引映射规则函数，接收类型为`Int`的索引参数并返回对应位置类型为`T`的元素
+
+---
+
+### 函数介绍 @immut
+
+#### `Matrix::from_2d_array` : `(arr : Array[Array[T]]) -> Matrix[T]`
+**描述：**
+从二维数组创建矩阵
+
+**参数：**
+- `arr : Array[Array[T]]` — 传入的二维数组
+
+**返回值**
+`Matrix[T]`：
+
+- 返回 `Matrix` 类型的数据。
+
+**示例：**
+
+```moonbit
+let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+```
 
 ---
 
