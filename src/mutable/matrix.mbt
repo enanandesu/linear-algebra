@@ -160,6 +160,35 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
+pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
+  let r = self.row
+  let c = self.col
+  guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
+  let store = self[r1]
+  let res = Matrix::make(r, c, fn(i, j){
+    if i == r2 {
+      store[j]
+    } else if i == r1 {
+      self[r2][j]
+    } else {
+      self[i][j]
+    }
+  })
+  res
+}
+
+///|
+pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Matrix[T] {
+  self.transpose().swap_rows(c1, c2).transpose()
+}
+
+test "swap" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+  inspect!(m.swap_rows(0, 1), content="|4, 5, 6|\n|1, 2, 3|")
+  inspect!(m.swap_cols(0, 1), content="|2, 1, 3|\n|5, 4, 6|")
+}
+
+///|
 pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
   loop identity(self.col), power, self {
     s, 0, _ => s
