@@ -41,21 +41,19 @@ pub fn map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
-pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Matrix[T] {
+pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
   for i = 0; i < self.col; i = i + 1 {
     let val = self[row][i]
     (self[row].set)(i, f(val))
   }
-  self
 }
 
 ///|
-pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Matrix[T] {
+pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
   for i = 0; i < self.row; i = i + 1 {
     let val = self[i][col]
     (self[i].set)(col, f(val))
   }
-  self
 }
 
 ///|
@@ -178,12 +176,12 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
+pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Unit {
   let r = self.row
   let c = self.col
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
   if r1 == r2 {
-    return self
+    return
   }
   let temp = Array::makei(c, fn(i) { self[r1][i] })
   for i = 0; i < c; i = i + 1 {
@@ -192,7 +190,6 @@ pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
   for i = 0; i < c; i = i + 1 {
     (self[r2].set)(i, temp[i])
   }
-  self
 }
 
 ///|
@@ -226,4 +223,49 @@ pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
     s, 1, m => s * m
     s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
   }
+}
+
+///|
+pub fn reduce_row_elimination[T : Compare + @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Sub + @lg.Inverse + @lg.Zero](self : Matrix[T]) -> Matrix[T] {
+  let r = self.row
+  let c = self.col
+  let mut col = 0
+  for i = 0; i < r; i = i + 1 {
+    if col >= c {
+      break
+    }
+    let mut max_row = i
+    for j = i + 1; j < r; j = j + 1 {
+      if self[j][col] > self[max_row][col] {
+        max_row = j
+      }
+    }
+    self.swap_rows(i, max_row)
+    if self[i][col] == T::zero() {
+      col = col + 1
+      continue
+    }
+    let val = self[i][col]
+    self.map_row(i, fn(x) { x * val.inv() })
+    for j = 0; j < r; j = j + 1 {
+      if j == i {
+        continue
+      }
+      let factor = self[j][col]
+      for k = 0; k < c; k = k + 1 {
+        self[j][k] = self[j][k] - self[i][k] * factor
+      }
+    }
+    col = col + 1
+  }
+  self
+}
+
+test "reduce_row_elimination" {
+  let m = Matrix::from_2d_array([[1.0, 2.0, 3.0], [1.0, 1.0, 1.0], [2.0, 3.0, 3.0]])
+  inspect!(m.reduce_row_elimination(), content=
+    #||1, 0, 0|
+    #||0, 1, 0|
+    #||0, 0, 1|
+  )
 }
