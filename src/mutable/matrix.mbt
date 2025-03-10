@@ -41,19 +41,25 @@ pub fn map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
-pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
+pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Matrix[T] {
   for i = 0; i < self.col; i = i + 1 {
-    let val = self[row][i]
-    (self[row].set)(i, f(val))
+    self.data[row * self.col + i] = f(self.data[row * self.col + i])
   }
+  self
 }
 
 ///|
-pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
+pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Matrix[T] {
   for i = 0; i < self.row; i = i + 1 {
-    let val = self[i][col]
-    (self[i].set)(col, f(val))
+    self.data[i * self.col + col] = f(self.data[i * self.col + col])
   }
+  self
+}
+
+test "map_function" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+  inspect!(m.map_row(0, fn(x) { x * 2 }), content="|2, 4, 6|\n|4, 5, 6|")
+  inspect!(m.map_col(0, fn(x) { x * 2 }), content="|4, 4, 6|\n|8, 5, 6|")
 }
 
 ///|
@@ -176,20 +182,21 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Unit {
+pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
   let r = self.row
   let c = self.col
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
   if r1 == r2 {
-    return
+    return self
   }
-  let temp = Array::makei(c, fn(i) { self[r1][i] })
+  let temp = Array::makei(c, fn(i) { self.data[r1 * self.col + i] })
   for i = 0; i < c; i = i + 1 {
-    (self[r1].set)(i, self[r2][i])
+    self.data[r1 * self.col + i] = self.data[r2 * self.col + i]
   }  
   for i = 0; i < c; i = i + 1 {
-    (self[r2].set)(i, temp[i])
+    self.data[r2 * self.col + i] = temp[i]
   }
+  self
 }
 
 ///|
@@ -200,12 +207,12 @@ pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Matrix[T] {
   if c1 == c2 {
     return self
   }
-  let temp = Array::makei(r, fn(i) { self[i][c1] })
+  let temp = Array::makei(r, fn(i) { self.data[i * self.col + c1] })
   for i = 0; i < r; i = i + 1 {
-    (self[i].set)(c1, self[i][c2])
+    self.data[i * self.col + c1] = self.data[i * self.col + c2]
   }
   for i = 0; i < r; i = i + 1 {
-    (self[i].set)(c2, temp[i])
+    self.data[i * self.col + c2] = temp[i]
   }
   self
 }
@@ -240,13 +247,13 @@ pub fn reduce_row_elimination[T : Compare + @lg.Mul + @lg.Add + @lg.One + @lg.Ne
         max_row = j
       }
     }
-    self.swap_rows(i, max_row)
+    ignore(self.swap_rows(i, max_row))
     if self[i][col] == T::zero() {
       col = col + 1
       continue
     }
     let val = self[i][col]
-    self.map_row(i, fn(x) { x * val.inv() })
+    ignore(self.map_row(i, fn(x) { x * val.inv() }))
     for j = 0; j < r; j = j + 1 {
       if j == i {
         continue
@@ -262,10 +269,11 @@ pub fn reduce_row_elimination[T : Compare + @lg.Mul + @lg.Add + @lg.One + @lg.Ne
 }
 
 test "reduce_row_elimination" {
-  let m = Matrix::from_2d_array([[1.0, 2.0, 3.0], [1.0, 1.0, 1.0], [2.0, 3.0, 3.0]])
+  let m = Matrix::from_2d_array([[1.0, 2.0, 3.0, 7.0], [1.0, 1.0, 1.0, 2.0], [2.0, 3.0, 3.0, 5.0]])
   inspect!(m.reduce_row_elimination(), content=
-    #||1, 0, 0|
-    #||0, 1, 0|
-    #||0, 0, 1|
+    #||1, 0, 0, 1|
+    #||0, 1, 0, -3|
+    #||0, 0, 1, 4|
+
   )
 }
