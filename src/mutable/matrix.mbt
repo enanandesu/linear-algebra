@@ -41,6 +41,26 @@ pub fn map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
+pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
+  for i = 0; i < self.col; i = i + 1 {
+    self.data[row * self.col + i] = f(self.data[row * self.col + i])
+  }
+}
+
+///|
+pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
+  for i = 0; i < self.row; i = i + 1 {
+    self.data[i * self.col + col] = f(self.data[i * self.col + col])
+  }
+}
+
+test "map_function" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+  inspect!(m.map_row(0, fn(x) { x * 2 }), content="|2, 4, 6|\n|4, 5, 6|")
+  inspect!(m.map_col(0, fn(x) { x * 2 }), content="|4, 2, 3|\n|8, 5, 6|")
+}
+
+///|
 pub fn Matrix::make[A](row : Int, col : Int, f : (Int, Int) -> A) -> Matrix[A] {
   { row, col, data: Array::makei(row * col, fn(i) { f(i / col, i % col) }) }
 }
@@ -160,10 +180,95 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
+pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Unit {
+  let r = self.row
+  let c = self.col
+  guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
+  if r1 == r2 {
+    return
+  }
+  let temp = Array::makei(c, fn(i) { self.data[r1 * self.col + i] })
+  for i = 0; i < c; i = i + 1 {
+    self.data[r1 * self.col + i] = self.data[r2 * self.col + i]
+  }  
+  for i = 0; i < c; i = i + 1 {
+    self.data[r2 * self.col + i] = temp[i]
+  }
+}
+
+///|
+pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Unit {
+  let r = self.row
+  let c = self.col
+  guard c1 < c && c2 < c && c1 >= 0 && c2 >= 0
+  if c1 == c2 {
+    return
+  }
+  let temp = Array::makei(r, fn(i) { self.data[i * self.col + c1] })
+  for i = 0; i < r; i = i + 1 {
+    self.data[i * self.col + c1] = self.data[i * self.col + c2]
+  }
+  for i = 0; i < r; i = i + 1 {
+    self.data[i * self.col + c2] = temp[i]
+  }
+}
+
+test "swap" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+  inspect!(m.swap_rows(0, 1), content="|4, 5, 6|\n|1, 2, 3|")
+  inspect!(m.swap_cols(0, 1), content="|5, 4, 6|\n|2, 1, 3|")
+}
+
+///|
 pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
   loop identity(self.col), power, self {
     s, 0, _ => s
     s, 1, m => s * m
     s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
   }
+}
+
+///|
+pub fn reduce_row_elimination[T : Compare + @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Sub + @lg.Inverse + @lg.Zero](self : Matrix[T]) -> Matrix[T] {
+  let r = self.row
+  let c = self.col
+  let mut col = 0
+  for i = 0; i < r; i = i + 1 {
+    if col >= c {
+      break
+    }
+    let mut max_row = i
+    for j = i + 1; j < r; j = j + 1 {
+      if self[j][col] > self[max_row][col] {
+        max_row = j
+      }
+    }
+    ignore(self.swap_rows(i, max_row))
+    if self[i][col] == T::zero() {
+      col = col + 1
+      continue
+    }
+    let val = self[i][col]
+    ignore(self.map_row(i, fn(x) { x * val.inv() }))
+    for j = 0; j < r; j = j + 1 {
+      if j == i {
+        continue
+      }
+      let factor = self[j][col]
+      for k = 0; k < c; k = k + 1 {
+        self[j][k] = self[j][k] - self[i][k] * factor
+      }
+    }
+    col = col + 1
+  }
+  self
+}
+
+test "reduce_row_elimination" {
+  let m = Matrix::from_2d_array([[1.0, 2.0, 3.0, 7.0], [1.0, 1.0, 1.0, 2.0], [2.0, 3.0, 3.0, 5.0]])
+  inspect!(m.reduce_row_elimination(), content=
+    #||1, 0, 0, 1|
+    #||0, 1, 0, -3|
+    #||0, 0, 1, 4|
+  )
 }
