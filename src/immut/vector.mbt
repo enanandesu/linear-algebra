@@ -17,10 +17,7 @@ struct Vector[T] {
 /// let v = Vector::make(3, 1)
 /// inspect!(v, content="|1, 1, 1|")
 /// ```
-impl[T : @quickcheck.Arbitrary] @quickcheck.Arbitrary for Vector[T] with arbitrary(
-  size,
-  rng
-) {
+impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
   Vector::{ data: @immut/array.makei(size, fn { i => T::arbitrary(i, rng) }) }
 }
 
@@ -214,7 +211,7 @@ pub fn Vector::set[T](self : Vector[T], i : Int, x : T) -> Vector[T] {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v.left_scale(2), content="|2, 4, 6|")
 /// ```
-pub fn left_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
+pub fn left_scale[T : Mul](self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => scalar * x })
 }
 
@@ -230,7 +227,7 @@ pub fn left_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v.right_scale(2), content="|2, 4, 6|")
 /// ```
-pub fn right_scale[T : @lg.Mul](self : Vector[T], scalar : T) -> Vector[T] {
+pub fn right_scale[T : Mul](self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => x * scalar })
 }
 
@@ -272,7 +269,7 @@ test "from . to = identity" {
     v == Vector::from_array(v.iter().to_array())
   }
 
-  @qc.quick_check_fn!(prop)
+  quick_check_fn!(prop)
 }
 
 ///|
@@ -288,7 +285,7 @@ test "from . to = identity" {
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(v1 + v2, content="|5, 7, 9|")
 /// ```
-pub fn Vector::op_add[T : @lg.Add](
+pub fn Vector::op_add[T : Add](
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
@@ -301,7 +298,7 @@ test "a + a = 2 * a" {
     v + v == v.left_scale(2)
   }
 
-  @qc.quick_check_fn!(prop)
+  quick_check_fn!(prop)
 }
 
 ///|
@@ -310,7 +307,7 @@ test "a + b = b + a" {
     a + b == b + a
   }
 
-  @qc.quick_check_fn!(fn {
+  quick_check_fn!(fn {
     ((a : Vector[Int]), (b : Vector[Int])) => {
       guard a.length() == b.length() else { true }
       prop(a, b)
@@ -331,7 +328,7 @@ test "a + b = b + a" {
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(v1 * v2, content="|4, 10, 18|")
 /// ```
-pub fn Vector::op_mul[T : @lg.Mul](
+pub fn Vector::op_mul[T : Mul](
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
@@ -344,7 +341,7 @@ test "a * b * c = a * (b * c)" {
     a * b * c == a * (b * c)
   }
 
-  @qc.quick_check_fn!(fn {
+  quick_check_fn!(fn {
     ((a : Vector[Int]), (b : Vector[Int]), (c : Vector[Int])) => {
       guard a.length() == b.length() && b.length() == c.length() else { true }
       prop(a, b, c)
@@ -367,7 +364,7 @@ test "a * b * c = a * (b * c)" {
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(v1.lerp(v2, 0.5), content="|2.5, 3.5, 4.5|")
 /// ```
-pub fn lerp[T : @lg.One + @lg.Mul + @lg.Add + @lg.Neg](
+pub fn lerp[T : One + Mul + Add + Neg](
   self : Vector[T],
   other : Vector[T],
   alpha : T
@@ -419,20 +416,19 @@ impl[T : Show] Show for Vector[T] with output(s, l) {
 ///   #||0, 0, 3|
 /// )
 /// ```
-pub fn scaled_matrix[T : @lg.Mul + @lg.Zero](self : Vector[T]) -> Matrix[T] {
+pub fn scaled_matrix[T : Mul + Zero](self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
 
 ///|
 test "S_v * p = v * p" {
-  
   fn prop(v : Vector[Int], p : Vector[Int]) {
     let m = v.scaled_matrix()
     m * p.to_col_matrix() == (v * p).to_col_matrix()
   }
 
-  @qc.quick_check_fn!(fn {
+  quick_check_fn!(fn {
     ((a : Vector[Int]), (b : Vector[Int])) => {
       guard a.length() == b.length() else { true }
       prop(a, b)
@@ -457,7 +453,7 @@ test "S_v * p = v * p" {
 ///   #||12, 15, 18|
 /// )
 /// ```
-pub fn tensor_product[T : @lg.Mul](
+pub fn tensor_product[T : Mul](
   self : Vector[T],
   other : Vector[T]
 ) -> Matrix[T] {

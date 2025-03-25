@@ -36,28 +36,36 @@ pub impl[T : Show] Show for Matrix[T] with output(s, l) {
 }
 
 ///|
-pub fn map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
+pub fn Matrix::map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
   { row: self.row, col: self.col, data: self.data.map(f) }
 }
 
 ///|
-pub fn map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
-  for i = 0; i < self.col; i = i + 1 {
+pub fn Matrix::map_row[T](self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
+  for i in 0..<self.col {
     self.data[row * self.col + i] = f(self.data[row * self.col + i])
   }
 }
 
 ///|
-pub fn map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
-  for i = 0; i < self.row; i = i + 1 {
+pub fn Matrix::map_col[T](self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
+  for i in 0..<self.row {
     self.data[i * self.col + col] = f(self.data[i * self.col + col])
   }
 }
 
+///|
+pub fn Matrix::copy[T](self : Matrix[T]) -> Matrix[T] {
+  { row: self.row, col: self.col, data: self.data.copy() }
+}
+
+///|
 test "map_function" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-  inspect!(m.map_row(0, fn(x) { x * 2 }), content="|2, 4, 6|\n|4, 5, 6|")
-  inspect!(m.map_col(0, fn(x) { x * 2 }), content="|4, 2, 3|\n|8, 5, 6|")
+  let m1 = m.copy()..map_row(0, fn(x) { x * 2 })
+  let m2 = m.copy()..map_col(0, fn(x) { x * 2 })
+  inspect!(m1.to_string(), content="|2, 4, 6|\n|4, 5, 6|")
+  inspect!(m2.to_string(), content="|2, 2, 3|\n|8, 5, 6|")
 }
 
 ///|
@@ -102,10 +110,7 @@ test "op_set" {
 }
 
 ///|
-pub fn op_mul[T : @lg.Mul + @lg.Add](
-  self : Matrix[T],
-  other : Matrix[T]
-) -> Matrix[T] {
+pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   let row = self.row
   let col = other.col
   let inner = self.col
@@ -123,7 +128,7 @@ pub fn op_mul[T : @lg.Mul + @lg.Add](
 }
 
 ///|
-pub fn op_add[T : @lg.Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
   {
@@ -134,30 +139,27 @@ pub fn op_add[T : @lg.Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn op_neg[T : @lg.Neg](self : Matrix[T]) -> Matrix[T] {
+pub fn op_neg[T : Neg](self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 
 ///|
-pub fn op_sub[T : @lg.Add + @lg.Neg](
-  self : Matrix[T],
-  other : Matrix[T]
-) -> Matrix[T] {
+pub fn op_sub[T : Add + Neg](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   self + -other
 }
 
 ///|
-pub fn scale[T : @lg.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn scale[T : Mul](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x * cst })
 }
 
 ///|
-pub fn add_constant[T : @lg.Add](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn add_constant[T : Add](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x + cst })
 }
 
 ///|
-pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
+pub fn identity[T : One + Zero](size : Int) -> Matrix[T] {
   Matrix::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -165,12 +167,12 @@ pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
 }
 
 ///|
-pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
+pub fn null[T : Compare + Zero](self : Matrix[T]) -> Bool {
   not(self.data.iter().any(fn(x) { x != T::zero() }))
 }
 
 ///|
-pub fn adjoint[T : @lg.Conjugate](self : Matrix[T]) -> Matrix[T] {
+pub fn adjoint[T : Conjugate](self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
 
@@ -190,7 +192,7 @@ pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Unit {
   let temp = Array::makei(c, fn(i) { self.data[r1 * self.col + i] })
   for i = 0; i < c; i = i + 1 {
     self.data[r1 * self.col + i] = self.data[r2 * self.col + i]
-  }  
+  }
   for i = 0; i < c; i = i + 1 {
     self.data[r2 * self.col + i] = temp[i]
   }
@@ -213,14 +215,17 @@ pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Unit {
   }
 }
 
+///|
 test "swap" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-  inspect!(m.swap_rows(0, 1), content="|4, 5, 6|\n|1, 2, 3|")
-  inspect!(m.swap_cols(0, 1), content="|5, 4, 6|\n|2, 1, 3|")
+  let m1 = m.copy()..swap_rows(0, 1)
+  let m2 = m.copy()..swap_cols(0, 1)
+  inspect!(m1.to_string(), content="|4, 5, 6|\n|1, 2, 3|")
+  inspect!(m2.to_string(), content="|2, 1, 3|\n|5, 4, 6|")
 }
 
 ///|
-pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
+pub fn pow[T : Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
   loop identity(self.col), power, self {
     s, 0, _ => s
     s, 1, m => s * m
@@ -229,7 +234,9 @@ pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
 }
 
 ///|
-pub fn reduce_row_elimination[T : Compare + @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Sub + @lg.Inverse + @lg.Zero](self : Matrix[T]) -> Matrix[T] {
+pub fn reduce_row_elimination[T : Compare + Ring + Sub + Inverse](
+  self : Matrix[T]
+) -> Matrix[T] {
   let r = self.row
   let c = self.col
   let mut col = 0
@@ -264,11 +271,19 @@ pub fn reduce_row_elimination[T : Compare + @lg.Mul + @lg.Add + @lg.One + @lg.Ne
   self
 }
 
+///|
 test "reduce_row_elimination" {
-  let m = Matrix::from_2d_array([[1.0, 2.0, 3.0, 7.0], [1.0, 1.0, 1.0, 2.0], [2.0, 3.0, 3.0, 5.0]])
-  inspect!(m.reduce_row_elimination(), content=
-    #||1, 0, 0, 1|
-    #||0, 1, 0, -3|
-    #||0, 0, 1, 4|
+  let m = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0, 7.0],
+    [1.0, 1.0, 1.0, 2.0],
+    [2.0, 3.0, 3.0, 5.0],
+  ])
+  inspect!(
+    m.reduce_row_elimination(),
+    content=
+      #||1, 0, 0, 1|
+      #||0, 1, 0, -3|
+      #||0, 0, 1, 4|
+    ,
   )
 }
