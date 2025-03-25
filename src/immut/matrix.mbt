@@ -56,9 +56,9 @@ struct Indexed[T] {
 /// ```
 pub impl[T : Show] Show for Matrix[T] with to_string(s) {
   let mut res = ""
-  for i = 0; i < s.row; i = i + 1 {
+  for i in 0..<s.row {
     res = res + "|"
-    for j = 0; j < s.col; j = j + 1 {
+    for j in 0..<s.col {
       res = res + s.data[i * s.col + j].to_string()
       if j < s.col - 1 {
         res = res + ", "
@@ -290,10 +290,7 @@ test {
 ///   #||3, 7|
 /// )
 /// ```
-pub fn op_mul[T : @lg.Mul + @lg.Add](
-  self : Matrix[T],
-  other : Matrix[T]
-) -> Matrix[T] {
+pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   let row = self.row
   let col = other.col
   let inner = self.col
@@ -302,7 +299,7 @@ pub fn op_mul[T : @lg.Mul + @lg.Add](
     let r = i / col
     let c = i % col
     let mut sum = self[r][0] * other[0][c]
-    for k = 1; k < inner; k = k + 1 {
+    for k in 1..<inner {
       sum = sum + self[r][k] * other[k][c]
     }
     sum
@@ -327,7 +324,7 @@ pub fn op_mul[T : @lg.Mul + @lg.Add](
 ///   #||3, 5|
 /// )
 /// ```
-pub fn op_add[T : @lg.Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
   {
@@ -352,7 +349,7 @@ pub fn op_add[T : @lg.Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 ///   #||-3, -4|
 /// )
 /// ```
-pub fn op_neg[T : @lg.Neg](self : Matrix[T]) -> Matrix[T] {
+pub fn op_neg[T : Neg](self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 
@@ -373,10 +370,7 @@ pub fn op_neg[T : @lg.Neg](self : Matrix[T]) -> Matrix[T] {
 ///   #||3, 3|
 /// )
 /// ```
-pub fn op_sub[T : @lg.Add + @lg.Neg](
-  self : Matrix[T],
-  other : Matrix[T]
-) -> Matrix[T] {
+pub fn op_sub[T : Add + Neg](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   self + -other
 }
 
@@ -396,7 +390,7 @@ pub fn op_sub[T : @lg.Add + @lg.Neg](
 ///   #||30, 40|
 /// )
 /// ```
-pub fn scale[T : @lg.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn scale[T : Mul](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x * cst })
 }
 
@@ -416,7 +410,7 @@ pub fn scale[T : @lg.Mul](self : Matrix[T], cst : T) -> Matrix[T] {
 ///   #||13, 14|
 /// )
 /// ```
-pub fn add_constant[T : @lg.Add](self : Matrix[T], cst : T) -> Matrix[T] {
+pub fn add_constant[T : Add](self : Matrix[T], cst : T) -> Matrix[T] {
   self.map(fn(x) { x + cst })
 }
 
@@ -435,7 +429,7 @@ pub fn add_constant[T : @lg.Add](self : Matrix[T], cst : T) -> Matrix[T] {
 ///   #||0, 0, 1|
 /// )
 /// ```
-pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
+pub fn identity[T : One + Zero](size : Int) -> Matrix[T] {
   Matrix::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -453,7 +447,7 @@ pub fn identity[T : @lg.One + @lg.Zero](size : Int) -> Matrix[T] {
 /// let m = Matrix::from_2d_array([[0, 0], [0, 0]])
 /// inspect!(m.null(), content="true")
 /// ```
-pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
+pub fn null[T : Compare + Zero](self : Matrix[T]) -> Bool {
   not(self.data.iter().any(fn(x) { x != T::zero() }))
 }
 
@@ -472,7 +466,7 @@ pub fn null[T : Compare + @lg.Zero](self : Matrix[T]) -> Bool {
 ///   #||-2 + 3i, 1 - 2i|
 /// )
 /// ```
-pub fn adjoint[T : @lg.Conjugate](self : Matrix[T]) -> Matrix[T] {
+pub fn adjoint[T : Conjugate](self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
 
@@ -519,9 +513,7 @@ pub fn transpose[T](self : Matrix[T]) -> Matrix[T] {
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// inspect!(m.determinant(), content="-2")
 /// ```
-pub fn determinant[T : @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Zero](
-  self : Matrix[T]
-) -> T {
+pub fn determinant[T : Mul + Add + One + Neg + Zero](self : Matrix[T]) -> T {
   let n = self.row
   guard n == self.col
   fn go {
@@ -536,6 +528,7 @@ pub fn determinant[T : @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Zero](
       det
     }
   }
+
   go(fn { i, j => self[i][j] }, n)
 }
 
@@ -555,7 +548,7 @@ pub fn determinant[T : @lg.Mul + @lg.Add + @lg.One + @lg.Neg + @lg.Zero](
 ///   #||15, 22|
 /// )
 /// ```
-pub fn pow[T : @lg.Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
+pub fn pow[T : Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
   loop identity(self.col), power, self {
     s, 0, _ => s
     s, 1, m => s * m
