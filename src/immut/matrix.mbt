@@ -56,9 +56,9 @@ struct Indexed[T] {
 /// ```
 pub impl[T : Show] Show for Matrix[T] with to_string(s) {
   let mut res = ""
-  for i = 0; i < s.row; i = i + 1 {
+  for i in 0..<s.row {
     res = res + "|"
-    for j = 0; j < s.col; j = j + 1 {
+    for j in 0..<s.col {
       res = res + s.data[i * s.col + j].to_string()
       if j < s.col - 1 {
         res = res + ", "
@@ -299,7 +299,7 @@ pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
     let r = i / col
     let c = i % col
     let mut sum = self[r][0] * other[0][c]
-    for k = 1; k < inner; k = k + 1 {
+    for k in 1..<inner {
       sum = sum + self[r][k] * other[k][c]
     }
     sum

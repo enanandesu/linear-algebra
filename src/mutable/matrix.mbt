@@ -14,9 +14,9 @@ struct Lens[T] {
 ///|
 pub impl[T : Show] Show for Matrix[T] with to_string(s) {
   let mut res = ""
-  for i = 0; i < s.row; i = i + 1 {
+  for i in 0..<s.row {
     res = res + "|"
-    for j = 0; j < s.col; j = j + 1 {
+    for j in 0..<s.col {
       res = res + s.data[i * s.col + j].to_string()
       if j < s.col - 1 {
         res = res + ", "
@@ -119,7 +119,7 @@ pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
     let r = i / col
     let c = i % col
     let mut sum = self[r][0] * other[0][c]
-    for k = 1; k < inner; k = k + 1 {
+    for k in 1..<inner {
       sum += self[r][k] * other[k][c]
     }
     sum
@@ -190,10 +190,10 @@ pub fn swap_rows[T](self : Matrix[T], r1 : Int, r2 : Int) -> Unit {
     return
   }
   let temp = Array::makei(c, fn(i) { self.data[r1 * self.col + i] })
-  for i = 0; i < c; i = i + 1 {
+  for i in 0..<c {
     self.data[r1 * self.col + i] = self.data[r2 * self.col + i]
   }
-  for i = 0; i < c; i = i + 1 {
+  for i in 0..<c {
     self.data[r2 * self.col + i] = temp[i]
   }
 }
@@ -207,10 +207,10 @@ pub fn swap_cols[T](self : Matrix[T], c1 : Int, c2 : Int) -> Unit {
     return
   }
   let temp = Array::makei(r, fn(i) { self.data[i * self.col + c1] })
-  for i = 0; i < r; i = i + 1 {
+  for i in 0..<r {
     self.data[i * self.col + c1] = self.data[i * self.col + c2]
   }
-  for i = 0; i < r; i = i + 1 {
+  for i in 0..<r {
     self.data[i * self.col + c2] = temp[i]
   }
 }
@@ -240,12 +240,12 @@ pub fn reduce_row_elimination[T : Compare + Ring + Sub + Inverse](
   let r = self.row
   let c = self.col
   let mut col = 0
-  for i = 0; i < r; i = i + 1 {
+  for i in 0..<r {
     if col >= c {
       break
     }
     let mut max_row = i
-    for j = i + 1; j < r; j = j + 1 {
+    for j in (i + 1)..<r {
       if self[j][col] > self[max_row][col] {
         max_row = j
       }
@@ -257,12 +257,12 @@ pub fn reduce_row_elimination[T : Compare + Ring + Sub + Inverse](
     }
     let val = self[i][col]
     ignore(self.map_row(i, fn(x) { x * val.inv() }))
-    for j = 0; j < r; j = j + 1 {
+    for j in 0..<r {
       if j == i {
         continue
       }
       let factor = self[j][col]
-      for k = 0; k < c; k = k + 1 {
+      for k in 0..<c {
         self[j][k] = self[j][k] - self[i][k] * factor
       }
     }
