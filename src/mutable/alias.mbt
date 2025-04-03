@@ -1,5 +1,5 @@
 ///|
-traitalias @lg.(One, Zero, Conjugate, Inverse, Semiring, Ring)
+traitalias @lg.(One, Zero, Conjugate, Inverse, Semiring, Num)
 
 ///|
 traitalias @quickcheck.Arbitrary

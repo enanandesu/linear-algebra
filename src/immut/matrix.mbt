@@ -610,7 +610,18 @@ pub fn horizontal_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 /// )
 /// ```
 pub fn vertical_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
-  Matrix::horizontal_combine(self.transpose(), other.transpose()).transpose()
+  let r1 = self.row
+  let r2 = other.row
+  let c1 = self.col
+  let c2 = other.col
+  guard c1 == c2
+  Matrix::make(r1 + r2, c1, fn(i, j) {
+    if i < r1 {
+      self[i][j]
+    } else {
+      other[i - r1][j]
+    }
+  })
 }
 
 ///|
