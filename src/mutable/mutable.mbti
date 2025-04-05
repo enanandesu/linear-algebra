@@ -1,6 +1,8 @@
-package Luna-Flow/linear-algebra/mutable
+package "Luna-Flow/linear-algebra/mutable"
 
-alias @Luna-Flow/luna-generic as @luna-generic
+import(
+  "Luna-Flow/luna-generic"
+)
 
 // Values
 fn add_constant[T : Add](Matrix[T], T) -> Matrix[T]
