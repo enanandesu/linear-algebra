@@ -234,7 +234,7 @@ pub fn pow[T : Semiring](self : Matrix[T], power : Int) -> Matrix[T] {
 }
 
 ///|
-pub fn reduce_row_elimination[T : Compare + Ring + Sub + Inverse](
+pub fn reduce_row_elimination[T : Compare + Num + Sub + Inverse](
   self : Matrix[T]
 ) -> Matrix[T] {
   let r = self.row
@@ -246,7 +246,7 @@ pub fn reduce_row_elimination[T : Compare + Ring + Sub + Inverse](
     }
     let mut max_row = i
     for j in (i + 1)..<r {
-      if self[j][col] > self[max_row][col] {
+      if self[j][col].abs() > self[max_row][col].abs() {
         max_row = j
       }
     }
@@ -284,6 +284,49 @@ test "reduce_row_elimination" {
       #||1, 0, 0, 1|
       #||0, 1, 0, -3|
       #||0, 0, 1, 4|
+    ,
+  )
+}
+
+///|
+pub fn horizontal_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+  guard self.row == other.row
+  Matrix::make(self.row, self.col + other.col, fn(i, j) {
+    if j < self.col {
+      self[i][j]
+    } else {
+      other[i][j - self.col]
+    }
+  })
+}
+
+pub fn vertical_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+  guard self.col == other.col
+  let array = self.data
+  array.push_iter(other.data.iter())
+  return { row : self.row + other.row, col : self.col, data : array }
+}
+
+///|
+test "matrix_combine" {
+  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+  let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
+  let m3 = horizontal_combine(m1, m2)
+  let m4 = vertical_combine(m1, m2)
+  inspect!(
+    m3,
+    content=
+      #||1, 2, 1, 0|
+      #||3, 4, 0, 1|
+    ,
+  )
+  inspect!(
+    m4,
+    content=
+      #||1, 2|
+      #||3, 4|
+      #||1, 0|
+      #||0, 1|
     ,
   )
 }
