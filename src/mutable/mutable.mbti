@@ -9,6 +9,8 @@ fn add_constant[T : Add](Matrix[T], T) -> Matrix[T]
 
 fn adjoint[T : @luna-generic.Conjugate](Matrix[T]) -> Matrix[T]
 
+fn horizontal_combine[T](Matrix[T], Matrix[T]) -> Matrix[T]
+
 fn identity[T : @luna-generic.One + @luna-generic.Zero](Int) -> Matrix[T]
 
 fn lerp[T : @luna-generic.One + Mul + Add + Neg](Vector[T], Vector[T], T) -> Vector[T]
@@ -29,7 +31,7 @@ fn op_sub[T : Add + Neg](Matrix[T], Matrix[T]) -> Matrix[T]
 
 fn pow[T : @luna-generic.Semiring](Matrix[T], Int) -> Matrix[T]
 
-fn reduce_row_elimination[T : Compare + @luna-generic.Ring + Sub + @luna-generic.Inverse](Matrix[T]) -> Matrix[T]
+fn reduce_row_elimination[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse](Matrix[T]) -> Matrix[T]
 
 fn scale[T : Mul](Matrix[T], T) -> Matrix[T]
 
@@ -47,6 +49,8 @@ fn to_row_matrix[T](Vector[T]) -> Matrix[T]
 
 fn transpose[T](Matrix[T]) -> Matrix[T]
 
+fn vertical_combine[T](Matrix[T], Matrix[T]) -> Matrix[T]
+
 // Types and methods
 type Lens[T]
 impl Lens {
@@ -60,6 +64,7 @@ impl Matrix {
   adjoint[T : @luna-generic.Conjugate](Self[T]) -> Self[T]
   copy[T](Self[T]) -> Self[T]
   from_2d_array[T](Array[Array[T]]) -> Self[T]
+  horizontal_combine[T](Self[T], Self[T]) -> Self[T]
   make[A](Int, Int, (Int, Int) -> A) -> Self[A]
   map[T, U](Self[T], (T) -> U) -> Self[U]
   map_col[T](Self[T], Int, (T) -> T) -> Unit
@@ -72,11 +77,12 @@ impl Matrix {
   op_neg[T : Neg](Self[T]) -> Self[T]
   op_sub[T : Add + Neg](Self[T], Self[T]) -> Self[T]
   pow[T : @luna-generic.Semiring](Self[T], Int) -> Self[T]
-  reduce_row_elimination[T : Compare + @luna-generic.Ring + Sub + @luna-generic.Inverse](Self[T]) -> Self[T]
+  reduce_row_elimination[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse](Self[T]) -> Self[T]
   scale[T : Mul](Self[T], T) -> Self[T]
   swap_cols[T](Self[T], Int, Int) -> Unit
   swap_rows[T](Self[T], Int, Int) -> Unit
   transpose[T](Self[T]) -> Self[T]
+  vertical_combine[T](Self[T], Self[T]) -> Self[T]
 }
 impl[T : Eq] Eq for Matrix[T]
 impl[T : Show] Show for Matrix[T]

@@ -300,11 +300,12 @@ pub fn horizontal_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   })
 }
 
+///|
 pub fn vertical_combine[T](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
   guard self.col == other.col
   let array = self.data
   array.push_iter(other.data.iter())
-  return { row : self.row + other.row, col : self.col, data : array }
+  return { row: self.row + other.row, col: self.col, data: array }
 }
 
 ///|
