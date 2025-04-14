@@ -1,0 +1,413 @@
+///|
+struct Trans[T] {
+  row : Int
+  col : Int
+  data : Array[T]
+} derive(Eq)
+
+///|
+struct Lens_Trans[T] {
+  set : (Int, T) -> Unit
+  get : (Int) -> T
+}
+
+///|
+pub impl[T : Show] Show for Trans[T] with to_string(s) {
+  let mut res = ""
+  for i in 0..<s.row {
+    res = res + "|"
+    for j in 0..<s.col {
+      res = res + s.data[j * s.row + i].to_string()
+      if j < s.col - 1 {
+        res = res + ", "
+      }
+    }
+    res = res + "|"
+    if i < s.row - 1 {
+      res = res + "\n"
+    }
+  }
+  res
+}
+
+///|
+pub impl[T : Show] Show for Trans[T] with output(s, l) {
+  l.write_string(s.to_string())
+}
+
+///|
+fn Trans::make[A](row : Int, col : Int, f : (Int, Int) -> A) -> Trans[A] {
+  { row, col, data: Array::makei(row * col, fn(i) { f(i / row, i % row) }) }
+}
+
+///|
+pub fn Trans::map[T, U](self : Trans[T], f : (T) -> U) -> Trans[U] {
+  { row: self.row, col: self.col, data: self.data.map(f) }
+}
+
+///|
+pub fn Trans::map_col[T](self : Trans[T], col : Int, f : (T) -> T) -> Unit {
+  for i in 0..<self.row {
+    self.data[i + self.row * col] = f(self.data[i + self.row * col])
+  }
+}
+
+///|
+pub fn Trans::map_row[T](self : Trans[T], row : Int, f : (T) -> T) -> Unit {
+  for i in 0..<self.col {
+    self.data[row + self.row * i] = f(self.data[row + self.row * i])
+  }
+}
+
+///|
+test "map" {
+  let m = Matrix::from_2d_array([[0, 1, 2], [3, 4, 5]]).matrix_to_transpose()
+  let m1 = Trans::make(3, 4, fn(i, j) { i+j })
+  inspect!(
+    m1,
+    content=
+      #||0, 1, 2, 3|
+      #||0, 1, 2, 3|
+      #||0, 1, 2, 3|
+    ,
+  )
+  m.map_col(0, fn(x) { x * 2 })
+  inspect!(
+    m,
+    content=
+      #||0, 3|
+      #||2, 4|
+      #||4, 5|
+    ,
+  )
+  m.map_row(0, fn(x) { x + 1 })
+  inspect!(
+    m,
+    content=
+      #||1, 4|
+      #||2, 4|
+      #||4, 5|
+    ,
+  )
+}
+
+///|
+pub fn Trans::copy[T](self : Trans[T]) -> Trans[T] {
+  { row: self.row, col: self.col, data: self.data.copy() }
+}
+
+///| 
+pub fn Trans::op_get[T](self : Trans[T], row : Int) -> Lens_Trans[T] {
+  {
+    set: fn { c, v => self.data[row + self.row * c] = v },
+    get: fn { c => self.data[row + self.row * c] },
+  }
+}
+
+///|
+pub fn Lens_Trans::op_get[T](self : Lens_Trans[T], col : Int) -> T {
+  (self.get)(col)
+}
+
+///|
+pub fn Lens_Trans::op_set[T](self : Lens_Trans[T], col : Int, elem : T) -> Unit {
+  (self.set)(col, elem)
+}
+
+///|
+test "op_set" {
+  let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]]).matrix_to_transpose()
+  inspect!(m[0][1], content="1")
+  m[0][1] = 4
+  inspect!(m[0][1], content="4")
+}
+
+///|
+pub fn Trans::op_mul[T : Mul + Add](
+  self : Trans[T],
+  other : Trans[T]
+) -> Trans[T] {
+  let row = self.row
+  let col = other.col
+  let inner = self.col
+  guard inner == other.row
+  let data = Array::makei(row * col, fn(i) {
+    let r = i / row
+    let c = i % row
+    let mut sum = self.data[c] * other.data[other.row * r]
+    for k in 1..<inner {
+      sum += self.data[c + self.row * k] * other.data[k + other.row * r]
+    }
+    sum
+  })
+  { row, col, data }
+}
+
+///|
+pub fn Trans::op_add[T : Add](self : Trans[T], other : Trans[T]) -> Trans[T] {
+  guard self.col == other.col
+  guard self.row == other.row
+  {
+    data: array_zip_with(self.data, other.data, T::op_add),
+    row: self.row,
+    col: self.col,
+  }
+}
+
+///|
+pub fn Trans::op_neg[T : Neg](self : Trans[T]) -> Trans[T] {
+  self.map(T::op_neg)
+}
+
+///|
+pub fn Trans::op_sub[T : Add + Neg](
+  self : Trans[T],
+  other : Trans[T]
+) -> Trans[T] {
+  self + -other
+}
+
+///|
+pub fn Trans::scale[T : Mul](self : Trans[T], cst : T) -> Trans[T] {
+  self.map(fn(x) { x * cst })
+}
+
+///|
+pub fn Trans::add_constant[T : Add](self : Trans[T], cst : T) -> Trans[T] {
+  self.map(fn(x) { x + cst })
+}
+
+///|
+pub fn Trans::null[T : Compare + Zero](self : Trans[T]) -> Bool {
+  not(self.data.iter().any(fn(x) { x != T::zero() }))
+}
+
+///|
+pub fn Trans::adjoint[T : Conjugate](self : Trans[T]) -> Trans[T] {
+  self.map(T::conjugate)
+}
+
+///|
+pub fn Trans::swap_cols[T](self : Trans[T], c1 : Int, c2 : Int) -> Unit {
+  let r = self.row
+  let c = self.col
+  guard c1 < c && c2 < c && c1 >= 0 && c2 >= 0
+  if c1 == c2 {
+    return
+  }
+  let temp = Array::makei(r, fn(i) { self.data[i + r * c1] })
+  for i in 0..<r {
+    self.data[i + r * c1] = self.data[i + r * c2]
+  }
+  for i in 0..<r {
+    self.data[i + r * c2] = temp[i]
+  }
+}
+
+///|
+pub fn Trans::swap_rows[T](self : Trans[T], r1 : Int, r2 : Int) -> Unit {
+  let r = self.row
+  let c = self.col
+  guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
+  if r1 == r2 {
+    return
+  }
+  let temp = Array::makei(c, fn(i) { self.data[r1 + r * i] })
+  for i in 0..<c {
+    self.data[r1 + r * i] = self.data[r2 + r * i]
+  }
+  for i in 0..<c {
+    self.data[r2 + r * i] = temp[i]
+  }
+}
+
+///|
+pub fn Trans::pow[T : Semiring](self : Trans[T], power : Int) -> Trans[T] {
+  loop identity(self.col).matrix_to_transpose(), power, self {
+    s, 0, _ => s
+    s, 1, m => s * m
+    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
+  }
+}
+
+///|
+pub fn Trans::reduce_row_elimination[T : Compare + Num + Sub + Inverse](
+  self : Trans[T]
+) -> Trans[T] {
+  let r = self.row
+  let c = self.col
+  let mut col = 0
+  for i in 0..<r {
+    if col >= c {
+      break
+    }
+    let mut max_row = i
+    for j in (i + 1)..<r {
+      if self.data[j + r * col].abs() > self.data[max_row + r * col].abs() {
+        max_row = j
+      }
+    }
+    ignore(self.swap_rows(i, max_row))
+    if self.data[i + r * col] == T::zero() {
+      col = col + 1
+      continue
+    }
+    let val = self.data[i + r * col]
+    ignore(self.map_row(i, fn(x) { x * val.inv() }))
+    for j in 0..<r {
+      if j == i {
+        continue
+      }
+      let factor = self.data[j + r * col]
+      for k in 0..<c {
+        self.data[j + r * k] = self.data[j + r * k] -
+          self.data[i + r * k] * factor
+      }
+    }
+    col = col + 1
+  }
+  self
+}
+
+///|
+pub fn Trans::horizontal_combine[T](
+  self : Trans[T],
+  other : Trans[T]
+) -> Trans[T] {
+  guard self.row == other.row
+  Trans::make(self.row, self.col + other.col, fn(i, j) {
+    if i < self.col {
+      self.data[j + self.row * i]
+    } else {
+      other.data[j + self.row * (i - self.col)]
+    }
+  })
+}
+
+///|
+pub fn Trans::vertical_combine[T](
+  self : Trans[T],
+  other : Trans[T]
+) -> Trans[T] {
+  guard self.col == other.col
+  Trans::make(self.row + other.row, self.col, fn(i, j) {
+    if j < self.row {
+      self.data[j + self.row * i]
+    } else {
+      other.data[j - self.row + self.row * i]
+    }
+  })
+}
+
+///|
+pub fn Trans::transpose_to_matrix[T](self : Trans[T]) -> Matrix[T] {
+  let data = Array::makei(self.col * self.row, fn(i) {
+    let row = i / self.col
+    let col = i % self.col
+    self.data[row + self.row * col]
+  })
+  { row: self.col, col: self.row, data }
+}
+
+///|
+test "add" {
+  let m1 = Matrix::from_2d_array([[1], [1], [1]]).matrix_to_transpose()
+  let m2 = Matrix::from_2d_array([[2], [3], [4]]).matrix_to_transpose()
+  let m3 = (m1 + m2).transpose_to_matrix()
+  inspect!(m1 + m2, content="|3, 4, 5|")
+  inspect!(
+    m3,
+    content=
+      #||3|
+      #||4|
+      #||5|
+    ,
+  )
+}
+
+///|
+test "swap" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
+  let m1 = m.copy()..swap_rows(0, 1)
+  let m2 = m.copy()..swap_cols(0, 1)
+  inspect!(
+    m,
+    content=
+      #||1, 4|
+      #||2, 5|
+      #||3, 6|
+    ,
+  )
+  inspect!(
+    m1,
+    content=
+      #||2, 5|
+      #||1, 4|
+      #||3, 6|
+    ,
+  )
+  inspect!(
+    m2,
+    content=
+      #||4, 1|
+      #||5, 2|
+      #||6, 3|
+    ,
+  )
+}
+
+///|
+test "matrix_combine" {
+  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
+  let m2 = Matrix::from_2d_array([[1, 0], [0, 1]]).matrix_to_transpose()
+  let m3 = Trans::horizontal_combine(m1, m2)
+  let m4 = Trans::vertical_combine(m1, m2)
+  inspect!(
+    m3,
+    content=
+      #||1, 3, 1, 0|
+      #||2, 4, 0, 1|
+    ,
+  )
+  inspect!(
+    m4,
+    content=
+      #||1, 3|
+      #||2, 4|
+      #||1, 0|
+      #||0, 1|
+    ,
+  )
+}
+
+///|
+test "to transpose" {
+  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
+  inspect!(
+    m1,
+    content=
+      #||1, 3|
+      #||2, 4|
+    ,
+  )
+}
+
+///|
+test "reduce_row_elimination" {
+  let m = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0, 7.0],
+    [1.0, 1.0, 1.0, 2.0],
+    [2.0, 3.0, 3.0, 5.0],
+    [2.2, 2.3, 2.1, 2.4],
+    [2.4, 2.4, 2.5, 2.7],
+  ]).matrix_to_transpose()
+  inspect!(
+    m.reduce_row_elimination(),
+    content=
+      #||1, 0, 0, 0, 0.48461538461538456|
+      #||0, 1, 0, 0, -0.9615384615384615|
+      #||0, 0, 1, 0, -0.6769230769230766|
+      #||0, 0, 0, 1, 1.9230769230769227|
+    ,
+  )
+}
