@@ -41,7 +41,7 @@ pub fn Matrix::map[T, U](self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
-pub fn matrix_to_transpose[T](self : Matrix[T]) -> Trans[T] {
+pub fn matrix_to_transpose[T](self : Matrix[T]) -> Transpose[T] {
   { row: self.col, col: self.row, data: self.data }
 }
 
@@ -115,7 +115,10 @@ test "op_set" {
 }
 
 ///|
-pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   let row = self.row
   let col = other.col
   let inner = self.col
@@ -133,7 +136,10 @@ pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub impl[T : Add] Add for Matrix[T] with op_add(
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
   {
@@ -144,12 +150,15 @@ pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
-pub fn op_neg[T : Neg](self : Matrix[T]) -> Matrix[T] {
+pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 
 ///|
-pub fn op_sub[T : Add + Neg](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub impl[T : Add + Neg] Sub for Matrix[T] with op_sub(
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   self + -other
 }
 

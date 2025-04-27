@@ -36,7 +36,11 @@ pub impl[T : Show] Show for Transpose[T] with output(s, l) {
 }
 
 ///|
-fn Transpose::make[A](row : Int, col : Int, f : (Int, Int) -> A) -> Transpose[A] {
+fn Transpose::make[A](
+  row : Int,
+  col : Int,
+  f : (Int, Int) -> A
+) -> Transpose[A] {
   { row, col, data: Array::makei(row * col, fn(i) { f(i / row, i % row) }) }
 }
 
@@ -46,14 +50,22 @@ pub fn Transpose::map[T, U](self : Transpose[T], f : (T) -> U) -> Transpose[U] {
 }
 
 ///|
-pub fn Transpose::map_col[T](self : Transpose[T], col : Int, f : (T) -> T) -> Unit {
+pub fn Transpose::map_col[T](
+  self : Transpose[T],
+  col : Int,
+  f : (T) -> T
+) -> Unit {
   for i in 0..<self.row {
     self.data[i + self.row * col] = f(self.data[i + self.row * col])
   }
 }
 
 ///|
-pub fn Transpose::map_row[T](self : Transpose[T], row : Int, f : (T) -> T) -> Unit {
+pub fn Transpose::map_row[T](
+  self : Transpose[T],
+  row : Int,
+  f : (T) -> T
+) -> Unit {
   for i in 0..<self.col {
     self.data[row + self.row * i] = f(self.data[row + self.row * i])
   }
@@ -62,7 +74,7 @@ pub fn Transpose::map_row[T](self : Transpose[T], row : Int, f : (T) -> T) -> Un
 ///|
 test "map" {
   let m = Matrix::from_2d_array([[0, 1, 2], [3, 4, 5]]).matrix_to_transpose()
-  let m1 = Transpose::make(3, 4, fn(i, j) { i+j })
+  let m1 = Transpose::make(3, 4, fn(i, j) { i + j })
   inspect!(
     m1,
     content=
@@ -110,7 +122,11 @@ pub fn LenTranspose::op_get[T](self : LenTranspose[T], col : Int) -> T {
 }
 
 ///|
-pub fn LenTranspose::op_set[T](self : LenTranspose[T], col : Int, elem : T) -> Unit {
+pub fn LenTranspose::op_set[T](
+  self : LenTranspose[T],
+  col : Int,
+  elem : T
+) -> Unit {
   (self.set)(col, elem)
 }
 
@@ -123,7 +139,7 @@ test "op_set" {
 }
 
 ///|
-pub fn Transpose::op_mul[T : Mul + Add](
+pub impl[T : Mul + Add] Mul for Transpose[T] with op_mul(
   self : Transpose[T],
   other : Transpose[T]
 ) -> Transpose[T] {
@@ -144,7 +160,10 @@ pub fn Transpose::op_mul[T : Mul + Add](
 }
 
 ///|
-pub fn Transpose::op_add[T : Add](self : Transpose[T], other : Transpose[T]) -> Transpose[T] {
+pub impl[T : Add] Add for Transpose[T] with op_add(
+  self : Transpose[T],
+  other : Transpose[T]
+) -> Transpose[T] {
   guard self.col == other.col
   guard self.row == other.row
   {
@@ -155,12 +174,14 @@ pub fn Transpose::op_add[T : Add](self : Transpose[T], other : Transpose[T]) -> 
 }
 
 ///|
-pub fn Transpose::op_neg[T : Neg](self : Transpose[T]) -> Transpose[T] {
+pub impl[T : Neg] Neg for Transpose[T] with op_neg(self : Transpose[T]) -> Transpose[
+  T,
+] {
   self.map(T::op_neg)
 }
 
 ///|
-pub fn Transpose::op_sub[T : Add + Neg](
+pub impl[T : Add + Neg] Sub for Transpose[T] with op_sub(
   self : Transpose[T],
   other : Transpose[T]
 ) -> Transpose[T] {
@@ -173,7 +194,10 @@ pub fn Transpose::scale[T : Mul](self : Transpose[T], cst : T) -> Transpose[T] {
 }
 
 ///|
-pub fn Transpose::add_constant[T : Add](self : Transpose[T], cst : T) -> Transpose[T] {
+pub fn Transpose::add_constant[T : Add](
+  self : Transpose[T],
+  cst : T
+) -> Transpose[T] {
   self.map(fn(x) { x + cst })
 }
 
@@ -222,7 +246,10 @@ pub fn Transpose::swap_rows[T](self : Transpose[T], r1 : Int, r2 : Int) -> Unit 
 }
 
 ///|
-pub fn Transpose::pow[T : Semiring](self : Transpose[T], power : Int) -> Transpose[T] {
+pub fn Transpose::pow[T : Semiring](
+  self : Transpose[T],
+  power : Int
+) -> Transpose[T] {
   loop identity(self.col).matrix_to_transpose(), power, self {
     s, 0, _ => s
     s, 1, m => s * m
