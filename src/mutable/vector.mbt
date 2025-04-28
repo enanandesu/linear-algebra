@@ -125,7 +125,7 @@ pub fn Vector::from_array[T](a : Array[T]) -> Vector[T] {
 }
 
 ///|
-pub fn Vector::op_add[T : Add](
+pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
@@ -156,7 +156,7 @@ test "a + b = b + a" {
 }
 
 ///|
-pub fn Vector::op_mul[T : Mul](
+pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
@@ -178,7 +178,7 @@ test "a * b * c = a * (b * c)" {
 }
 
 ///|
-pub fn Vector::op_neg[T : Neg](self : Vector[T]) -> Vector[T] {
+pub impl[T : Neg] Neg for Vector[T] with op_neg(self : Vector[T]) -> Vector[T] {
   self.map(T::op_neg)
 }
 

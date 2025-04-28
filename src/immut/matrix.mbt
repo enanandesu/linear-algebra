@@ -290,7 +290,10 @@ test {
 ///   #||3, 7|
 /// )
 /// ```
-pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   let row = self.row
   let col = other.col
   let inner = self.col
@@ -324,7 +327,10 @@ pub fn op_mul[T : Mul + Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 ///   #||3, 5|
 /// )
 /// ```
-pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub impl[T : Add] Add for Matrix[T] with op_add(
+  self : Matrix[T],
+  other : Matrix[T]
+) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
   {
@@ -349,7 +355,7 @@ pub fn op_add[T : Add](self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 ///   #||-3, -4|
 /// )
 /// ```
-pub fn op_neg[T : Neg](self : Matrix[T]) -> Matrix[T] {
+pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
   self.map(T::op_neg)
 }
 

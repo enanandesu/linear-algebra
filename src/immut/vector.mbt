@@ -285,7 +285,7 @@ test "from . to = identity" {
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(v1 + v2, content="|5, 7, 9|")
 /// ```
-pub fn Vector::op_add[T : Add](
+pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
@@ -328,7 +328,7 @@ test "a + b = b + a" {
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(v1 * v2, content="|4, 10, 18|")
 /// ```
-pub fn Vector::op_mul[T : Mul](
+pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
   other : Vector[T]
 ) -> Vector[T] {
