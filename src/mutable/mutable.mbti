@@ -5,114 +5,131 @@ import(
 )
 
 // Values
-fn add_constant[T : Add](Matrix[T], T) -> Matrix[T]
+fn[T : Add] add_constant(Matrix[T], T) -> Matrix[T]
 
-fn adjoint[T : @luna-generic.Conjugate](Matrix[T]) -> Matrix[T]
+fn[T : @luna-generic.Conjugate] adjoint(Matrix[T]) -> Matrix[T]
 
-fn horizontal_combine[T](Matrix[T], Matrix[T]) -> Matrix[T]
+fn[T] horizontal_combine(Matrix[T], Matrix[T]) -> Matrix[T]
 
-fn identity[T : @luna-generic.One + @luna-generic.Zero](Int) -> Matrix[T]
+fn[T : @luna-generic.One + @luna-generic.Zero] identity(Int) -> Matrix[T]
 
-fn lerp[T : @luna-generic.One + Mul + Add + Neg](Vector[T], Vector[T], T) -> Vector[T]
+fn[T : @luna-generic.One + Mul + Add + Neg] lerp(Vector[T], Vector[T], T) -> Vector[T]
 
-fn lin_comb[T : Add + Mul](T, Vector[T], T, Vector[T]) -> Vector[T]
+fn[T : Add + Mul] lin_comb(T, Vector[T], T, Vector[T]) -> Vector[T]
 
-fn null[T : Compare + @luna-generic.Zero](Matrix[T]) -> Bool
+fn[T] matrix_to_transpose(Matrix[T]) -> Transpose[T]
 
-fn op_add[T : Add](Matrix[T], Matrix[T]) -> Matrix[T]
+fn[T : Compare + @luna-generic.Zero] null(Matrix[T]) -> Bool
 
-fn op_get[T](Lens[T], Int) -> T
+fn[T] op_get(Lens[T], Int) -> T
 
-fn op_mul[T : Mul + Add](Matrix[T], Matrix[T]) -> Matrix[T]
+fn[T : @luna-generic.Semiring] pow(Matrix[T], Int) -> Matrix[T]
 
-fn op_neg[T : Neg](Matrix[T]) -> Matrix[T]
+fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] reduce_row_elimination(Matrix[T]) -> Matrix[T]
 
-fn op_sub[T : Add + Neg](Matrix[T], Matrix[T]) -> Matrix[T]
+fn[T : Mul] scale(Matrix[T], T) -> Matrix[T]
 
-fn pow[T : @luna-generic.Semiring](Matrix[T], Int) -> Matrix[T]
+fn[T : Mul + @luna-generic.Zero] scaled_matrix(Vector[T]) -> Matrix[T]
 
-fn reduce_row_elimination[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse](Matrix[T]) -> Matrix[T]
+fn[T] swap_cols(Matrix[T], Int, Int) -> Unit
 
-fn scale[T : Mul](Matrix[T], T) -> Matrix[T]
+fn[T] swap_rows(Matrix[T], Int, Int) -> Unit
 
-fn scaled_matrix[T : Mul + @luna-generic.Zero](Vector[T]) -> Matrix[T]
+fn[T : Mul] tensor_product(Vector[T], Vector[T]) -> Matrix[T]
 
-fn swap_cols[T](Matrix[T], Int, Int) -> Unit
+fn[T] to_col_matrix(Vector[T]) -> Matrix[T]
 
-fn swap_rows[T](Matrix[T], Int, Int) -> Unit
+fn[T] to_row_matrix(Vector[T]) -> Matrix[T]
 
-fn tensor_product[T : Mul](Vector[T], Vector[T]) -> Matrix[T]
+fn[T] transpose(Matrix[T]) -> Matrix[T]
 
-fn to_col_matrix[T](Vector[T]) -> Matrix[T]
-
-fn to_row_matrix[T](Vector[T]) -> Matrix[T]
-
-fn transpose[T](Matrix[T]) -> Matrix[T]
-
-fn vertical_combine[T](Matrix[T], Matrix[T]) -> Matrix[T]
+fn[T] vertical_combine(Matrix[T], Matrix[T]) -> Matrix[T]
 
 // Types and methods
+type LenTranspose[T]
+fn[T] LenTranspose::op_get(Self[T], Int) -> T
+fn[T] LenTranspose::op_set(Self[T], Int, T) -> Unit
+
 type Lens[T]
-impl Lens {
-  op_get[T](Self[T], Int) -> T
-  op_set[T](Self[T], Int, T) -> Unit
-}
+fn[T] Lens::op_get(Self[T], Int) -> T
+fn[T] Lens::op_set(Self[T], Int, T) -> Unit
 
 type Matrix[T]
-impl Matrix {
-  add_constant[T : Add](Self[T], T) -> Self[T]
-  adjoint[T : @luna-generic.Conjugate](Self[T]) -> Self[T]
-  copy[T](Self[T]) -> Self[T]
-  from_2d_array[T](Array[Array[T]]) -> Self[T]
-  horizontal_combine[T](Self[T], Self[T]) -> Self[T]
-  make[A](Int, Int, (Int, Int) -> A) -> Self[A]
-  map[T, U](Self[T], (T) -> U) -> Self[U]
-  map_col[T](Self[T], Int, (T) -> T) -> Unit
-  map_row[T](Self[T], Int, (T) -> T) -> Unit
-  new[T](Int, Int, T) -> Self[T]
-  null[T : Compare + @luna-generic.Zero](Self[T]) -> Bool
-  op_add[T : Add](Self[T], Self[T]) -> Self[T]
-  op_get[T](Self[T], Int) -> Lens[T]
-  op_mul[T : Mul + Add](Self[T], Self[T]) -> Self[T]
-  op_neg[T : Neg](Self[T]) -> Self[T]
-  op_sub[T : Add + Neg](Self[T], Self[T]) -> Self[T]
-  pow[T : @luna-generic.Semiring](Self[T], Int) -> Self[T]
-  reduce_row_elimination[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse](Self[T]) -> Self[T]
-  scale[T : Mul](Self[T], T) -> Self[T]
-  swap_cols[T](Self[T], Int, Int) -> Unit
-  swap_rows[T](Self[T], Int, Int) -> Unit
-  transpose[T](Self[T]) -> Self[T]
-  vertical_combine[T](Self[T], Self[T]) -> Self[T]
-}
+fn[T : Add] Matrix::add_constant(Self[T], T) -> Self[T]
+fn[T : @luna-generic.Conjugate] Matrix::adjoint(Self[T]) -> Self[T]
+fn[T] Matrix::copy(Self[T]) -> Self[T]
+fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
+fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
+fn[A] Matrix::make(Int, Int, (Int, Int) -> A) -> Self[A]
+fn[T, U] Matrix::map(Self[T], (T) -> U) -> Self[U]
+fn[T] Matrix::map_col(Self[T], Int, (T) -> T) -> Unit
+fn[T] Matrix::map_row(Self[T], Int, (T) -> T) -> Unit
+fn[T] Matrix::matrix_to_transpose(Self[T]) -> Transpose[T]
+fn[T] Matrix::new(Int, Int, T) -> Self[T]
+fn[T : Compare + @luna-generic.Zero] Matrix::null(Self[T]) -> Bool
+fn[T] Matrix::op_get(Self[T], Int) -> Lens[T]
+fn[T : @luna-generic.Semiring] Matrix::pow(Self[T], Int) -> Self[T]
+fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] Matrix::reduce_row_elimination(Self[T]) -> Self[T]
+fn[T : Mul] Matrix::scale(Self[T], T) -> Self[T]
+fn[T] Matrix::swap_cols(Self[T], Int, Int) -> Unit
+fn[T] Matrix::swap_rows(Self[T], Int, Int) -> Unit
+fn[T] Matrix::transpose(Self[T]) -> Self[T]
+fn[T] Matrix::vertical_combine(Self[T], Self[T]) -> Self[T]
+impl[T : Add] Add for Matrix[T]
 impl[T : Eq] Eq for Matrix[T]
+impl[T : Mul + Add] Mul for Matrix[T]
+impl[T : Neg] Neg for Matrix[T]
 impl[T : Show] Show for Matrix[T]
+impl[T : Add + Neg] Sub for Matrix[T]
+
+type Transpose[T]
+fn[T : Add] Transpose::add_constant(Self[T], T) -> Self[T]
+fn[T : @luna-generic.Conjugate] Transpose::adjoint(Self[T]) -> Self[T]
+fn[T] Transpose::copy(Self[T]) -> Self[T]
+fn[T] Transpose::horizontal_combine(Self[T], Self[T]) -> Self[T]
+fn[T, U] Transpose::map(Self[T], (T) -> U) -> Self[U]
+fn[T] Transpose::map_col(Self[T], Int, (T) -> T) -> Unit
+fn[T] Transpose::map_row(Self[T], Int, (T) -> T) -> Unit
+fn[T : Compare + @luna-generic.Zero] Transpose::null(Self[T]) -> Bool
+fn[T] Transpose::op_get(Self[T], Int) -> LenTranspose[T]
+fn[T : @luna-generic.Semiring] Transpose::pow(Self[T], Int) -> Self[T]
+fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] Transpose::reduce_row_elimination(Self[T]) -> Self[T]
+fn[T : Mul] Transpose::scale(Self[T], T) -> Self[T]
+fn[T] Transpose::swap_cols(Self[T], Int, Int) -> Unit
+fn[T] Transpose::swap_rows(Self[T], Int, Int) -> Unit
+fn[T] Transpose::transpose_to_matrix(Self[T]) -> Matrix[T]
+fn[T] Transpose::vertical_combine(Self[T], Self[T]) -> Self[T]
+impl[T : Add] Add for Transpose[T]
+impl[T : Eq] Eq for Transpose[T]
+impl[T : Mul + Add] Mul for Transpose[T]
+impl[T : Neg] Neg for Transpose[T]
+impl[T : Show] Show for Transpose[T]
+impl[T : Add + Neg] Sub for Transpose[T]
 
 type Vector[A]
-impl Vector {
-  add_constant[T : Add](Self[T], T) -> Self[T]
-  copy[A](Self[A]) -> Self[A]
-  from_array[T](Array[T]) -> Self[T]
-  left_scale[A : Mul](Self[A], A) -> Self[A]
-  left_scale_inplace[A : Mul](Self[A], A) -> Unit
-  length[A](Self[A]) -> Int
-  lerp[T : @luna-generic.One + Mul + Add + Neg](Self[T], Self[T], T) -> Self[T]
-  make[A](Int, A) -> Self[A]
-  makei[A](Int, (Int) -> A) -> Self[A]
-  map[A, B](Self[A], (A) -> B) -> Self[B]
-  map_inplace[A](Self[A], (A) -> A) -> Unit
-  op_add[T : Add](Self[T], Self[T]) -> Self[T]
-  op_get[A](Self[A], Int) -> A
-  op_mul[T : Mul](Self[T], Self[T]) -> Self[T]
-  op_neg[T : Neg](Self[T]) -> Self[T]
-  op_set[A](Self[A], Int, A) -> Unit
-  right_scale[A : Mul](A, Self[A]) -> Self[A]
-  right_scale_inplace[A : Mul](A, Self[A]) -> Unit
-  scaled_matrix[T : Mul + @luna-generic.Zero](Self[T]) -> Matrix[T]
-  tensor_product[T : Mul](Self[T], Self[T]) -> Matrix[T]
-  to_col_matrix[T](Self[T]) -> Matrix[T]
-  to_row_matrix[T](Self[T]) -> Matrix[T]
-  zip_with[A, U, V](Self[A], Self[U], (A, U) -> V) -> Self[V]
-}
+fn[T : Add] Vector::add_constant(Self[T], T) -> Self[T]
+fn[A] Vector::copy(Self[A]) -> Self[A]
+fn[T] Vector::from_array(Array[T]) -> Self[T]
+fn[A : Mul] Vector::left_scale(Self[A], A) -> Self[A]
+fn[A : Mul] Vector::left_scale_inplace(Self[A], A) -> Unit
+fn[A] Vector::length(Self[A]) -> Int
+fn[T : @luna-generic.One + Mul + Add + Neg] Vector::lerp(Self[T], Self[T], T) -> Self[T]
+fn[A] Vector::make(Int, A) -> Self[A]
+fn[A] Vector::makei(Int, (Int) -> A) -> Self[A]
+fn[A, B] Vector::map(Self[A], (A) -> B) -> Self[B]
+fn[A] Vector::map_inplace(Self[A], (A) -> A) -> Unit
+fn[A] Vector::op_get(Self[A], Int) -> A
+fn[A] Vector::op_set(Self[A], Int, A) -> Unit
+fn[A : Mul] Vector::right_scale(A, Self[A]) -> Self[A]
+fn[A : Mul] Vector::right_scale_inplace(A, Self[A]) -> Unit
+fn[T : Mul + @luna-generic.Zero] Vector::scaled_matrix(Self[T]) -> Matrix[T]
+fn[T : Mul] Vector::tensor_product(Self[T], Self[T]) -> Matrix[T]
+fn[T] Vector::to_col_matrix(Self[T]) -> Matrix[T]
+fn[T] Vector::to_row_matrix(Self[T]) -> Matrix[T]
+fn[A, U, V] Vector::zip_with(Self[A], Self[U], (A, U) -> V) -> Self[V]
+impl[T : Add] Add for Vector[T]
+impl[T : Mul] Mul for Vector[T]
+impl[T : Neg] Neg for Vector[T]
 impl[T : Show] Show for Vector[T]
 
 // Type aliases

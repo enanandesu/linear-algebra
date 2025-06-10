@@ -23,7 +23,7 @@ pub impl[T : Show] Show for Vector[T] with output(self, l) {
 }
 
 ///|
-fn array_zip_with[A, B, C](
+fn[A, B, C] array_zip_with(
   a1 : Array[A],
   a2 : Array[B],
   f : (A, B) -> C
@@ -35,7 +35,7 @@ fn array_zip_with[A, B, C](
 }
 
 ///|
-pub fn Vector::zip_with[A, U, V](
+pub fn[A, U, V] Vector::zip_with(
   self : Vector[A],
   other : Vector[U],
   f : (A, U) -> V
@@ -44,67 +44,67 @@ pub fn Vector::zip_with[A, U, V](
 }
 
 ///|
-pub fn to_col_matrix[T](self : Vector[T]) -> Matrix[T] {
+pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
   Matrix::make(self.length(), 1, fn(i, _) { self[i] })
 }
 
 ///|
-pub fn to_row_matrix[T](self : Vector[T]) -> Matrix[T] {
+pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
   { data: self._, row: 1, col: self.length() }
 }
 
 ///|
-pub fn Vector::length[A](self : Vector[A]) -> Int {
+pub fn[A] Vector::length(self : Vector[A]) -> Int {
   self._.length()
 }
 
 ///|
-pub fn Vector::makei[A](n : Int, f : (Int) -> A) -> Vector[A] {
+pub fn[A] Vector::makei(n : Int, f : (Int) -> A) -> Vector[A] {
   Array::makei(n, f)
 }
 
 ///|
-pub fn Vector::make[A](n : Int, elem : A) -> Vector[A] {
+pub fn[A] Vector::make(n : Int, elem : A) -> Vector[A] {
   Array::make(n, elem)
 }
 
 ///|
-pub fn Vector::copy[A](self : Vector[A]) -> Vector[A] {
+pub fn[A] Vector::copy(self : Vector[A]) -> Vector[A] {
   self._.copy()
 }
 
 ///|
-pub fn Vector::op_get[A](self : Vector[A], index : Int) -> A {
+pub fn[A] Vector::op_get(self : Vector[A], index : Int) -> A {
   self._[index]
 }
 
 ///|
-pub fn Vector::op_set[A](self : Vector[A], index : Int, value : A) -> Unit {
+pub fn[A] Vector::op_set(self : Vector[A], index : Int, value : A) -> Unit {
   self._[index] = value
 }
 
 ///|
-pub fn Vector::map[A, B](self : Vector[A], f : (A) -> B) -> Vector[B] {
+pub fn[A, B] Vector::map(self : Vector[A], f : (A) -> B) -> Vector[B] {
   self._.map(f)
 }
 
 ///|
-pub fn Vector::map_inplace[A](self : Vector[A], f : (A) -> A) -> Unit {
+pub fn[A] Vector::map_inplace(self : Vector[A], f : (A) -> A) -> Unit {
   self._.map_inplace(f)
 }
 
 ///|
-pub fn Vector::left_scale[A : Mul](self : Vector[A], scalar : A) -> Vector[A] {
+pub fn[A : Mul] Vector::left_scale(self : Vector[A], scalar : A) -> Vector[A] {
   self.map(fn { x => x * scalar })
 }
 
 ///|
-pub fn Vector::right_scale[A : Mul](scalar : A, self : Vector[A]) -> Vector[A] {
+pub fn[A : Mul] Vector::right_scale(scalar : A, self : Vector[A]) -> Vector[A] {
   self.map(fn { x => scalar * x })
 }
 
 ///|
-pub fn Vector::left_scale_inplace[A : Mul](
+pub fn[A : Mul] Vector::left_scale_inplace(
   self : Vector[A],
   scalar : A
 ) -> Unit {
@@ -112,7 +112,7 @@ pub fn Vector::left_scale_inplace[A : Mul](
 }
 
 ///|
-pub fn Vector::right_scale_inplace[A : Mul](
+pub fn[A : Mul] Vector::right_scale_inplace(
   scalar : A,
   self : Vector[A]
 ) -> Unit {
@@ -120,7 +120,7 @@ pub fn Vector::right_scale_inplace[A : Mul](
 }
 
 ///|
-pub fn Vector::from_array[T](a : Array[T]) -> Vector[T] {
+pub fn[T] Vector::from_array(a : Array[T]) -> Vector[T] {
   a
 }
 
@@ -183,7 +183,7 @@ pub impl[T : Neg] Neg for Vector[T] with op_neg(self : Vector[T]) -> Vector[T] {
 }
 
 ///|
-pub fn lerp[T : One + Mul + Add + Neg](
+pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
   other : Vector[T],
   alpha : T
@@ -192,7 +192,7 @@ pub fn lerp[T : One + Mul + Add + Neg](
 }
 
 ///|
-pub fn scaled_matrix[T : Mul + Zero](self : Vector[T]) -> Matrix[T] {
+pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
@@ -213,7 +213,7 @@ test "S_v * p = v * p" {
 }
 
 ///|
-pub fn tensor_product[T : Mul](
+pub fn[T : Mul] tensor_product(
   self : Vector[T],
   other : Vector[T]
 ) -> Matrix[T] {
@@ -223,12 +223,12 @@ pub fn tensor_product[T : Mul](
 }
 
 ///|
-pub fn Vector::add_constant[T : Add](self : Vector[T], cst : T) -> Vector[T] {
+pub fn[T : Add] Vector::add_constant(self : Vector[T], cst : T) -> Vector[T] {
   self.map(fn(x) { x + cst })
 }
 
 ///|
-pub fn lin_comb[T : Add + Mul](
+pub fn[T : Add + Mul] lin_comb(
   scalar_a : T,
   self : Vector[T],
   scalar_b : T,

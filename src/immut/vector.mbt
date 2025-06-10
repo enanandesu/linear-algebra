@@ -34,7 +34,7 @@ impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
 /// let v1 = v.map(fn(x) { x * 2 })
 /// inspect!(v1, content="|2, 4, 6|")
 /// ```
-pub fn Vector::map[T, U](self : Vector[T], f : (T) -> U) -> Vector[U] {
+pub fn[T, U] Vector::map(self : Vector[T], f : (T) -> U) -> Vector[U] {
   Vector::{ data: self.data.map(f) }
 }
 
@@ -53,7 +53,7 @@ pub fn Vector::map[T, U](self : Vector[T], f : (T) -> U) -> Vector[U] {
 /// let v3 = v1.zip_with(v2, fn(x, y) { x + y })
 /// inspect!(v3, content="|5, 7, 9|")
 /// ```
-pub fn Vector::zip_with[T, U, V](
+pub fn[T, U, V] Vector::zip_with(
   self : Vector[T],
   other : Vector[U],
   f : (T, U) -> V
@@ -77,7 +77,7 @@ pub fn Vector::zip_with[T, U, V](
 ///   #||3|
 /// )
 /// ```
-pub fn to_col_matrix[T](self : Vector[T]) -> Matrix[T] {
+pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
   Matrix::make(self.length(), 1, fn(i, _) { self[i] })
 }
 
@@ -93,7 +93,7 @@ pub fn to_col_matrix[T](self : Vector[T]) -> Matrix[T] {
 /// let m = v.to_row_matrix()
 /// inspect!(m, content="|1, 2, 3|")
 /// ```
-pub fn to_row_matrix[T](self : Vector[T]) -> Matrix[T] {
+pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
   { data: self.data, row: 1, col: self.length() }
 }
 
@@ -130,7 +130,7 @@ test "to matrix" {
 /// let v = Vector::makei(3, fn(i) { i })
 /// inspect!(v, content="|0, 1, 2|")
 /// ```
-pub fn Vector::makei[T](n : Int, f : (Int) -> T) -> Vector[T] {
+pub fn[T] Vector::makei(n : Int, f : (Int) -> T) -> Vector[T] {
   Vector::{ data: @immut/array.makei(n, f) }
 }
 
@@ -146,7 +146,7 @@ pub fn Vector::makei[T](n : Int, f : (Int) -> T) -> Vector[T] {
 /// let v = Vector::make(3, 1)
 /// inspect!(v, content="|1, 1, 1|")
 /// ```
-pub fn Vector::make[T](n : Int, elem : T) -> Vector[T] {
+pub fn[T] Vector::make(n : Int, elem : T) -> Vector[T] {
   Vector::{ data: @immut/array.make(n, elem) }
 }
 
@@ -161,7 +161,7 @@ pub fn Vector::make[T](n : Int, elem : T) -> Vector[T] {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v.length(), content=3)
 /// ```
-pub fn Vector::length[T](self : Vector[T]) -> Int {
+pub fn[T] Vector::length(self : Vector[T]) -> Int {
   self.data.length()
 }
 
@@ -177,7 +177,7 @@ pub fn Vector::length[T](self : Vector[T]) -> Int {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v[1], content=2)
 /// ```
-pub fn Vector::op_get[T](self : Vector[T], i : Int) -> T {
+pub fn[T] Vector::op_get(self : Vector[T], i : Int) -> T {
   self.data[i]
 }
 
@@ -195,7 +195,7 @@ pub fn Vector::op_get[T](self : Vector[T], i : Int) -> T {
 /// let v1 = v.set(1, 10)
 /// inspect!(v1, content="|1, 10, 3|")
 /// ```
-pub fn Vector::set[T](self : Vector[T], i : Int, x : T) -> Vector[T] {
+pub fn[T] Vector::set(self : Vector[T], i : Int, x : T) -> Vector[T] {
   Vector::{ data: self.data.set(i, x) }
 }
 
@@ -211,7 +211,7 @@ pub fn Vector::set[T](self : Vector[T], i : Int, x : T) -> Vector[T] {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v.left_scale(2), content="|2, 4, 6|")
 /// ```
-pub fn left_scale[T : Mul](self : Vector[T], scalar : T) -> Vector[T] {
+pub fn[T : Mul] left_scale(self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => scalar * x })
 }
 
@@ -227,7 +227,7 @@ pub fn left_scale[T : Mul](self : Vector[T], scalar : T) -> Vector[T] {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v.right_scale(2), content="|2, 4, 6|")
 /// ```
-pub fn right_scale[T : Mul](self : Vector[T], scalar : T) -> Vector[T] {
+pub fn[T : Mul] right_scale(self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => x * scalar })
 }
 
@@ -242,7 +242,7 @@ pub fn right_scale[T : Mul](self : Vector[T], scalar : T) -> Vector[T] {
 /// let v = Vector::from_array([1, 2, 3])
 /// inspect!(v, content="|1, 2, 3|")
 /// ```
-pub fn Vector::from_array[T](arr : Array[T]) -> Vector[T] {
+pub fn[T] Vector::from_array(arr : Array[T]) -> Vector[T] {
   Vector::{ data: @immut/array.from_array(arr) }
 }
 
@@ -259,7 +259,7 @@ pub fn Vector::from_array[T](arr : Array[T]) -> Vector[T] {
 ///   inspect!(x, content=1)
 /// }
 /// ```
-pub fn Vector::iter[T](self : Vector[T]) -> Iter[T] {
+pub fn[T] Vector::iter(self : Vector[T]) -> Iter[T] {
   self.data.iter()
 }
 
@@ -364,7 +364,7 @@ test "a * b * c = a * (b * c)" {
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(v1.lerp(v2, 0.5), content="|2.5, 3.5, 4.5|")
 /// ```
-pub fn lerp[T : One + Mul + Add + Neg](
+pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
   other : Vector[T],
   alpha : T
@@ -416,7 +416,7 @@ impl[T : Show] Show for Vector[T] with output(s, l) {
 ///   #||0, 0, 3|
 /// )
 /// ```
-pub fn scaled_matrix[T : Mul + Zero](self : Vector[T]) -> Matrix[T] {
+pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
@@ -453,7 +453,7 @@ test "S_v * p = v * p" {
 ///   #||12, 15, 18|
 /// )
 /// ```
-pub fn tensor_product[T : Mul](
+pub fn[T : Mul] tensor_product(
   self : Vector[T],
   other : Vector[T]
 ) -> Matrix[T] {
@@ -479,7 +479,7 @@ pub fn tensor_product[T : Mul](
 /// let v2 = Vector::from_array([4, 5, 6])
 /// inspect!(array_zip_with(v1.data, v2.data, fn(x, y) { x * y }), content="|4, 10, 18|")
 /// ```
-fn array_zip_with[X, Y, Z](
+fn[X, Y, Z] array_zip_with(
   a1 : IArray[X],
   a2 : IArray[Y],
   f : (X, Y) -> Z
@@ -506,7 +506,7 @@ test {
     ,
   )
   inspect!(
-    tensor_product(v1, v2),
+    v1.tensor_product(v2),
     content=
       #||4, 5, 6|
       #||8, 10, 12|
