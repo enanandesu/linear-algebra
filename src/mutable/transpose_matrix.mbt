@@ -36,7 +36,7 @@ pub impl[T : Show] Show for Transpose[T] with output(s, l) {
 }
 
 ///|
-fn Transpose::make[A](
+fn[A] Transpose::make(
   row : Int,
   col : Int,
   f : (Int, Int) -> A
@@ -45,12 +45,12 @@ fn Transpose::make[A](
 }
 
 ///|
-pub fn Transpose::map[T, U](self : Transpose[T], f : (T) -> U) -> Transpose[U] {
+pub fn[T, U] Transpose::map(self : Transpose[T], f : (T) -> U) -> Transpose[U] {
   { row: self.row, col: self.col, data: self.data.map(f) }
 }
 
 ///|
-pub fn Transpose::map_col[T](
+pub fn[T] Transpose::map_col(
   self : Transpose[T],
   col : Int,
   f : (T) -> T
@@ -61,7 +61,7 @@ pub fn Transpose::map_col[T](
 }
 
 ///|
-pub fn Transpose::map_row[T](
+pub fn[T] Transpose::map_row(
   self : Transpose[T],
   row : Int,
   f : (T) -> T
@@ -104,12 +104,12 @@ test "map" {
 }
 
 ///|
-pub fn Transpose::copy[T](self : Transpose[T]) -> Transpose[T] {
+pub fn[T] Transpose::copy(self : Transpose[T]) -> Transpose[T] {
   { row: self.row, col: self.col, data: self.data.copy() }
 }
 
 ///| 
-pub fn Transpose::op_get[T](self : Transpose[T], row : Int) -> LenTranspose[T] {
+pub fn[T] Transpose::op_get(self : Transpose[T], row : Int) -> LenTranspose[T] {
   {
     set: fn { c, v => self.data[row + self.row * c] = v },
     get: fn { c => self.data[row + self.row * c] },
@@ -117,12 +117,12 @@ pub fn Transpose::op_get[T](self : Transpose[T], row : Int) -> LenTranspose[T] {
 }
 
 ///|
-pub fn LenTranspose::op_get[T](self : LenTranspose[T], col : Int) -> T {
+pub fn[T] LenTranspose::op_get(self : LenTranspose[T], col : Int) -> T {
   (self.get)(col)
 }
 
 ///|
-pub fn LenTranspose::op_set[T](
+pub fn[T] LenTranspose::op_set(
   self : LenTranspose[T],
   col : Int,
   elem : T
@@ -189,12 +189,12 @@ pub impl[T : Add + Neg] Sub for Transpose[T] with op_sub(
 }
 
 ///|
-pub fn Transpose::scale[T : Mul](self : Transpose[T], cst : T) -> Transpose[T] {
+pub fn[T : Mul] Transpose::scale(self : Transpose[T], cst : T) -> Transpose[T] {
   self.map(fn(x) { x * cst })
 }
 
 ///|
-pub fn Transpose::add_constant[T : Add](
+pub fn[T : Add] Transpose::add_constant(
   self : Transpose[T],
   cst : T
 ) -> Transpose[T] {
@@ -202,17 +202,17 @@ pub fn Transpose::add_constant[T : Add](
 }
 
 ///|
-pub fn Transpose::null[T : Compare + Zero](self : Transpose[T]) -> Bool {
+pub fn[T : Compare + Zero] Transpose::null(self : Transpose[T]) -> Bool {
   not(self.data.iter().any(fn(x) { x != T::zero() }))
 }
 
 ///|
-pub fn Transpose::adjoint[T : Conjugate](self : Transpose[T]) -> Transpose[T] {
+pub fn[T : Conjugate] Transpose::adjoint(self : Transpose[T]) -> Transpose[T] {
   self.map(T::conjugate)
 }
 
 ///|
-pub fn Transpose::swap_cols[T](self : Transpose[T], c1 : Int, c2 : Int) -> Unit {
+pub fn[T] Transpose::swap_cols(self : Transpose[T], c1 : Int, c2 : Int) -> Unit {
   let r = self.row
   let c = self.col
   guard c1 < c && c2 < c && c1 >= 0 && c2 >= 0
@@ -229,7 +229,7 @@ pub fn Transpose::swap_cols[T](self : Transpose[T], c1 : Int, c2 : Int) -> Unit 
 }
 
 ///|
-pub fn Transpose::swap_rows[T](self : Transpose[T], r1 : Int, r2 : Int) -> Unit {
+pub fn[T] Transpose::swap_rows(self : Transpose[T], r1 : Int, r2 : Int) -> Unit {
   let r = self.row
   let c = self.col
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
@@ -246,7 +246,7 @@ pub fn Transpose::swap_rows[T](self : Transpose[T], r1 : Int, r2 : Int) -> Unit 
 }
 
 ///|
-pub fn Transpose::pow[T : Semiring](
+pub fn[T : Semiring] Transpose::pow(
   self : Transpose[T],
   power : Int
 ) -> Transpose[T] {
@@ -258,7 +258,7 @@ pub fn Transpose::pow[T : Semiring](
 }
 
 ///|
-pub fn Transpose::reduce_row_elimination[T : Compare + Num + Sub + Inverse](
+pub fn[T : Compare + Num + Sub + Inverse] Transpose::reduce_row_elimination(
   self : Transpose[T]
 ) -> Transpose[T] {
   let r = self.row
@@ -297,7 +297,7 @@ pub fn Transpose::reduce_row_elimination[T : Compare + Num + Sub + Inverse](
 }
 
 ///|
-pub fn Transpose::horizontal_combine[T](
+pub fn[T] Transpose::horizontal_combine(
   self : Transpose[T],
   other : Transpose[T]
 ) -> Transpose[T] {
@@ -312,7 +312,7 @@ pub fn Transpose::horizontal_combine[T](
 }
 
 ///|
-pub fn Transpose::vertical_combine[T](
+pub fn[T] Transpose::vertical_combine(
   self : Transpose[T],
   other : Transpose[T]
 ) -> Transpose[T] {
@@ -327,7 +327,7 @@ pub fn Transpose::vertical_combine[T](
 }
 
 ///|
-pub fn Transpose::transpose_to_matrix[T](self : Transpose[T]) -> Matrix[T] {
+pub fn[T] Transpose::transpose_to_matrix(self : Transpose[T]) -> Matrix[T] {
   let data = Array::makei(self.col * self.row, fn(i) {
     let row = i / self.col
     let col = i % self.col

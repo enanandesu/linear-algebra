@@ -5,7 +5,7 @@ struct MatrixFn[T] {
 }
 
 ///|
-pub fn MatrixFn::op_get[T](self : MatrixFn[T], i : Int) -> Indexed[T] {
+pub fn[T] MatrixFn::op_get(self : MatrixFn[T], i : Int) -> Indexed[T] {
   { index: fn { c => (self.data)(i, c) } }
 }
 
@@ -15,7 +15,7 @@ impl[T : Eq] Eq for MatrixFn[T] with op_equal(self, other) {
 }
 
 ///|
-pub fn MatrixFn::fold[T, U](
+pub fn[T, U] MatrixFn::fold(
   self : MatrixFn[T],
   init~ : U,
   f : (U, T) -> U
@@ -31,7 +31,7 @@ pub fn MatrixFn::fold[T, U](
 }
 
 ///|
-pub fn MatrixFn::new[T : Default](row : Int, col : Int) -> MatrixFn[T] {
+pub fn[T : Default] MatrixFn::new(row : Int, col : Int) -> MatrixFn[T] {
   {
     data: fn {
       i, j if 0 <= i && i < row && 0 <= j && j < col => T::default()
@@ -42,7 +42,7 @@ pub fn MatrixFn::new[T : Default](row : Int, col : Int) -> MatrixFn[T] {
 }
 
 ///|
-pub fn MatrixFn::map[T, U](self : MatrixFn[T], f : (T) -> U) -> MatrixFn[U] {
+pub fn[T, U] MatrixFn::map(self : MatrixFn[T], f : (T) -> U) -> MatrixFn[U] {
   { data: fn { i, j => f((self.data)(i, j)) }, grid: self.grid }
 }
 
@@ -71,7 +71,7 @@ pub impl[T : Show] Show for MatrixFn[T] with output(s, l) {
 }
 
 ///|
-pub fn MatrixFn::map_row[T](
+pub fn[T] MatrixFn::map_row(
   self : MatrixFn[T],
   row : Int,
   f : (T) -> T
@@ -85,7 +85,7 @@ pub fn MatrixFn::map_row[T](
 }
 
 ///|
-pub fn MatrixFn::map_col[T](
+pub fn[T] MatrixFn::map_col(
   self : MatrixFn[T],
   col : Int,
   f : (T) -> T
@@ -99,12 +99,12 @@ pub fn MatrixFn::map_col[T](
 }
 
 ///|
-pub fn MatrixFn::transpose[T](self : MatrixFn[T]) -> MatrixFn[T] {
+pub fn[T] MatrixFn::transpose(self : MatrixFn[T]) -> MatrixFn[T] {
   { data: fn { i, j => (self.data)(j, i) }, grid: (self.grid.1, self.grid.0) }
 }
 
 ///|
-pub fn MatrixFn::make[T](
+pub fn[T] MatrixFn::make(
   row : Int,
   col : Int,
   f : (Int, Int) -> T
@@ -113,7 +113,7 @@ pub fn MatrixFn::make[T](
 }
 
 ///|
-pub fn MatrixFn::from_2d_array[T](arr : Array[Array[T]]) -> MatrixFn[T] {
+pub fn[T] MatrixFn::from_2d_array(arr : Array[Array[T]]) -> MatrixFn[T] {
   MatrixFn::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
 }
 
@@ -133,12 +133,12 @@ impl[T : Add + Neg] Sub for MatrixFn[T] with op_sub(self, other) {
 }
 
 ///|
-pub fn MatrixFn::scale[T : Mul](self : MatrixFn[T], cst : T) -> MatrixFn[T] {
+pub fn[T : Mul] MatrixFn::scale(self : MatrixFn[T], cst : T) -> MatrixFn[T] {
   self.map(fn(x) { x * cst })
 }
 
 ///|
-pub fn MatrixFn::identity[T : One + Zero](size : Int) -> MatrixFn[T] {
+pub fn[T : One + Zero] MatrixFn::identity(size : Int) -> MatrixFn[T] {
   MatrixFn::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -146,7 +146,7 @@ pub fn MatrixFn::identity[T : One + Zero](size : Int) -> MatrixFn[T] {
 }
 
 ///|
-pub fn MatrixFn::pow[T : Semiring](
+pub fn[T : Semiring] MatrixFn::pow(
   self : MatrixFn[T],
   power : Int
 ) -> MatrixFn[T] {
@@ -158,12 +158,12 @@ pub fn MatrixFn::pow[T : Semiring](
 }
 
 ///|
-pub fn MatrixFn::adjoint[T : Conjugate](self : MatrixFn[T]) -> MatrixFn[T] {
+pub fn[T : Conjugate] MatrixFn::adjoint(self : MatrixFn[T]) -> MatrixFn[T] {
   self.map(T::conjugate)
 }
 
 ///|
-pub fn MatrixFn::swap_cols[T](
+pub fn[T] MatrixFn::swap_cols(
   self : MatrixFn[T],
   r1 : Int,
   r2 : Int
@@ -182,7 +182,7 @@ pub fn MatrixFn::swap_cols[T](
 }
 
 ///|
-pub fn MatrixFn::swap_rows[T](
+pub fn[T] MatrixFn::swap_rows(
   self : MatrixFn[T],
   r1 : Int,
   r2 : Int
@@ -215,7 +215,7 @@ impl[T : Mul + Add] Mul for MatrixFn[T] with op_mul(self, other) {
 }
 
 ///|
-pub fn MatrixFn::zip_with[T, U, W](
+pub fn[T, U, W] MatrixFn::zip_with(
   self : MatrixFn[T],
   other : MatrixFn[U],
   f : (T, U) -> W
@@ -229,7 +229,7 @@ pub fn MatrixFn::zip_with[T, U, W](
 }
 
 ///|
-pub fn MatrixFn::determinant[T : Mul + Add + One + Neg + Zero](
+pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
   self : MatrixFn[T]
 ) -> T {
   let (n, m) = self.grid
@@ -251,7 +251,7 @@ pub fn MatrixFn::determinant[T : Mul + Add + One + Neg + Zero](
 }
 
 ///|
-pub fn MatrixFn::horizontal_combine[T](
+pub fn[T] MatrixFn::horizontal_combine(
   self : MatrixFn[T],
   other : MatrixFn[T]
 ) -> MatrixFn[T] {
@@ -268,7 +268,7 @@ pub fn MatrixFn::horizontal_combine[T](
 }
 
 ///|
-pub fn MatrixFn::vertical_combine[T](
+pub fn[T] MatrixFn::vertical_combine(
   self : MatrixFn[T],
   other : MatrixFn[T]
 ) -> MatrixFn[T] {
