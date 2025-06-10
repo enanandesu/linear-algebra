@@ -355,8 +355,14 @@ test "add" {
 ///|
 test "swap" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
-  let m1 = m.copy()..swap_rows(0, 1)
-  let m2 = m.copy()..swap_cols(0, 1)
+  let m1 = {
+    m.copy()..swap_rows(0, 1)
+    m
+  }
+  let m2 = {
+    m.copy()..swap_cols(0, 1)
+    m
+  }
   inspect!(
     m,
     content=

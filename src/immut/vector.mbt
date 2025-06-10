@@ -506,7 +506,7 @@ test {
     ,
   )
   inspect!(
-    tensor_product(v1, v2),
+    v1.tensor_product(v2),
     content=
       #||4, 5, 6|
       #||8, 10, 12|

@@ -67,8 +67,14 @@ pub fn[T] Matrix::copy(self : Matrix[T]) -> Matrix[T] {
 ///|
 test "map_function" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-  let m1 = m.copy()..map_row(0, fn(x) { x * 2 })
-  let m2 = m.copy()..map_col(0, fn(x) { x * 2 })
+  let m1 = {
+    m.copy()..map_row(0, fn(x) { x * 2 })
+    m
+  }
+  let m2 = {
+    m.copy()..map_col(0, fn(x) { x * 2 })
+    m
+  }
   inspect!(m1.to_string(), content="|2, 4, 6|\n|4, 5, 6|")
   inspect!(m2.to_string(), content="|2, 2, 3|\n|8, 5, 6|")
 }
@@ -232,8 +238,14 @@ pub fn[T] swap_cols(self : Matrix[T], c1 : Int, c2 : Int) -> Unit {
 ///|
 test "swap" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-  let m1 = m.copy()..swap_rows(0, 1)
-  let m2 = m.copy()..swap_cols(0, 1)
+  let m1 = {
+    m.copy()..swap_rows(0, 1)
+    m
+  }
+  let m2 = {
+    m.copy()..swap_cols(0, 1)
+    m
+  }
   inspect!(m1.to_string(), content="|4, 5, 6|\n|1, 2, 3|")
   inspect!(m2.to_string(), content="|2, 1, 3|\n|5, 4, 6|")
 }
@@ -326,8 +338,8 @@ pub fn[T] vertical_combine(self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 test "matrix_combine" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
-  let m3 = horizontal_combine(m1, m2)
-  let m4 = vertical_combine(m1, m2)
+  let m3 = m1.horizontal_combine(m2)
+  let m4 = m1.vertical_combine(m2)
   inspect!(
     m3,
     content=

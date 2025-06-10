@@ -665,7 +665,7 @@ test "matrix_combine" {
 /// Example
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m1 = swap_rows(m, 0, 1)
+/// let m1 = m.swap_rows(0, 1)
 /// inspect!(m1, content=
 ///   #||3, 4|
 ///   #||1, 2|
@@ -699,7 +699,7 @@ pub fn[T] swap_rows(self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// let m1 = swap_cols(m, 0, 1)
+/// let m1 = m.swap_cols(0, 1)
 /// inspect!(m1, content=
 ///   #||2, 1|
 ///   #||4, 3|
@@ -713,8 +713,8 @@ pub fn[T] swap_cols(self : Matrix[T], c1 : Int, c2 : Int) -> Matrix[T] {
 test "swap_matrix" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
-  let m3 = swap_rows(m1, 0, 1)
-  let m4 = swap_cols(m2, 0, 1)
+  let m3 = m1.swap_rows(0, 1)
+  let m4 = m2.swap_cols(0, 1)
   inspect!(
     m3,
     content=
