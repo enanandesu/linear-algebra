@@ -15,7 +15,7 @@ struct Vector[T] {
 /// Example
 /// ```moonbit
 /// let v = Vector::make(3, 1)
-/// inspect!(v, content="|1, 1, 1|")
+/// inspect(v, content="|1, 1, 1|")
 /// ```
 impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
   Vector::{ data: @immut/array.makei(size, fn { i => T::arbitrary(i, rng) }) }
@@ -32,7 +32,7 @@ impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
 /// let v1 = v.map(fn(x) { x * 2 })
-/// inspect!(v1, content="|2, 4, 6|")
+/// inspect(v1, content="|2, 4, 6|")
 /// ```
 pub fn[T, U] Vector::map(self : Vector[T], f : (T) -> U) -> Vector[U] {
   Vector::{ data: self.data.map(f) }
@@ -51,7 +51,7 @@ pub fn[T, U] Vector::map(self : Vector[T], f : (T) -> U) -> Vector[U] {
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
 /// let v3 = v1.zip_with(v2, fn(x, y) { x + y })
-/// inspect!(v3, content="|5, 7, 9|")
+/// inspect(v3, content="|5, 7, 9|")
 /// ```
 pub fn[T, U, V] Vector::zip_with(
   self : Vector[T],
@@ -71,7 +71,7 @@ pub fn[T, U, V] Vector::zip_with(
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
 /// let m = v.to_col_matrix()
-/// inspect!(m, content=
+/// inspect(m, content=
 ///   #||1|
 ///   #||2|
 ///   #||3|
@@ -91,7 +91,7 @@ pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
 /// let m = v.to_row_matrix()
-/// inspect!(m, content="|1, 2, 3|")
+/// inspect(m, content="|1, 2, 3|")
 /// ```
 pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
   { data: self.data, row: 1, col: self.length() }
@@ -101,7 +101,7 @@ pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
 test "to matrix" {
   let v = Vector::from_array([1, 2, 3])
   let vc = v.to_col_matrix()
-  inspect!(
+  inspect(
     vc,
     content=
       #||1|
@@ -110,7 +110,7 @@ test "to matrix" {
     ,
   )
   let rc = v.to_row_matrix()
-  inspect!(
+  inspect(
     rc,
     content=
       #||1, 2, 3|
@@ -128,7 +128,7 @@ test "to matrix" {
 /// Example
 /// ```moonbit
 /// let v = Vector::makei(3, fn(i) { i })
-/// inspect!(v, content="|0, 1, 2|")
+/// inspect(v, content="|0, 1, 2|")
 /// ```
 pub fn[T] Vector::makei(n : Int, f : (Int) -> T) -> Vector[T] {
   Vector::{ data: @immut/array.makei(n, f) }
@@ -144,7 +144,7 @@ pub fn[T] Vector::makei(n : Int, f : (Int) -> T) -> Vector[T] {
 /// Example
 /// ```moonbit
 /// let v = Vector::make(3, 1)
-/// inspect!(v, content="|1, 1, 1|")
+/// inspect(v, content="|1, 1, 1|")
 /// ```
 pub fn[T] Vector::make(n : Int, elem : T) -> Vector[T] {
   Vector::{ data: @immut/array.make(n, elem) }
@@ -159,7 +159,7 @@ pub fn[T] Vector::make(n : Int, elem : T) -> Vector[T] {
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v.length(), content=3)
+/// inspect(v.length(), content=3)
 /// ```
 pub fn[T] Vector::length(self : Vector[T]) -> Int {
   self.data.length()
@@ -175,7 +175,7 @@ pub fn[T] Vector::length(self : Vector[T]) -> Int {
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v[1], content=2)
+/// inspect(v[1], content=2)
 /// ```
 pub fn[T] Vector::op_get(self : Vector[T], i : Int) -> T {
   self.data[i]
@@ -193,7 +193,7 @@ pub fn[T] Vector::op_get(self : Vector[T], i : Int) -> T {
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
 /// let v1 = v.set(1, 10)
-/// inspect!(v1, content="|1, 10, 3|")
+/// inspect(v1, content="|1, 10, 3|")
 /// ```
 pub fn[T] Vector::set(self : Vector[T], i : Int, x : T) -> Vector[T] {
   Vector::{ data: self.data.set(i, x) }
@@ -209,7 +209,7 @@ pub fn[T] Vector::set(self : Vector[T], i : Int, x : T) -> Vector[T] {
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v.left_scale(2), content="|2, 4, 6|")
+/// inspect(v.left_scale(2), content="|2, 4, 6|")
 /// ```
 pub fn[T : Mul] left_scale(self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => scalar * x })
@@ -225,7 +225,7 @@ pub fn[T : Mul] left_scale(self : Vector[T], scalar : T) -> Vector[T] {
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v.right_scale(2), content="|2, 4, 6|")
+/// inspect(v.right_scale(2), content="|2, 4, 6|")
 /// ```
 pub fn[T : Mul] right_scale(self : Vector[T], scalar : T) -> Vector[T] {
   self.map(fn { x => x * scalar })
@@ -240,7 +240,7 @@ pub fn[T : Mul] right_scale(self : Vector[T], scalar : T) -> Vector[T] {
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v, content="|1, 2, 3|")
+/// inspect(v, content="|1, 2, 3|")
 /// ```
 pub fn[T] Vector::from_array(arr : Array[T]) -> Vector[T] {
   Vector::{ data: @immut/array.from_array(arr) }
@@ -256,7 +256,7 @@ pub fn[T] Vector::from_array(arr : Array[T]) -> Vector[T] {
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
 /// for x in v.iter() {
-///   inspect!(x, content=1)
+///   inspect(x, content=1)
 /// }
 /// ```
 pub fn[T] Vector::iter(self : Vector[T]) -> Iter[T] {
@@ -269,7 +269,7 @@ test "from . to = identity" {
     v == Vector::from_array(v.iter().to_array())
   }
 
-  quick_check_fn!(prop)
+  quick_check_fn(prop)
 }
 
 ///|
@@ -283,7 +283,7 @@ test "from . to = identity" {
 /// ```moonbit
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
-/// inspect!(v1 + v2, content="|5, 7, 9|")
+/// inspect(v1 + v2, content="|5, 7, 9|")
 /// ```
 pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
@@ -298,7 +298,7 @@ test "a + a = 2 * a" {
     v + v == v.left_scale(2)
   }
 
-  quick_check_fn!(prop)
+  quick_check_fn(prop)
 }
 
 ///|
@@ -307,7 +307,7 @@ test "a + b = b + a" {
     a + b == b + a
   }
 
-  quick_check_fn!(fn {
+  quick_check_fn(fn {
     ((a : Vector[Int]), (b : Vector[Int])) => {
       guard a.length() == b.length() else { true }
       prop(a, b)
@@ -326,7 +326,7 @@ test "a + b = b + a" {
 /// ```moonbit
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
-/// inspect!(v1 * v2, content="|4, 10, 18|")
+/// inspect(v1 * v2, content="|4, 10, 18|")
 /// ```
 pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
@@ -341,7 +341,7 @@ test "a * b * c = a * (b * c)" {
     a * b * c == a * (b * c)
   }
 
-  quick_check_fn!(fn {
+  quick_check_fn(fn {
     ((a : Vector[Int]), (b : Vector[Int]), (c : Vector[Int])) => {
       guard a.length() == b.length() && b.length() == c.length() else { true }
       prop(a, b, c)
@@ -362,7 +362,7 @@ test "a * b * c = a * (b * c)" {
 /// ```moonbit
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
-/// inspect!(v1.lerp(v2, 0.5), content="|2.5, 3.5, 4.5|")
+/// inspect(v1.lerp(v2, 0.5), content="|2.5, 3.5, 4.5|")
 /// ```
 pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
@@ -381,7 +381,7 @@ pub fn[T : One + Mul + Add + Neg] lerp(
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v.to_string(), content="|1, 2, 3|")
+/// inspect(v.to_string(), content="|1, 2, 3|")
 /// ```
 impl[T : Show] Show for Vector[T] with to_string(self) {
   // Immutable array has no join method
@@ -410,7 +410,7 @@ impl[T : Show] Show for Vector[T] with output(s, l) {
 /// Example
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
-/// inspect!(v.scaled_matrix(), content=
+/// inspect(v.scaled_matrix(), content=
 ///   #||1, 0, 0|
 ///   #||0, 2, 0|
 ///   #||0, 0, 3|
@@ -428,7 +428,7 @@ test "S_v * p = v * p" {
     m * p.to_col_matrix() == (v * p).to_col_matrix()
   }
 
-  quick_check_fn!(fn {
+  quick_check_fn(fn {
     ((a : Vector[Int]), (b : Vector[Int])) => {
       guard a.length() == b.length() else { true }
       prop(a, b)
@@ -447,7 +447,7 @@ test "S_v * p = v * p" {
 /// ```moonbit
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
-/// inspect!(tensor_product(v1, v2), content=
+/// inspect(tensor_product(v1, v2), content=
 ///   #||4, 5, 6|
 ///   #||8, 10, 12|
 ///   #||12, 15, 18|
@@ -477,7 +477,7 @@ pub fn[T : Mul] tensor_product(
 /// ```moonbit
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
-/// inspect!(array_zip_with(v1.data, v2.data, fn(x, y) { x * y }), content="|4, 10, 18|")
+/// inspect(array_zip_with(v1.data, v2.data, fn(x, y) { x * y }), content="|4, 10, 18|")
 /// ```
 fn[X, Y, Z] array_zip_with(
   a1 : IArray[X],
@@ -493,11 +493,11 @@ fn[X, Y, Z] array_zip_with(
 test {
   let v1 = Vector::from_array([1, 2, 3])
   let v2 = Vector::from_array([4, 5, 6])
-  inspect!(v1 + v2, content="|5, 7, 9|")
-  inspect!(v1 * v2, content="|4, 10, 18|")
-  inspect!(v1.left_scale(10), content="|10, 20, 30|")
-  inspect!(v2.right_scale(10), content="|40, 50, 60|")
-  inspect!(
+  inspect(v1 + v2, content="|5, 7, 9|")
+  inspect(v1 * v2, content="|4, 10, 18|")
+  inspect(v1.left_scale(10), content="|10, 20, 30|")
+  inspect(v2.right_scale(10), content="|40, 50, 60|")
+  inspect(
     v1.scaled_matrix(),
     content=
       #||1, 0, 0|
@@ -505,7 +505,7 @@ test {
       #||0, 0, 3|
     ,
   )
-  inspect!(
+  inspect(
     v1.tensor_product(v2),
     content=
       #||4, 5, 6|
@@ -513,5 +513,5 @@ test {
       #||12, 15, 18|
     ,
   )
-  inspect!(v2.set(1, 10), content="|4, 10, 6|")
+  inspect(v2.set(1, 10), content="|4, 10, 6|")
 }

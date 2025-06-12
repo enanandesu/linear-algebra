@@ -75,7 +75,7 @@ pub fn[T] Transpose::map_row(
 test "map" {
   let m = Matrix::from_2d_array([[0, 1, 2], [3, 4, 5]]).matrix_to_transpose()
   let m1 = Transpose::make(3, 4, fn(i, j) { i + j })
-  inspect!(
+  inspect(
     m1,
     content=
       #||0, 1, 2, 3|
@@ -84,7 +84,7 @@ test "map" {
     ,
   )
   m.map_col(0, fn(x) { x * 2 })
-  inspect!(
+  inspect(
     m,
     content=
       #||0, 3|
@@ -93,7 +93,7 @@ test "map" {
     ,
   )
   m.map_row(0, fn(x) { x + 1 })
-  inspect!(
+  inspect(
     m,
     content=
       #||1, 4|
@@ -133,9 +133,9 @@ pub fn[T] LenTranspose::op_set(
 ///|
 test "op_set" {
   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]]).matrix_to_transpose()
-  inspect!(m[0][1], content="1")
+  inspect(m[0][1], content="1")
   m[0][1] = 4
-  inspect!(m[0][1], content="4")
+  inspect(m[0][1], content="4")
 }
 
 ///|
@@ -341,8 +341,8 @@ test "add" {
   let m1 = Matrix::from_2d_array([[1], [1], [1]]).matrix_to_transpose()
   let m2 = Matrix::from_2d_array([[2], [3], [4]]).matrix_to_transpose()
   let m3 = (m1 + m2).transpose_to_matrix()
-  inspect!(m1 + m2, content="|3, 4, 5|")
-  inspect!(
+  inspect(m1 + m2, content="|3, 4, 5|")
+  inspect(
     m3,
     content=
       #||3|
@@ -363,7 +363,7 @@ test "swap" {
     m.copy()..swap_cols(0, 1)
     m
   }
-  inspect!(
+  inspect(
     m,
     content=
       #||1, 4|
@@ -371,7 +371,7 @@ test "swap" {
       #||3, 6|
     ,
   )
-  inspect!(
+  inspect(
     m1,
     content=
       #||2, 5|
@@ -379,7 +379,7 @@ test "swap" {
       #||3, 6|
     ,
   )
-  inspect!(
+  inspect(
     m2,
     content=
       #||4, 1|
@@ -395,14 +395,14 @@ test "matrix_combine" {
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]]).matrix_to_transpose()
   let m3 = Transpose::horizontal_combine(m1, m2)
   let m4 = Transpose::vertical_combine(m1, m2)
-  inspect!(
+  inspect(
     m3,
     content=
       #||1, 3, 1, 0|
       #||2, 4, 0, 1|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||1, 3|
@@ -416,7 +416,7 @@ test "matrix_combine" {
 ///|
 test "to transpose" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
-  inspect!(
+  inspect(
     m1,
     content=
       #||1, 3|
@@ -434,7 +434,7 @@ test "reduce_row_elimination" {
     [2.2, 2.3, 2.1, 2.4],
     [2.4, 2.4, 2.5, 2.7],
   ]).matrix_to_transpose()
-  inspect!(
+  inspect(
     m.reduce_row_elimination(),
     content=
       #||1, 0, 0, 0, 0.48461538461538456|

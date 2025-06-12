@@ -290,14 +290,14 @@ test "matrix_combine" {
   let m2 = MatrixFn::from_2d_array([[1, 0], [0, 1]])
   let m3 = MatrixFn::horizontal_combine(m1, m2)
   let m4 = MatrixFn::vertical_combine(m1, m2)
-  inspect!(
+  inspect(
     m3,
     content=
       #||1, 2, 1, 0|
       #||3, 4, 0, 1|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||1, 2|
@@ -314,28 +314,28 @@ test {
   let m2 = MatrixFn::from_2d_array([[1, 0], [0, 1]])
   let m3 = m1 * m2
   let m4 = m1 + m2
-  inspect!(
+  inspect(
     m3,
     content=
       #||1, 2|
       #||3, 4|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||2, 2|
       #||3, 5|
     ,
   )
-  inspect!(
+  inspect(
     -m1,
     content=
       #||-1, -2|
       #||-3, -4|
     ,
   )
-  inspect!(
+  inspect(
     m1.scale(10),
     content=
       #||10, 20|
@@ -343,7 +343,7 @@ test {
     ,
   )
   let m5 : MatrixFn[Int] = MatrixFn::identity(5)
-  inspect!(
+  inspect(
     m5,
     content=
       #||1, 0, 0, 0, 0|
@@ -353,11 +353,11 @@ test {
       #||0, 0, 0, 0, 1|
     ,
   )
-  inspect!(m4.determinant(), content="4")
-  inspect!(m1.determinant(), content="-2")
-  inspect!(m5.determinant(), content="1")
+  inspect(m4.determinant(), content="4")
+  inspect(m1.determinant(), content="-2")
+  inspect(m5.determinant(), content="1")
   let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).pow(10)
-  inspect!(
+  inspect(
     m,
     content=
       #||0, 0, 0|
