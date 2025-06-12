@@ -380,6 +380,7 @@ pub fn[T] row_to_array(self : Matrix[T], row : Int) -> Array[T] {
   arr
 }
 
+///|
 pub fn[T] col_to_array(self : Matrix[T], col : Int) -> Array[T] {
   guard col >= 0 && col < self.col
   let arr = []
@@ -387,4 +388,9 @@ pub fn[T] col_to_array(self : Matrix[T], col : Int) -> Array[T] {
     arr.push(self.data[i * self.col + col])
   }
   arr
+}
+
+///|
+pub fn[T] to_array(self : Matrix[T]) -> Array[T] {
+  self.data.copy()
 }

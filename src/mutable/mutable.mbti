@@ -41,6 +41,8 @@ fn[T] swap_rows(Matrix[T], Int, Int) -> Unit
 
 fn[T : Mul] tensor_product(Vector[T], Vector[T]) -> Matrix[T]
 
+fn[T] to_array(Matrix[T]) -> Array[T]
+
 fn[T] to_col_matrix(Vector[T]) -> Matrix[T]
 
 fn[T] to_row_matrix(Vector[T]) -> Matrix[T]
@@ -80,6 +82,7 @@ fn[T] Matrix::row_to_array(Self[T], Int) -> Array[T]
 fn[T : Mul] Matrix::scale(Self[T], T) -> Self[T]
 fn[T] Matrix::swap_cols(Self[T], Int, Int) -> Unit
 fn[T] Matrix::swap_rows(Self[T], Int, Int) -> Unit
+fn[T] Matrix::to_array(Self[T]) -> Array[T]
 fn[T] Matrix::transpose(Self[T]) -> Self[T]
 fn[T] Matrix::vertical_combine(Self[T], Self[T]) -> Self[T]
 impl[T : Add] Add for Matrix[T]
