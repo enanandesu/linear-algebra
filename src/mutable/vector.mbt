@@ -138,7 +138,7 @@ test "a + a = 2 * a" {
     v + v == v.left_scale(2)
   }
 
-  quick_check_fn!(prop)
+  quick_check_fn(prop)
 }
 
 ///|
@@ -147,7 +147,7 @@ test "a + b = b + a" {
     a + b == b + a
   }
 
-  quick_check_fn!(fn {
+  quick_check_fn(fn {
     ((a : Vector[Int]), (b : Vector[Int])) => {
       guard a.length() == b.length() else { true }
       prop(a, b)
@@ -169,7 +169,7 @@ test "a * b * c = a * (b * c)" {
     a * b * c == a * (b * c)
   }
 
-  quick_check_fn!(fn {
+  quick_check_fn(fn {
     ((a : Vector[Int]), (b : Vector[Int]), (c : Vector[Int])) => {
       guard a.length() == b.length() && b.length() == c.length() else { true }
       prop(a, b, c)
@@ -204,7 +204,7 @@ test "S_v * p = v * p" {
     m * p.to_col_matrix() == (v * p).to_col_matrix()
   }
 
-  quick_check_fn!(fn {
+  quick_check_fn(fn {
     ((a : Vector[Int]), (b : Vector[Int])) => {
       guard a.length() == b.length() else { true }
       prop(a, b)

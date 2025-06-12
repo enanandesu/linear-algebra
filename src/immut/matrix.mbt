@@ -45,7 +45,7 @@ struct Indexed[T] {
 /// ///|
 /// test "Matrix::to_string" {
 ///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-///   inspect!(
+///   inspect(
 ///     m.to_string(),
 ///     content=
 ///       #||1, 2|
@@ -89,7 +89,7 @@ pub impl[T : Show] Show for Matrix[T] with to_string(s) {
 ///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 ///   let buf = @buffer.new(size_hint=0)
 ///   m.output(buf)
-///   inspect!(
+///   inspect(
 ///     buf.to_string(),
 ///     content=
 ///       #||1, 2|
@@ -113,7 +113,7 @@ pub impl[T : Show] Show for Matrix[T] with output(s, l) {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
 /// let m2 = m.map(fn(x) { x * 2 })
-/// inspect!(m2, content=
+/// inspect(m2, content=
 ///   #||4, 6, 8|
 ///   #||2, 4, 6|
 /// )
@@ -134,7 +134,7 @@ pub fn[T, U] map(self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::make(2, 3, fn(i, j) { i + j })
-/// inspect!(m, content=
+/// inspect(m, content=
 ///   #||0, 1, 2|
 ///   #||1, 2, 3|
 /// )
@@ -160,7 +160,7 @@ pub fn[T] Matrix::make(row : Int, col : Int, f : (Int, Int) -> T) -> Matrix[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::new(2, 3, 0)
-/// inspect!(m, content=
+/// inspect(m, content=
 ///   #||0, 0, 0|
 ///   #||0, 0, 0|
 /// )
@@ -186,6 +186,18 @@ pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
 }
 
 ///|
+pub fn[T] Matrix::from_array(
+  row : Int,
+  col : Int,
+  arr : IArray[T]
+) -> Matrix[T] {
+  guard arr.length() == row * col else {
+    abort("Invalid array length for matrix")
+  }
+  Matrix::{ row, col, data: arr }
+}
+
+///|
 /// Get the `Indexed` type from the `Matrix` type.
 /// You can get the whole row data of the matrix by using the `Indexed` type.
 /// 
@@ -196,7 +208,7 @@ pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-/// inspect!(m[0], content=[2, 3, 4])
+/// inspect(m[0], content=[2, 3, 4])
 /// ```
 /// 
 pub fn[T] Matrix::op_get(self : Matrix[T], row : Int) -> Indexed[T] {
@@ -214,7 +226,7 @@ pub fn[T] Matrix::op_get(self : Matrix[T], row : Int) -> Indexed[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-/// inspect!(m[0][1], content="3")
+/// inspect(m[0][1], content="3")
 /// ```
 /// 
 pub fn[T] op_get(self : Indexed[T], col : Int) -> T {
@@ -242,7 +254,7 @@ pub fn[T] op_get(self : Indexed[T], col : Int) -> T {
 /// test "Matrix::set" {
 ///   let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 ///   let m2 = m.set(0, 1, 5)
-///   inspect!(
+///   inspect(
 ///     m2,
 ///     content=
 ///       #||1, 5|
@@ -263,14 +275,14 @@ pub fn[T] Matrix::set(
 ///|
 test {
   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-  inspect!(
+  inspect(
     m,
     content=
       #||2, 3, 4|
       #||1, 2, 3|
     ,
   )
-  inspect!(m[0][1], content="3")
+  inspect(m[0][1], content="3")
 }
 
 ///|
@@ -285,7 +297,7 @@ test {
 /// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m2 = Matrix::from_2d_array([[1, 1], [0, 1]])
 /// let m3 = m1 * m2
-/// inspect!(m3, content=
+/// inspect(m3, content=
 ///   #||1, 3|
 ///   #||3, 7|
 /// )
@@ -322,7 +334,7 @@ pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
 /// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m2 = Matrix::from_2d_array([[1, 1], [0, 1]])
 /// let m3 = m1 + m2
-/// inspect!(m3, content=
+/// inspect(m3, content=
 ///   #||2, 3|
 ///   #||3, 5|
 /// )
@@ -350,7 +362,7 @@ pub impl[T : Add] Add for Matrix[T] with op_add(
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m1 = -m
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||-1, -2|
 ///   #||-3, -4|
 /// )
@@ -371,7 +383,7 @@ pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
 /// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m2 = Matrix::from_2d_array([[1, 1], [0, 1]])
 /// let m3 = m1 - m2
-/// inspect!(m3, content=
+/// inspect(m3, content=
 ///   #||0, 1|
 ///   #||3, 3|
 /// )
@@ -391,7 +403,7 @@ pub fn[T : Add + Neg] op_sub(self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m1 = m.scale(10)
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||10, 20|
 ///   #||30, 40|
 /// )
@@ -411,7 +423,7 @@ pub fn[T : Mul] scale(self : Matrix[T], cst : T) -> Matrix[T] {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m1 = m.add_constant(10)
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||11, 12|
 ///   #||13, 14|
 /// )
@@ -429,7 +441,7 @@ pub fn[T : Add] add_constant(self : Matrix[T], cst : T) -> Matrix[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::identity(3)
-/// inspect!(m, content=
+/// inspect(m, content=
 ///   #||1, 0, 0|
 ///   #||0, 1, 0|
 ///   #||0, 0, 1|
@@ -451,7 +463,7 @@ pub fn[T : One + Zero] identity(size : Int) -> Matrix[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[0, 0], [0, 0]])
-/// inspect!(m.null(), content="true")
+/// inspect(m.null(), content="true")
 /// ```
 pub fn[T : Compare + Zero] null(self : Matrix[T]) -> Bool {
   not(self.data.iter().any(fn(x) { x != T::zero() }))
@@ -467,7 +479,7 @@ pub fn[T : Compare + Zero] null(self : Matrix[T]) -> Bool {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1 + 2i, 2 + 3i], [3 + 4i, 4 + 5i]])
 /// let m1 = m.adjoint()
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||4 - 5i, -3 + 4i|
 ///   #||-2 + 3i, 1 - 2i|
 /// )
@@ -494,7 +506,7 @@ pub fn[T : Conjugate] adjoint(self : Matrix[T]) -> Matrix[T] {
 /// ///|
 /// test "transpose" {
 ///   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-///   inspect!(
+///   inspect(
 ///     m.transpose(),
 ///     content=
 ///       #||1, 4|
@@ -517,7 +529,7 @@ pub fn[T] transpose(self : Matrix[T]) -> Matrix[T] {
 /// Example
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
-/// inspect!(m.determinant(), content="-2")
+/// inspect(m.determinant(), content="-2")
 /// ```
 pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
   let n = self.row
@@ -549,7 +561,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m1 = m.pow(2)
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||7, 10|
 ///   #||15, 22|
 /// )
@@ -575,7 +587,7 @@ pub fn[T : Semiring] pow(self : Matrix[T], power : Int) -> Matrix[T] {
 /// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
 /// let m3 = m1.horizontal_combine(m2)
-/// inspect!(m3, content=
+/// inspect(m3, content=
 ///   #||1, 2, 1, 0|
 ///   #||3, 4, 0, 1|
 /// )
@@ -608,7 +620,7 @@ pub fn[T] horizontal_combine(self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 /// let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
 /// let m3 = m1.vertical_combine(m2)
-/// inspect!(m3, content=
+/// inspect(m3, content=
 ///   #||1, 2|
 ///   #||3, 4|
 ///   #||1, 0|
@@ -636,14 +648,14 @@ test "matrix_combine" {
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
   let m3 = m1.horizontal_combine(m2)
   let m4 = m1.vertical_combine(m2)
-  inspect!(
+  inspect(
     m3,
     content=
       #||1, 2, 1, 0|
       #||3, 4, 0, 1|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||1, 2|
@@ -666,7 +678,7 @@ test "matrix_combine" {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m1 = m.swap_rows(0, 1)
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||3, 4|
 ///   #||1, 2|
 /// )
@@ -700,7 +712,7 @@ pub fn[T] swap_rows(self : Matrix[T], r1 : Int, r2 : Int) -> Matrix[T] {
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let m1 = m.swap_cols(0, 1)
-/// inspect!(m1, content=
+/// inspect(m1, content=
 ///   #||2, 1|
 ///   #||4, 3|
 /// )
@@ -715,14 +727,14 @@ test "swap_matrix" {
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
   let m3 = m1.swap_rows(0, 1)
   let m4 = m2.swap_cols(0, 1)
-  inspect!(
+  inspect(
     m3,
     content=
       #||3, 4|
       #||1, 2|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||0, 1|
@@ -737,28 +749,28 @@ test {
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
   let m3 = m1 * m2
   let m4 = m1 + m2
-  inspect!(
+  inspect(
     m3,
     content=
       #||1, 2|
       #||3, 4|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||2, 2|
       #||3, 5|
     ,
   )
-  inspect!(
+  inspect(
     -m1,
     content=
       #||-1, -2|
       #||-3, -4|
     ,
   )
-  inspect!(
+  inspect(
     m1.scale(10),
     content=
       #||10, 20|
@@ -766,7 +778,7 @@ test {
     ,
   )
   let m5 : Matrix[Int] = identity(5)
-  inspect!(
+  inspect(
     m5,
     content=
       #||1, 0, 0, 0, 0|
@@ -776,18 +788,18 @@ test {
       #||0, 0, 0, 0, 1|
     ,
   )
-  inspect!(
+  inspect(
     m4.add_constant(10),
     content=
       #||12, 12|
       #||13, 15|
     ,
   )
-  inspect!(m4.determinant(), content="4")
-  inspect!(m1.determinant(), content="-2")
-  inspect!(m5.determinant(), content="1")
+  inspect(m4.determinant(), content="4")
+  inspect(m1.determinant(), content="-2")
+  inspect(m5.determinant(), content="1")
   let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).pow(10)
-  inspect!(
+  inspect(
     m,
     content=
       #||0, 0, 0|

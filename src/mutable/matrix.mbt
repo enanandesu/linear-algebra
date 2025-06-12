@@ -75,8 +75,8 @@ test "map_function" {
     m.copy()..map_col(0, fn(x) { x * 2 })
     m
   }
-  inspect!(m1.to_string(), content="|2, 4, 6|\n|4, 5, 6|")
-  inspect!(m2.to_string(), content="|2, 2, 3|\n|8, 5, 6|")
+  inspect(m1.to_string(), content="|2, 4, 6|\n|4, 5, 6|")
+  inspect(m2.to_string(), content="|2, 2, 3|\n|8, 5, 6|")
 }
 
 ///|
@@ -92,6 +92,16 @@ pub fn[T] Matrix::new(row : Int, col : Int, elem : T) -> Matrix[T] {
 ///|
 pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
   Matrix::make(arr.length(), arr[0].length(), fn(i, j) { arr[i][j] })
+}
+
+///|
+pub fn[T] Matrix::from_array(
+  row : Int,
+  col : Int,
+  data : Array[T]
+) -> Matrix[T] {
+  guard row * col == data.length()
+  { row, col, data }
 }
 
 ///| 
@@ -115,9 +125,9 @@ pub fn[T] Lens::op_set(self : Lens[T], col : Int, elem : T) -> Unit {
 ///|
 test "op_set" {
   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-  inspect!(m[0][1], content="3")
+  inspect(m[0][1], content="3")
   m[0][1] = 4
-  inspect!(m[0][1], content="4")
+  inspect(m[0][1], content="4")
 }
 
 ///|
@@ -246,8 +256,8 @@ test "swap" {
     m.copy()..swap_cols(0, 1)
     m
   }
-  inspect!(m1.to_string(), content="|4, 5, 6|\n|1, 2, 3|")
-  inspect!(m2.to_string(), content="|2, 1, 3|\n|5, 4, 6|")
+  inspect(m1.to_string(), content="|4, 5, 6|\n|1, 2, 3|")
+  inspect(m2.to_string(), content="|2, 1, 3|\n|5, 4, 6|")
 }
 
 ///|
@@ -304,7 +314,7 @@ test "reduce_row_elimination" {
     [1.0, 1.0, 1.0, 2.0],
     [2.0, 3.0, 3.0, 5.0],
   ])
-  inspect!(
+  inspect(
     m.reduce_row_elimination(),
     content=
       #||1, 0, 0, 1|
@@ -340,14 +350,14 @@ test "matrix_combine" {
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
   let m3 = m1.horizontal_combine(m2)
   let m4 = m1.vertical_combine(m2)
-  inspect!(
+  inspect(
     m3,
     content=
       #||1, 2, 1, 0|
       #||3, 4, 0, 1|
     ,
   )
-  inspect!(
+  inspect(
     m4,
     content=
       #||1, 2|
@@ -356,4 +366,25 @@ test "matrix_combine" {
       #||0, 1|
     ,
   )
+}
+
+///|
+pub fn[T] row_to_array(self : Matrix[T], row : Int) -> Array[T] {
+  guard row >= 0 && row < self.row
+  let start = row * self.col
+  let end = start + self.col
+  let arr = []
+  for i in start..<end {
+    arr.push(self.data[i])
+  }
+  arr
+}
+
+pub fn[T] col_to_array(self : Matrix[T], col : Int) -> Array[T] {
+  guard col >= 0 && col < self.col
+  let arr = []
+  for i in 0..<self.row {
+    arr.push(self.data[i * self.col + col])
+  }
+  arr
 }
