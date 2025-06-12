@@ -2,6 +2,7 @@ package "Luna-Flow/linear-algebra/immut"
 
 import(
   "Luna-Flow/luna-generic"
+  "moonbitlang/core/immut/array"
 )
 
 // Values
@@ -58,6 +59,7 @@ fn[T : Add] Matrix::add_constant(Self[T], T) -> Self[T]
 fn[T : @luna-generic.Conjugate] Matrix::adjoint(Self[T]) -> Self[T]
 fn[T : Mul + Add + @luna-generic.One + Neg + @luna-generic.Zero] Matrix::determinant(Self[T]) -> T
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
+fn[T] Matrix::from_array(Int, Int, @array.T[T]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
 fn[T] Matrix::make(Int, Int, (Int, Int) -> T) -> Self[T]
 fn[T, U] Matrix::map(Self[T], (T) -> U) -> Self[U]
