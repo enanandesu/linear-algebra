@@ -28,16 +28,6 @@ struct Indexed[T] {
 }
 
 ///|
-pub fn[T] row (self : Matrix[T]) -> Int {
-  self.row
-}
-
-///|
-pub fn[T] col (self: Matrix[T]) -> Int {
-  self.col
-}
-
-///|
 /// Converts a matrix to its string representation. The resulting string displays
 /// the matrix in a row-by-row format, with each row enclosed in vertical bars
 /// (|) and elements separated by commas.
