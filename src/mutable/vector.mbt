@@ -8,7 +8,7 @@ impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
 
 ///|
 impl[T : Eq] Eq for Vector[T] with op_equal(self, other) {
-  self._ == other._
+  self.inner() == other.inner()
 }
 
 ///|
@@ -40,7 +40,7 @@ pub fn[A, U, V] Vector::zip_with(
   other : Vector[U],
   f : (A, U) -> V
 ) -> Vector[V] {
-  array_zip_with(self._, other._, f)
+  array_zip_with(self.inner(), other.inner(), f)
 }
 
 ///|
@@ -50,12 +50,12 @@ pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
 
 ///|
 pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
-  { data: self._, row: 1, col: self.length() }
+  { data: self.inner(), row: 1, col: self.length() }
 }
 
 ///|
 pub fn[A] Vector::length(self : Vector[A]) -> Int {
-  self._.length()
+  self.inner().length()
 }
 
 ///|
@@ -70,27 +70,27 @@ pub fn[A] Vector::make(n : Int, elem : A) -> Vector[A] {
 
 ///|
 pub fn[A] Vector::copy(self : Vector[A]) -> Vector[A] {
-  self._.copy()
+  self.inner().copy()
 }
 
 ///|
 pub fn[A] Vector::op_get(self : Vector[A], index : Int) -> A {
-  self._[index]
+  self.inner()[index]
 }
 
 ///|
 pub fn[A] Vector::op_set(self : Vector[A], index : Int, value : A) -> Unit {
-  self._[index] = value
+  self.inner()[index] = value
 }
 
 ///|
 pub fn[A, B] Vector::map(self : Vector[A], f : (A) -> B) -> Vector[B] {
-  self._.map(f)
+  self.inner().map(f)
 }
 
 ///|
 pub fn[A] Vector::map_inplace(self : Vector[A], f : (A) -> A) -> Unit {
-  self._.map_inplace(f)
+  self.inner().map_inplace(f)
 }
 
 ///|
