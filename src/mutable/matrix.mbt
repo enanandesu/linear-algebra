@@ -12,6 +12,16 @@ struct Lens[T] {
 }
 
 ///|
+pub fn[T] row (self : Matrix[T]) -> Int {
+  self.row
+}
+
+///|
+pub fn[T] col (self: Matrix[T]) -> Int {
+  self.col
+}
+
+///|
 pub impl[T : Show] Show for Matrix[T] with to_string(s) {
   let mut res = ""
   for i in 0..<s.row {
