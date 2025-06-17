@@ -5,51 +5,9 @@ import(
 )
 
 // Values
-fn[T : Add] add_constant(Matrix[T], T) -> Matrix[T]
-
-fn[T : @luna-generic.Conjugate] adjoint(Matrix[T]) -> Matrix[T]
-
-fn[T] col_to_array(Matrix[T], Int) -> Array[T]
-
-fn[T] horizontal_combine(Matrix[T], Matrix[T]) -> Matrix[T]
-
 fn[T : @luna-generic.One + @luna-generic.Zero] identity(Int) -> Matrix[T]
 
-fn[T : @luna-generic.One + Mul + Add + Neg] lerp(Vector[T], Vector[T], T) -> Vector[T]
-
 fn[T : Add + Mul] lin_comb(T, Vector[T], T, Vector[T]) -> Vector[T]
-
-fn[T] matrix_to_transpose(Matrix[T]) -> Transpose[T]
-
-fn[T : Compare + @luna-generic.Zero] null(Matrix[T]) -> Bool
-
-fn[T] op_get(Lens[T], Int) -> T
-
-fn[T : @luna-generic.Semiring] pow(Matrix[T], Int) -> Matrix[T]
-
-fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] reduce_row_elimination(Matrix[T]) -> Matrix[T]
-
-fn[T] row_to_array(Matrix[T], Int) -> Array[T]
-
-fn[T : Mul] scale(Matrix[T], T) -> Matrix[T]
-
-fn[T : Mul + @luna-generic.Zero] scaled_matrix(Vector[T]) -> Matrix[T]
-
-fn[T] swap_cols(Matrix[T], Int, Int) -> Unit
-
-fn[T] swap_rows(Matrix[T], Int, Int) -> Unit
-
-fn[T : Mul] tensor_product(Vector[T], Vector[T]) -> Matrix[T]
-
-fn[T] to_array(Matrix[T]) -> Array[T]
-
-fn[T] to_col_matrix(Vector[T]) -> Matrix[T]
-
-fn[T] to_row_matrix(Vector[T]) -> Matrix[T]
-
-fn[T] transpose(Matrix[T]) -> Matrix[T]
-
-fn[T] vertical_combine(Matrix[T], Matrix[T]) -> Matrix[T]
 
 // Types and methods
 type LenTranspose[T]
@@ -63,8 +21,12 @@ fn[T] Lens::op_set(Self[T], Int, T) -> Unit
 type Matrix[T]
 fn[T : Add] Matrix::add_constant(Self[T], T) -> Self[T]
 fn[T : @luna-generic.Conjugate] Matrix::adjoint(Self[T]) -> Self[T]
+fn[T] Matrix::col(Self[T]) -> Int
 fn[T] Matrix::col_to_array(Self[T], Int) -> Array[T]
 fn[T] Matrix::copy(Self[T]) -> Self[T]
+fn[T] Matrix::each(Self[T], (T) -> Unit) -> Unit
+fn[T] Matrix::each_col(Self[T], Int, (T) -> Unit) -> Unit
+fn[T] Matrix::each_row(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, Array[T]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
@@ -78,6 +40,7 @@ fn[T : Compare + @luna-generic.Zero] Matrix::null(Self[T]) -> Bool
 fn[T] Matrix::op_get(Self[T], Int) -> Lens[T]
 fn[T : @luna-generic.Semiring] Matrix::pow(Self[T], Int) -> Self[T]
 fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] Matrix::reduce_row_elimination(Self[T]) -> Self[T]
+fn[T] Matrix::row(Self[T]) -> Int
 fn[T] Matrix::row_to_array(Self[T], Int) -> Array[T]
 fn[T : Mul] Matrix::scale(Self[T], T) -> Self[T]
 fn[T] Matrix::swap_cols(Self[T], Int, Int) -> Unit

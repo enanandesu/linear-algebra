@@ -12,12 +12,12 @@ struct Lens[T] {
 }
 
 ///|
-pub fn[T] row (self : Matrix[T]) -> Int {
+pub fn[T] row(self : Matrix[T]) -> Int {
   self.row
 }
 
 ///|
-pub fn[T] col (self: Matrix[T]) -> Int {
+pub fn[T] col(self : Matrix[T]) -> Int {
   self.col
 }
 
@@ -66,6 +66,33 @@ pub fn[T] Matrix::map_row(self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
 pub fn[T] Matrix::map_col(self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
   for i in 0..<self.row {
     self.data[i * self.col + col] = f(self.data[i * self.col + col])
+  }
+}
+
+///|
+pub fn[T] Matrix::each(self : Matrix[T], f : (T) -> Unit) -> Unit {
+  self.data.each(f)
+}
+
+///|
+pub fn[T] Matrix::each_row(
+  self : Matrix[T],
+  row : Int,
+  f : (T) -> Unit
+) -> Unit {
+  for i in 0..<self.col {
+    f(self.data[row * self.col + i])
+  }
+}
+
+///|
+pub fn[T] Matrix::each_col(
+  self : Matrix[T],
+  col : Int,
+  f : (T) -> Unit
+) -> Unit {
+  for i in 0..<self.row {
+    f(self.data[i * self.col + col])
   }
 }
 

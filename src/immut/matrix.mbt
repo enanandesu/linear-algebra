@@ -28,12 +28,12 @@ struct Indexed[T] {
 }
 
 ///|
-pub fn[T] row (self : Matrix[T]) -> Int {
+pub fn[T] row(self : Matrix[T]) -> Int {
   self.row
 }
 
 ///|
-pub fn[T] col (self: Matrix[T]) -> Int {
+pub fn[T] col(self : Matrix[T]) -> Int {
   self.col
 }
 

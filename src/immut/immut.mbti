@@ -6,49 +6,7 @@ import(
 )
 
 // Values
-fn[T : Add] add_constant(Matrix[T], T) -> Matrix[T]
-
-fn[T : @luna-generic.Conjugate] adjoint(Matrix[T]) -> Matrix[T]
-
-fn[T : Mul + Add + @luna-generic.One + Neg + @luna-generic.Zero] determinant(Matrix[T]) -> T
-
-fn[T] horizontal_combine(Matrix[T], Matrix[T]) -> Matrix[T]
-
 fn[T : @luna-generic.One + @luna-generic.Zero] identity(Int) -> Matrix[T]
-
-fn[T : Mul] left_scale(Vector[T], T) -> Vector[T]
-
-fn[T : @luna-generic.One + Mul + Add + Neg] lerp(Vector[T], Vector[T], T) -> Vector[T]
-
-fn[T, U] map(Matrix[T], (T) -> U) -> Matrix[U]
-
-fn[T : Compare + @luna-generic.Zero] null(Matrix[T]) -> Bool
-
-fn[T] op_get(Indexed[T], Int) -> T
-
-fn[T : Add + Neg] op_sub(Matrix[T], Matrix[T]) -> Matrix[T]
-
-fn[T : @luna-generic.Semiring] pow(Matrix[T], Int) -> Matrix[T]
-
-fn[T : Mul] right_scale(Vector[T], T) -> Vector[T]
-
-fn[T : Mul] scale(Matrix[T], T) -> Matrix[T]
-
-fn[T : Mul + @luna-generic.Zero] scaled_matrix(Vector[T]) -> Matrix[T]
-
-fn[T] swap_cols(Matrix[T], Int, Int) -> Matrix[T]
-
-fn[T] swap_rows(Matrix[T], Int, Int) -> Matrix[T]
-
-fn[T : Mul] tensor_product(Vector[T], Vector[T]) -> Matrix[T]
-
-fn[T] to_col_matrix(Vector[T]) -> Matrix[T]
-
-fn[T] to_row_matrix(Vector[T]) -> Matrix[T]
-
-fn[T] transpose(Matrix[T]) -> Matrix[T]
-
-fn[T] vertical_combine(Matrix[T], Matrix[T]) -> Matrix[T]
 
 // Types and methods
 type Indexed[T]
@@ -57,6 +15,7 @@ fn[T] Indexed::op_get(Self[T], Int) -> T
 type Matrix[T]
 fn[T : Add] Matrix::add_constant(Self[T], T) -> Self[T]
 fn[T : @luna-generic.Conjugate] Matrix::adjoint(Self[T]) -> Self[T]
+fn[T] Matrix::col(Self[T]) -> Int
 fn[T : Mul + Add + @luna-generic.One + Neg + @luna-generic.Zero] Matrix::determinant(Self[T]) -> T
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, @array.T[T]) -> Self[T]
@@ -68,6 +27,7 @@ fn[T : Compare + @luna-generic.Zero] Matrix::null(Self[T]) -> Bool
 fn[T] Matrix::op_get(Self[T], Int) -> Indexed[T]
 fn[T : Add + Neg] Matrix::op_sub(Self[T], Self[T]) -> Self[T]
 fn[T : @luna-generic.Semiring] Matrix::pow(Self[T], Int) -> Self[T]
+fn[T] Matrix::row(Self[T]) -> Int
 fn[T : Mul] Matrix::scale(Self[T], T) -> Self[T]
 fn[T] Matrix::set(Self[T], Int, Int, T) -> Self[T]
 fn[T] Matrix::swap_cols(Self[T], Int, Int) -> Self[T]
