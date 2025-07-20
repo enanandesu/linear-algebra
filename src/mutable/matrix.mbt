@@ -75,6 +75,16 @@ pub fn[T] Matrix::each(self : Matrix[T], f : (T) -> Unit) -> Unit {
 }
 
 ///|
+pub fn[T] Matrix::eachi(self : Matrix[T], f : (Int, T) -> Unit) -> Unit {
+  self.data.eachi(f)
+}
+
+///|
+pub fn[T] Matrix::eachij(self : Matrix[T], f : (Int, Int, T) -> Unit) -> Unit {
+  self.data.eachi((index, data) => f(index / self.col, index % self.col, data))
+}
+
+///|
 pub fn[T] Matrix::each_row(
   self : Matrix[T],
   row : Int,
