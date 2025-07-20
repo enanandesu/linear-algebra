@@ -1,28 +1,143 @@
 ///|
+/// A one-dimensional array-like container for mathematical vector operations.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = @mutable.Vector::make(3, 0.0)
+/// let v2 = @mutable.Vector::makei(3, fn(i) { i.to_double() })
+/// let v3 = @mutable.Vector::from_array([1.0, 2.0, 3.0])
+///
+/// // Access elements
+/// inspect(v2[0], content="0.0")
+/// inspect(v2[1], content="1.0")
+///
+/// // Vector operations
+/// let sum = v2 + v3
+/// let scaled = v2.left_scale(2.0)
+/// ```
+///
 type Vector[A] Array[A]
 
 ///|
+/// Implements the `Arbitrary` trait for `Vector[T]`, enabling the generation of
+/// random vectors for property-based testing.
+///
+/// Parameters:
+///
+/// * `size` : The length of the vector to generate.
+/// * `rng` : The random number generator to use for creating random elements.
+///
+/// Returns a randomly generated vector of the specified size, where each
+/// element is generated using the `Arbitrary` instance of type `T`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let rng = @random.new()
+/// let random_vector : Vector[Int] = Vector::arbitrary(5, rng)
+/// // Creates a vector of 5 random integers
+/// ```
+///
 impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
   Vector::makei(size, i => T::arbitrary(i, rng))
 }
 
 ///|
+/// Checks if two vectors are equal by comparing their underlying arrays
+/// element-wise.
+///
+/// Parameters:
+///
+/// * `self` : The first vector to compare.
+/// * `other` : The second vector to compare.
+///
+/// Returns `true` if both vectors have the same length and all corresponding
+/// elements are equal, `false` otherwise.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([1, 2, 3])
+/// let v3 = Vector::from_array([1, 2, 4])
+/// inspect(v1 == v2, content="true")
+/// inspect(v1 == v3, content="false")
+/// ```
+///
 impl[T : Eq] Eq for Vector[T] with op_equal(self, other) {
   self.inner() == other.inner()
 }
 
 ///|
+/// Converts a vector to its string representation with elements separated by
+/// commas and enclosed in vertical bars.
+///
+/// Parameters:
+///
+/// * `self` : The vector to convert to a string.
+///
+/// Returns a string representation of the vector in the format `|element1,
+/// element2, ..., elementN|`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::from_array([1, 2, 3])
+/// inspect(v.to_string(), content="|1, 2, 3|")
+/// ```
+///
 pub impl[T : Show] Show for Vector[T] with to_string(self) {
   let sep = ", "
   "|\{self.inner().map(T::to_string).join(sep)}|"
 }
 
 ///|
+/// Outputs the vector to a logger for debugging and display purposes.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be output.
+/// * `logger` : The logger object that receives the string representation.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::from_array([1, 2, 3])
+/// let logger = Logger::new()
+/// v.output(logger)
+/// // The logger now contains the string representation of the vector
+/// ```
+///
 pub impl[T : Show] Show for Vector[T] with output(self, l) {
   l.write_string(self.to_string())
 }
 
 ///|
+/// Combines corresponding elements of two arrays using a specified function to
+/// produce a new array.
+///
+/// Parameters:
+///
+/// * `first_array` : Array\[A] - The first input array.
+/// * `second_array` : Array\[B] - The second input array.
+/// * `combine_function` : (A, B) -> C - The function to apply to each pair of
+///   corresponding elements.
+///
+/// Returns an Array\[C] containing the results of applying the function to each
+/// pair of corresponding elements.
+///
+/// Panics if the two input arrays have different lengths.
+///
+/// Example:
+///
+/// ```moonbit
+/// let arr1 = [1, 2, 3]
+/// let arr2 = [4, 5, 6] 
+/// let result = array_zip_with(arr1, arr2, fn(x, y) { x + y })
+/// inspect(result, content="[5, 7, 9]")
+/// ```
+///
 fn[A, B, C] array_zip_with(
   a1 : Array[A],
   a2 : Array[B],
@@ -35,6 +150,30 @@ fn[A, B, C] array_zip_with(
 }
 
 ///|
+/// Combines two vectors element-wise using a provided function to produce a new
+/// vector.
+///
+/// Parameters:
+///
+/// * `self` : The first input vector of type `A`.
+/// * `other` : The second input vector of type `U`.
+/// * `f` : A function that takes an element from the first vector and an
+///   element from the second vector, and returns a new element of type `V`.
+///
+/// Returns a new vector where each element is the result of applying the
+/// function `f` to the corresponding elements from both input vectors.
+///
+/// Panics if the two input vectors have different lengths.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// let result = v1.zip_with(v2, fn(a, b) { a + b })
+/// inspect(result, content="|5, 7, 9|")
+/// ```
+///
 pub fn[A, U, V] Vector::zip_with(
   self : Vector[A],
   other : Vector[U],
@@ -44,66 +183,298 @@ pub fn[A, U, V] Vector::zip_with(
 }
 
 ///|
+/// Converts a vector to a column matrix representation.
+///
+/// Parameters:
+///
+/// * `self` : The vector to convert to a column matrix.
+///
+/// Returns a matrix with the same number of rows as the vector length and
+/// exactly one column, where each element of the vector becomes a row in the
+/// resulting matrix.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let col_matrix = v.to_col_matrix()
+/// // Results in a 3x1 matrix:
+/// // |1|
+/// // |2|
+/// // |3|
+/// ```
+///
 pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
   Matrix::make(self.length(), 1, fn(i, _) { self[i] })
 }
 
 ///|
+/// Converts a vector to a row matrix with a single row.
+///
+/// Parameters:
+///
+/// * `self` : The vector to convert to a row matrix.
+///
+/// Returns a matrix with one row and columns equal to the length of the input
+/// vector, where the single row contains all elements of the vector in order.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3, 4])
+/// let row_matrix = v.to_row_matrix()
+/// // Creates a 1x4 matrix: |1 2 3 4|
+/// ```
+///
 pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
   { data: self.inner(), row: 1, col: self.length() }
 }
 
 ///|
+/// Returns the number of elements in the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector whose length is to be determined.
+///
+/// Returns the number of elements in the vector as an `Int`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::make(5, 42)
+/// inspect(v.length(), content="5")
+/// ```
+///
 pub fn[A] Vector::length(self : Vector[A]) -> Int {
   self.inner().length()
 }
 
 ///|
+/// Creates a vector of length `n` by applying the given function to each index.
+///
+/// Parameters:
+///
+/// * `n` : The length of the vector to create.
+/// * `f` : A function that takes an index and returns the element at that
+///   position.
+///
+/// Returns a new vector where each element at index `i` is the result of
+/// calling `f(i)`.
+///
+/// Examples:
+///
+/// ```moonbit
+/// // Create a vector [0, 1, 4, 9, 16] (squares of indices)
+/// let squares = @mutable.Vector::makei(5, fn(i) { i * i })
+///
+/// // Create a vector [2, 4, 6, 8] (even numbers starting from 2)
+/// let evens = @mutable.Vector::makei(4, fn(i) { 2 * (i + 1) })
+/// ```
+///
 pub fn[A] Vector::makei(n : Int, f : (Int) -> A) -> Vector[A] {
   Array::makei(n, f)
 }
 
 ///|
+/// Creates a new vector of the specified length with all elements initialized
+/// to the same value.
+///
+/// Parameters:
+///
+/// * `n` : The length of the vector to create.
+/// * `elem` : The value to initialize all elements with.
+///
+/// Returns a new vector of length `n` where each element is `elem`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::make(3, 42)
+/// inspect(v, content="|42, 42, 42|")
+/// ```
+///
 pub fn[A] Vector::make(n : Int, elem : A) -> Vector[A] {
   Array::make(n, elem)
 }
 
 ///|
+/// Creates a deep copy of the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be copied.
+///
+/// Returns a new vector containing the same elements as the original vector.
+///
+/// Example:
+///
+/// ```moonbit
+/// let original = @mutable.Vector::makei(3, fn(i) { i * 2 })
+/// let copied = original.copy()
+/// original[0] = 100
+/// inspect(copied[0], content="0") // copied is independent of original
+/// ```
+///
 pub fn[A] Vector::copy(self : Vector[A]) -> Vector[A] {
   self.inner().copy()
 }
 
 ///|
+/// Retrieves the element at the specified index from the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector to access.
+/// * `index` : The zero-based index of the element to retrieve.
+///
+/// Returns the element at the specified index.
+///
+/// Panics if the index is out of bounds (less than 0 or greater than or equal
+/// to the vector's length).
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::from_array([1, 2, 3, 4, 5])
+/// inspect(v[2], content="3")
+/// ```
+///
 pub fn[A] Vector::op_get(self : Vector[A], index : Int) -> A {
   self.inner()[index]
 }
 
 ///|
+/// Sets the element at the specified index in the vector to the given value.
+///
+/// Parameters:
+///
+/// * `self` : The vector to modify.
+/// * `index` : The zero-based index of the element to set.
+/// * `value` : The new value to assign to the element at the specified index.
+///
+/// Panics if `index` is out of bounds (negative or greater than or equal to the
+/// vector length).
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::make(3, 0)  // Creates [0, 0, 0]
+/// v[1] = 42
+/// // v is now [0, 42, 0]
+/// ```
+///
 pub fn[A] Vector::op_set(self : Vector[A], index : Int, value : A) -> Unit {
   self.inner()[index] = value
 }
 
 ///|
+/// Transforms each element in the vector using the provided mapping function.
+///
+/// Parameters:
+///
+/// * `self` : The vector to transform.
+/// * `f` : The mapping function to apply to each element.
+///
+/// Returns a new vector containing the transformed elements.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3, 4])
+/// let doubled = v.map(fn(x) { x * 2 })
+/// inspect(doubled.to_string(), content="|2, 4, 6, 8|")
+/// ```
+///
 pub fn[A, B] Vector::map(self : Vector[A], f : (A) -> B) -> Vector[B] {
   self.inner().map(f)
 }
 
 ///|
+/// Applies a function to each element of the vector in place, modifying the
+/// original vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be modified.
+/// * `f` : The function to apply to each element. Takes an element of type `A`
+///   and returns a new element of type `A`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::from_array([1, 2, 3, 4])
+/// v.map_inplace(fn(x) { x * 2 })
+/// inspect(v, content="|2, 4, 6, 8|")
+/// ```
+///
 pub fn[A] Vector::map_inplace(self : Vector[A], f : (A) -> A) -> Unit {
   self.inner().map_inplace(f)
 }
 
 ///|
+/// Scales the vector by multiplying each component by the given scalar from the
+/// right.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be scaled.
+/// * `scalar` : The scalar value to multiply each component of the vector.
+///
+/// Returns a new vector where each component is multiplied by the scalar.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let scaled = v.left_scale(2)
+/// // scaled is now equivalent to Vector::from_array([2, 4, 6])
+/// ```
+///
 pub fn[A : Mul] Vector::left_scale(self : Vector[A], scalar : A) -> Vector[A] {
   self.map(x => x * scalar)
 }
 
 ///|
+/// Multiplies each element of a vector by a scalar value.
+///
+/// Parameters:
+///
+/// * `scalar` : The scalar value to multiply each vector element by.
+/// * `self` : The vector to be scaled.
+///
+/// Returns a new vector where each element is the result of multiplying the
+/// corresponding element in the input vector by the scalar.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let scaled = Vector::right_scale(2, v)
+/// inspect(scaled, content="|2, 4, 6|")
+/// ```
+///
 pub fn[A : Mul] Vector::right_scale(scalar : A, self : Vector[A]) -> Vector[A] {
   self.map(x => scalar * x)
 }
 
 ///|
+/// Scales the vector in-place by multiplying each element with the given
+/// scalar.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be scaled in-place.
+/// * `scalar` : The scalar value to multiply each element of the vector with.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::from_array([1, 2, 3])
+/// v.left_scale_inplace(2)
+/// inspect(v, content="|2, 4, 6|")
+/// ```
+///
 pub fn[A : Mul] Vector::left_scale_inplace(
   self : Vector[A],
   scalar : A
@@ -112,6 +483,22 @@ pub fn[A : Mul] Vector::left_scale_inplace(
 }
 
 ///|
+/// Multiplies each element of the vector by a scalar value in-place, modifying
+/// the original vector.
+///
+/// Parameters:
+///
+/// * `scalar` : The scalar value to multiply each vector element by.
+/// * `self` : The vector to be modified.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @mutable.Vector::from_array([1, 2, 3])
+/// @mutable.Vector::right_scale_inplace(2, v)
+/// // v is now [2, 4, 6]
+/// ```
+///
 pub fn[A : Mul] Vector::right_scale_inplace(
   scalar : A,
   self : Vector[A]
@@ -120,11 +507,46 @@ pub fn[A : Mul] Vector::right_scale_inplace(
 }
 
 ///|
+/// Converts an array into a vector.
+///
+/// Parameters:
+///
+/// * `array` : The array to be converted into a vector.
+///
+/// Returns a new vector containing the elements from the input array.
+///
+/// Example:
+///
+/// ```moonbit
+/// let arr = [1, 2, 3, 4, 5]
+/// let vec = Vector::from_array(arr)
+/// inspect(vec.to_string(), content="|1, 2, 3, 4, 5|")
+/// ```
+///
 pub fn[T] Vector::from_array(a : Array[T]) -> Vector[T] {
   a
 }
 
 ///|
+/// Performs element-wise addition of two vectors.
+///
+/// Parameters:
+///
+/// * `self` : The first vector.
+/// * `other` : The second vector to add to the first vector.
+///
+/// Returns a new vector where each element is the sum of the corresponding
+/// elements from the input vectors.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = @mutable.Vector::from_array([1, 2, 3])
+/// let v2 = @mutable.Vector::from_array([4, 5, 6])
+/// let result = v1 + v2
+/// inspect(result, content="|5, 7, 9|")
+/// ```
+///
 pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
   other : Vector[T]
@@ -133,6 +555,24 @@ pub impl[T : Add] Add for Vector[T] with op_add(
 }
 
 ///|
+/// Tests the property that adding a vector to itself is equivalent to scaling
+/// it by 2.
+///
+/// This is a property-based test that verifies the mathematical identity: for
+/// any vector `v`, `v + v = 2 * v`. The test uses QuickCheck to generate random
+/// vectors and validate that vector addition is consistent with scalar
+/// multiplication by 2.
+///
+/// Example:
+///
+/// ```moonbit
+/// // The property being tested:
+/// let v = Vector::from_array([1, 2, 3])
+/// let sum = v + v
+/// let scaled = v.left_scale(2)
+/// // sum should equal scaled: [2, 4, 6]
+/// ```
+///
 test "a + a = 2 * a" {
   fn prop(v : Vector[Int]) {
     v + v == v.left_scale(2)
@@ -142,6 +582,29 @@ test "a + a = 2 * a" {
 }
 
 ///|
+/// Tests the commutative property of vector addition using property-based
+/// testing.
+///
+/// This test verifies that vector addition is commutative by checking that `a +
+/// b` equals `b + a` for randomly generated pairs of vectors of the same
+/// length. The test uses QuickCheck-style property-based testing to
+/// automatically generate test cases and validate the mathematical property
+/// across a range of inputs.
+///
+/// The test includes a guard condition to ensure that only vectors of equal
+/// length are compared, as vector addition is only defined for vectors of the
+/// same dimension. When vectors have different lengths, the property is
+/// considered trivially true and the test passes.
+///
+/// Example:
+///
+/// ```moonbit
+/// // This property should hold for any two vectors of the same length
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// // v1 + v2 should equal v2 + v1: [5, 7, 9]
+/// ```
+///
 test "a + b = b + a" {
   fn prop(a : Vector[Int], b) {
     a + b == b + a
@@ -157,6 +620,25 @@ test "a + b = b + a" {
 }
 
 ///|
+/// Performs element-wise multiplication of two vectors.
+///
+/// Parameters:
+///
+/// * `self` : The first vector.
+/// * `other` : The second vector to multiply with.
+///
+/// Returns a new vector where each element is the product of the corresponding
+/// elements from the input vectors.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// let result = v1 * v2
+/// inspect(result, content="|4, 10, 18|")
+/// ```
+///
 pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
   other : Vector[T]
@@ -165,6 +647,26 @@ pub impl[T : Mul] Mul for Vector[T] with op_mul(
 }
 
 ///|
+/// Tests the associativity property of element-wise vector multiplication.
+///
+/// This test verifies that for vectors `a`, `b`, and `c` of equal length, the
+/// element-wise multiplication operation satisfies the associative property:
+/// `(a * b) * c = a * (b * c)`.
+///
+/// The test uses property-based testing with randomly generated vectors of
+/// integers. It ensures that all three vectors have the same length before
+/// applying the associativity check, as element-wise operations require vectors
+/// of matching dimensions.
+///
+/// Example:
+///
+/// ```moonbit
+/// // For vectors [1, 2] * [3, 4] * [5, 6]
+/// // Left association: ([1*3, 2*4]) * [5, 6] = [3, 8] * [5, 6] = [15, 48]  
+/// // Right association: [1, 2] * ([3*4, 4*6]) = [1, 2] * [15, 24] = [15, 48]
+/// // Both results are equal, confirming associativity
+/// ```
+///
 test "a * b * c = a * (b * c)" {
   fn prop(a : Vector[Int], b, c) {
     a * b * c == a * (b * c)
@@ -180,11 +682,47 @@ test "a * b * c = a * (b * c)" {
 }
 
 ///|
+/// Computes the negation of a vector by negating each element.
+///
+/// Parameters:
+///
+/// * `self` : The vector to negate.
+///
+/// Returns a new vector with each element negated.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @linear-algebra/mutable.Vector::[1, 2, -3]
+/// inspect(-v, content="|-1, -2, 3|")
+/// ```
+///
 pub impl[T : Neg] Neg for Vector[T] with op_neg(self : Vector[T]) -> Vector[T] {
   self.map(T::op_neg)
 }
 
 ///|
+/// Performs linear interpolation between two vectors.
+///
+/// Parameters:
+///
+/// * `self` : The starting vector.
+/// * `other` : The ending vector.
+/// * `alpha` : The interpolation parameter, where 0 returns `self` and 1
+///   returns `other`.
+///
+/// Returns a new vector that is the linear interpolation between `self` and
+/// `other` based on the `alpha` parameter.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// let result = v1.lerp(v2, 0.5)
+/// // result is approximately [2.5, 3.5, 4.5]
+/// ```
+///
 pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
   other : Vector[T],
@@ -194,12 +732,55 @@ pub fn[T : One + Mul + Add + Neg] lerp(
 }
 
 ///|
+/// Creates a diagonal matrix where each diagonal element is the corresponding
+/// element from the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector whose elements will form the diagonal of the resulting
+///   matrix.
+///
+/// Returns a square matrix of size n×n (where n is the length of the vector)
+/// with the vector elements on the main diagonal and zeros elsewhere.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let m = v.scaled_matrix()
+/// // Creates a 3×3 matrix:
+/// // | 1  0  0 |
+/// // | 0  2  0 |
+/// // | 0  0  3 |
+/// ```
+///
 pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
 
 ///|
+/// Tests the mathematical property that multiplying a scaled diagonal matrix by
+/// a vector is equivalent to element-wise multiplication of the original vector
+/// with the input vector.
+///
+/// This test verifies that for any vector `v` and vector `p` of the same
+/// length, the equation `S_v * p = v * p` holds, where `S_v` is the scaled
+/// diagonal matrix constructed from vector `v`. The scaled diagonal matrix has
+/// the elements of `v` on its diagonal and zeros elsewhere. When this matrix is
+/// multiplied by column vector `p`, it should produce the same result as
+/// element-wise multiplication of vectors `v` and `p`.
+///
+/// The test uses property-based testing to verify this mathematical
+/// relationship across randomly generated vectors of integers. It ensures that
+/// vectors have the same length before testing the property, as matrix-vector
+/// multiplication and element-wise vector multiplication are only defined for
+/// vectors of equal dimensions.
+///
+/// This property is fundamental in linear algebra and demonstrates the
+/// relationship between diagonal matrices and element-wise operations on
+/// vectors.
+///
 test "S_v * p = v * p" {
   fn prop(v : Vector[Int], p : Vector[Int]) {
     let m = v.scaled_matrix()
@@ -216,6 +797,27 @@ test "S_v * p = v * p" {
 }
 
 ///|
+/// Computes the tensor product (outer product) of two vectors.
+///
+/// Parameters:
+///
+/// * `self` : The first vector.
+/// * `other` : The second vector.
+///
+/// Returns a matrix where element at position (i, j) is the product of the i-th
+/// element of the first vector and the j-th element of the second vector.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2])
+/// let v2 = Vector::from_array([3, 4, 5])
+/// let result = v1.tensor_product(v2)
+/// // Result is a 2x3 matrix:
+/// // |3  4  5|
+/// // |6  8 10|
+/// ```
+///
 pub fn[T : Mul] tensor_product(
   self : Vector[T],
   other : Vector[T]
@@ -226,11 +828,50 @@ pub fn[T : Mul] tensor_product(
 }
 
 ///|
+/// Adds a constant value to each element of the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector to which the constant will be added.
+/// * `cst` : The constant value to add to each element.
+///
+/// Returns a new vector with the constant added to each element of the original
+/// vector.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let result = v.add_constant(5)
+/// inspect(result.to_string(), content="|6, 7, 8|")
+/// ```
+///
 pub fn[T : Add] Vector::add_constant(self : Vector[T], cst : T) -> Vector[T] {
   self.map(fn(x) { x + cst })
 }
 
 ///|
+/// Computes a linear combination of two vectors.
+///
+/// Parameters:
+///
+/// * `scalar_a` : The scalar coefficient for the first vector.
+/// * `vector_a` : The first vector in the linear combination.
+/// * `scalar_b` : The scalar coefficient for the second vector.
+/// * `vector_b` : The second vector in the linear combination.
+///
+/// Returns a new vector that is the linear combination `scalar_a * vector_a +
+/// scalar_b * vector_b`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// let result = lin_comb(2, v1, 3, v2)
+/// // result is equivalent to Vector::from_array([14, 19, 24])
+/// ```
+///
 pub fn[T : Add + Mul] lin_comb(
   scalar_a : T,
   self : Vector[T],

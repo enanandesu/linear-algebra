@@ -27,6 +27,8 @@ fn[T] Matrix::copy(Self[T]) -> Self[T]
 fn[T] Matrix::each(Self[T], (T) -> Unit) -> Unit
 fn[T] Matrix::each_col(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Matrix::each_row(Self[T], Int, (T) -> Unit) -> Unit
+fn[T] Matrix::eachi(Self[T], (Int, T) -> Unit) -> Unit
+fn[T] Matrix::eachij(Self[T], (Int, Int, T) -> Unit) -> Unit
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, Array[T]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]

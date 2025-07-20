@@ -20,19 +20,68 @@ struct Matrix[T] {
 } derive(Eq)
 
 ///|
-/// Define a new type called Indexed, which is a function
-/// that takes an `integer` and returns a value of type `T`.
-/// 
+/// Wrapper type enabling indexed access to elements of a container, typically
+/// used for row access in matrices.
+///
+/// The `Indexed[T]` type encapsulates a function that maps integer indices to
+/// values of type `T`. This design allows for efficient access to elements at
+/// specific positions within a data structure, commonly employed to represent
+/// individual rows of a matrix where column indices can be used to retrieve
+/// specific elements.
+///
+/// Fields:
+///
+/// * `index` : Function that takes an integer index and returns the
+///   corresponding element of type `T`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let row = m[0]  // Returns Indexed[Int] for the first row
+/// inspect(row[1], content="2")  // Access second element of first row
+/// ```
+///
 struct Indexed[T] {
   index : (Int) -> T
 }
 
 ///|
+/// Returns the number of rows in the matrix.
+///
+/// Parameters:
+///
+/// * `self` : The matrix to get the row count from.
+///
+/// Returns the number of rows as an integer.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// inspect(m.row(), content="2")
+/// ```
+///
 pub fn[T] row(self : Matrix[T]) -> Int {
   self.row
 }
 
 ///|
+/// Returns the number of columns in the matrix.
+///
+/// Parameters:
+///
+/// * `self` : The matrix to get the column count from.
+///
+/// Returns the number of columns as an integer.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// inspect(m.col(), content="3")
+/// ```
+///
 pub fn[T] col(self : Matrix[T]) -> Int {
   self.col
 }
@@ -196,6 +245,32 @@ pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
 }
 
 ///|
+/// Creates a new matrix from a one-dimensional immutable array with specified
+/// dimensions.
+///
+/// Parameters:
+///
+/// * `row` : The number of rows in the resulting matrix.
+/// * `col` : The number of columns in the resulting matrix.
+/// * `arr` : The immutable array containing the matrix elements in row-major
+///   order.
+///
+/// Returns a new matrix with the specified dimensions containing the elements
+/// from the array.
+///
+/// Panics if the length of the array does not equal `row * col`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let arr = @immut/array.from_array([1, 2, 3, 4, 5, 6])
+/// let m = Matrix::from_array(2, 3, arr)
+/// inspect(m, content=
+///   #||1, 2, 3|
+///   #||4, 5, 6|
+/// )
+/// ```
+///
 pub fn[T] Matrix::from_array(
   row : Int,
   col : Int,
@@ -283,6 +358,37 @@ pub fn[T] Matrix::set(
 }
 
 ///|
+/// Tests the basic functionality of matrix creation, display, and element
+/// access.
+///
+/// This test verifies that:
+///
+/// 1. A matrix can be created from a 2D array using `Matrix::from_2d_array`
+/// 2. The matrix displays correctly with the expected string format
+/// 3. Individual elements can be accessed using the `[row][col]` indexing
+/// syntax
+///
+/// The test creates a 2×3 matrix from a 2D array, checks its string
+/// representation matches the expected format with elements separated by commas
+/// and rows enclosed in vertical bars, and verifies that element access at
+/// position \[0]\[1] returns the correct value.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "basic matrix operations" {
+///   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
+///   inspect(
+///     m,
+///     content=(
+///       #||2, 3, 4|
+///       #||1, 2, 3|
+///     ),
+///   )
+///   inspect(m[0][1], content="3")
+/// }
+/// ```
+///
 test {
   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
   inspect(
@@ -653,6 +759,54 @@ pub fn[T] vertical_combine(self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
 }
 
 ///|
+/// Tests the horizontal and vertical combination methods for matrices.
+///
+/// This test verifies that:
+///
+/// 1. `horizontal_combine` correctly concatenates two matrices side by side,
+/// placing the second matrix's columns to the right of the first matrix's
+/// columns
+/// 2. `vertical_combine` correctly concatenates two matrices vertically,
+/// placing the second matrix's rows below the first matrix's rows
+///
+/// The test creates two 2×2 matrices:
+///
+/// * `m1`: A matrix with values \[\[1, 2], \[3, 4]]
+/// * `m2`: An identity matrix with values \[\[1, 0], \[0, 1]]
+///
+/// For horizontal combination, the result should be a 2×4 matrix where the
+/// columns of `m2` are appended to the right of `m1's` columns.
+///
+/// For vertical combination, the result should be a 4×2 matrix where the rows
+/// of `m2` are appended below `m1's` rows.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "matrix_combine" {
+///   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+///   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
+///   let m3 = m1.horizontal_combine(m2)
+///   let m4 = m1.vertical_combine(m2)
+///   inspect(
+///     m3,
+///     content=(
+///       #||1, 2, 1, 0|
+///       #||3, 4, 0, 1|
+///     ),
+///   )
+///   inspect(
+///     m4,
+///     content=(
+///       #||1, 2|
+///       #||3, 4|
+///       #||1, 0|
+///       #||0, 1|
+///     ),
+///   )
+/// }
+/// ```
+///
 test "matrix_combine" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
@@ -732,6 +886,25 @@ pub fn[T] swap_cols(self : Matrix[T], c1 : Int, c2 : Int) -> Matrix[T] {
 }
 
 ///|
+/// Tests matrix row and column swapping operations.
+///
+/// This test verifies the correctness of the `swap_rows` and `swap_cols`
+/// methods by creating test matrices and checking that the swapping operations
+/// produce the expected results.
+///
+/// The test creates two 2×2 matrices:
+///
+/// * `m1`: A matrix with values \[\[1, 2], \[3, 4]]
+/// * `m2`: An identity matrix \[\[1, 0], \[0, 1]]
+///
+/// It then performs the following operations:
+///
+/// * Swaps rows 0 and 1 of `m1`, expecting the result \[\[3, 4], \[1, 2]]
+/// * Swaps columns 0 and 1 of `m2`, expecting the result \[\[0, 1], \[1, 0]]
+///
+/// The test uses `inspect` statements to verify that the actual results match
+/// the expected matrix configurations.
+///
 test "swap_matrix" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
@@ -754,6 +927,34 @@ test "swap_matrix" {
 }
 
 ///|
+/// Comprehensive test suite demonstrating basic matrix operations and
+/// properties.
+///
+/// This test verifies the correctness of fundamental matrix operations
+/// including multiplication, addition, negation, scaling, identity matrix
+/// creation, constant addition, determinant calculation, and matrix
+/// exponentiation. It covers both 2x2 matrices and larger identity matrices to
+/// ensure the operations work correctly across different matrix sizes.
+///
+/// The test creates two 2x2 matrices: a general matrix `m1` with values \[\[1,
+/// 2], \[3, 4]] and an identity matrix `m2` with values \[\[1, 0], \[0, 1]]. It
+/// then performs various operations and verifies the results:
+///
+/// * Matrix multiplication: `m1 * m2` should equal `m1` since multiplying by
+///   identity preserves the original matrix
+/// * Matrix addition: `m1 + m2` adds corresponding elements
+/// * Matrix negation: `-m1` negates all elements
+/// * Matrix scaling: `m1.scale(10)` multiplies all elements by 10
+/// * Identity matrix creation: Creates a 5x5 identity matrix
+/// * Constant addition: `m4.add_constant(10)` adds 10 to all elements
+/// * Determinant calculation: Tests determinant computation for various
+///   matrices
+/// * Matrix exponentiation: `Matrix::make(3, 3, fn(i, _) -> Int { i }).pow(10)`
+///   creates a special matrix and raises it to the 10th power
+///
+/// Expected results are verified using `inspect` statements that compare the
+/// actual output with the expected matrix representations.
+///
 test {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
   let m2 = Matrix::from_2d_array([[1, 0], [0, 1]])
