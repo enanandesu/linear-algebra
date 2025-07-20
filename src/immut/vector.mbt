@@ -1,21 +1,100 @@
 ///|
-/// Create a new type called `Vector[T]` that contains an `IArray[T]`.
-/// 
+/// Immutable vector of elements of type `T`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @immut.Vector::from_array([1, 2, 3])
+/// inspect(v.length(), content="3")
+/// inspect(v[0], content="1")
+/// inspect(v[1], content="2")
+/// inspect(v[2], content="3")
+///
+/// let v2 = v.map(fn(x) { x * 2 })
+/// inspect(v2, content="|2, 4, 6|")
+///
+/// let v3 = v + v2
+/// inspect(v3, content="|3, 6, 9|")
+/// ```
+///
 struct Vector[T] {
   data : IArray[T]
 } derive(Eq)
 
 ///|
+/// Generates an arbitrary `Vector[T]` for property-based testing.
+///
+/// Parameters:
+///
+/// * `size` : The size of the vector to generate.
+/// * `rng` : The random number generator to use for generating arbitrary
+///   elements.
+///
+/// Returns an arbitrary `Vector[T]` where each element is generated using the
+/// `Arbitrary` implementation of type `T`.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Assuming we have an Arbitrary implementation for Int
+/// let rng = @random.new()
+/// let arbitrary_vector = Vector::arbitrary(5, rng)
+/// // This creates a vector of length 5 with arbitrary Int values
+/// ```
+///
 impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
   Vector::{ data: @immut/array.makei(size, i => T::arbitrary(i, rng)) }
 }
 
 ///|
+/// Maps a function over each element of the vector, creating a new vector with
+/// the transformed elements.
+///
+/// Parameters:
+///
+/// * `self` : The vector to map over.
+/// * `f` : The function to apply to each element, taking an element of type `T`
+///   and returning a value of type `U`.
+///
+/// Returns a new vector where each element is the result of applying the
+/// function `f` to the corresponding element in the input vector.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @"Luna-Flow/linear-algebra/immut".Vector::from_array([1, 2, 3])
+/// let doubled = v.map(fn(x) { x * 2 })
+/// inspect(doubled, content="|2, 4, 6|")
+/// ```
+///
 pub fn[T, U] Vector::map(self : Vector[T], f : (T) -> U) -> Vector[U] {
   Vector::{ data: self.data.map(f) }
 }
 
 ///|
+/// Applies a function to corresponding elements from two vectors, producing a
+/// new vector.
+///
+/// Parameters:
+///
+/// * `self` : The first vector.
+/// * `other` : The second vector to combine with the first.
+/// * `f` : The function to apply to pairs of elements from both vectors.
+///
+/// Returns a new vector containing the results of applying the function to each
+/// pair of corresponding elements.
+///
+/// Panics if the two vectors have different lengths.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let v2 = @Luna-Flow/linear-algebra/immut.Vector::from_array([4, 5, 6])
+/// let result = v1.zip_with(v2, fn(a, b) { a + b })
+/// inspect(result, content="|5, 7, 9|")
+/// ```
+///
 pub fn[T, U, V] Vector::zip_with(
   self : Vector[T],
   other : Vector[U],
@@ -25,16 +104,79 @@ pub fn[T, U, V] Vector::zip_with(
 }
 
 ///|
+/// Converts a vector to a column matrix representation.
+///
+/// Parameters:
+///
+/// * `self` : The vector to convert to a column matrix.
+///
+/// Returns a `Matrix[T]` with dimensions `n × 1`, where `n` is the length of
+/// the vector, containing the vector elements as a single column.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @immut.Vector::from_array([1, 2, 3])
+/// let col_matrix = v.to_col_matrix()
+/// // Result is a 3×1 matrix:
+/// // |1|
+/// // |2|
+/// // |3|
+/// ```
+///
 pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
   Matrix::make(self.length(), 1, fn(i, _) { self[i] })
 }
 
 ///|
+/// Converts a vector into a row matrix where the vector elements become the
+/// columns of a single row.
+///
+/// Parameters:
+///
+/// * `self` : The vector to convert into a row matrix.
+///
+/// Returns a matrix with one row and columns equal to the length of the vector,
+/// where each element of the vector becomes a column in the matrix.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let row_matrix = v.to_row_matrix()
+/// // Results in a 1×3 matrix: |1, 2, 3|
+/// ```
+///
 pub fn[T] to_row_matrix(self : Vector[T]) -> Matrix[T] {
   { data: self.data, row: 1, col: self.length() }
 }
 
 ///|
+/// Tests the conversion of a vector to both column and row matrix
+/// representations.
+///
+/// This test verifies that:
+///
+/// 1. `to_col_matrix()` converts a vector into a column matrix where each
+/// element becomes a row in a single column
+/// 2. `to_row_matrix()` converts a vector into a row matrix where all elements
+/// are arranged in a single row
+///
+/// The test uses a 3-element vector `[1, 2, 3]` and checks:
+///
+/// * Column matrix conversion results in a 3×1 matrix with values stacked
+///   vertically
+/// * Row matrix conversion results in a 1×3 matrix with values arranged
+///   horizontally
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let col = v.to_col_matrix()  // 3×1 matrix: [[1], [2], [3]]
+/// let row = v.to_row_matrix()  // 1×3 matrix: [[1, 2, 3]]
+/// ```
+///
 test "to matrix" {
   let v = Vector::from_array([1, 2, 3])
   let vc = v.to_col_matrix()
@@ -56,46 +198,198 @@ test "to matrix" {
 }
 
 ///|
+/// Creates a new vector of size `n` where each element is generated by applying
+/// the function `f` to its index.
+///
+/// Parameters:
+///
+/// * `n` : The size of the vector to create.
+/// * `f` : A function that takes an index (from 0 to `n-1`) and returns the
+///   value for that position.
+///
+/// Returns a new `Vector[T]` with elements generated by the function.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @Luna-Flow/linear-algebra/immut.Vector::makei(5, fn(i) { i * 2 })
+/// // Creates a vector |0, 2, 4, 6, 8|
+/// ```
+///
 pub fn[T] Vector::makei(n : Int, f : (Int) -> T) -> Vector[T] {
   Vector::{ data: @immut/array.makei(n, f) }
 }
 
 ///|
+/// Returns the number of elements in the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector whose length is to be determined.
+///
+/// Returns the length of the vector as an integer.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @immut.Vector::from_array([1, 2, 3, 4, 5])
+/// inspect(v.length(), content="5")
+/// ```
+///
 pub fn[T] Vector::length(self : Vector[T]) -> Int {
   self.data.length()
 }
 
 ///|
+/// Gets the element at the specified index.
+///
+/// Parameters:
+///
+/// * `self` : The vector to get the element from.
+/// * `index` : The zero-based index of the element to retrieve.
+///
+/// Returns the element at the specified index.
+///
+/// Panics if the index is out of bounds (less than 0 or greater than or equal
+/// to the vector's length).
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// inspect(v[1], content="2")
+/// ```
+///
 pub fn[T] Vector::op_get(self : Vector[T], i : Int) -> T {
   self.data[i]
 }
 
 ///|
+/// Creates a new vector with the element at the specified index replaced by a
+/// new value.
+///
+/// Parameters:
+///
+/// * `self` : The original vector.
+/// * `index` : The zero-based index of the element to replace.
+/// * `value` : The new value to set at the specified index.
+///
+/// Returns a new vector with the element at `index` replaced by `value`. The
+/// original vector remains unchanged.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @"Luna-Flow/linear-algebra/immut".Vector::from_array([1, 2, 3])
+/// let updated = v.set(1, 10)
+/// inspect(updated, content="|1, 10, 3|")
+/// ```
+///
 pub fn[T] Vector::set(self : Vector[T], i : Int, x : T) -> Vector[T] {
   Vector::{ data: self.data.set(i, x) }
 }
 
 ///|
+/// Multiplies each element of the vector by a scalar value from the left.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be scaled.
+/// * `scalar` : The scalar value to multiply each element by.
+///
+/// Returns a new vector where each element is the product of the scalar and the
+/// corresponding element from the original vector.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @immut.Vector::from_array([1, 2, 3])
+/// let scaled = v.left_scale(5)
+/// inspect(scaled, content="|5, 10, 15|")
+/// ```
+///
 pub fn[T : Mul] left_scale(self : Vector[T], scalar : T) -> Vector[T] {
   self.map(x => scalar * x)
 }
 
 ///|
+/// Multiplies each element of the vector by a scalar value from the right.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be scaled.
+/// * `scalar` : The scalar value to multiply each element by.
+///
+/// Returns a new vector where each element is the product of the corresponding
+/// element in the original vector and the scalar.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// inspect(v.right_scale(5), content="|5, 10, 15|")
+/// ```
+///
 pub fn[T : Mul] right_scale(self : Vector[T], scalar : T) -> Vector[T] {
   self.map(x => x * scalar)
 }
 
 ///|
+/// Creates a new vector from a mutable array by converting it to an immutable
+/// representation.
+///
+/// Parameters:
+///
+/// * `arr` : `Array[T]` - The mutable array to convert into a vector.
+///
+/// Returns a new `Vector[T]` containing the same elements as the input array.
+///
+/// Example:
+///
+/// ```moonbit
+/// let arr = [1, 2, 3, 4, 5]
+/// let vec = @Luna-Flow/linear-algebra/immut.Vector::from_array(arr)
+/// inspect(vec, content="|1, 2, 3, 4, 5|")
+/// ```
+///
 pub fn[T] Vector::from_array(arr : Array[T]) -> Vector[T] {
   Vector::{ data: @immut/array.from_array(arr) }
 }
 
 ///|
+/// Returns an iterator over the elements of the vector.
+///
+/// Parameters:
+///
+/// * `self` : The vector to iterate over.
+///
+/// Returns an `Iter[T]` that yields each element of the vector in order.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let sum = v.iter().fold(init=0, fn(acc, x) { acc + x })
+/// inspect(sum, content="6")
+/// ```
+///
 pub fn[T] Vector::iter(self : Vector[T]) -> Iter[T] {
   self.data.iter()
 }
 
 ///|
+/// Tests the property that converting a vector to an array and back creates an
+/// identical vector.
+///
+/// This test verifies that the round-trip conversion from `Vector[T]` to
+/// `Array[T]` using `iter().to_array()` and back to `Vector[T]` using
+/// `from_array()` preserves the original vector. This property ensures that the
+/// vector's iterator implementation correctly exposes all elements in order,
+/// and that `from_array()` correctly reconstructs the vector structure.
+///
+/// The test uses property-based testing with `quick_check_fn` to verify this
+/// identity property holds for randomly generated vectors of integers.
+///
 test "from . to = identity" {
   fn prop(v : Vector[Int]) {
     v == Vector::from_array(v.iter().to_array())
@@ -105,6 +399,24 @@ test "from . to = identity" {
 }
 
 ///|
+/// Adds two vectors element-wise.
+///
+/// Parameters:
+///
+/// * `self` : The first vector.
+/// * `other` : The second vector to add to the first.
+///
+/// Returns a new vector where each element is the sum of the corresponding
+/// elements from the input vectors.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = @immut.Vector::from_array([1, 2, 3])
+/// let v2 = @immut.Vector::from_array([4, 5, 6])
+/// inspect(v1 + v2, content="|5, 7, 9|")
+/// ```
+///
 pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
   other : Vector[T]
@@ -113,6 +425,28 @@ pub impl[T : Add] Add for Vector[T] with op_add(
 }
 
 ///|
+/// Tests the mathematical property that adding a vector to itself is equivalent
+/// to scaling the vector by 2.
+///
+/// This is a property-based test that verifies the distributive property of
+/// vector addition and scalar multiplication. It uses QuickCheck-style testing
+/// to automatically generate test cases and validate that for any vector `v`,
+/// the equation `v + v = 2 * v` holds true.
+///
+/// The test demonstrates that vector addition and left scalar multiplication
+/// are consistent with basic mathematical expectations, which is fundamental
+/// for ensuring the correctness of linear algebra operations.
+///
+/// Example:
+///
+/// ```moonbit
+/// // This property should hold for any vector
+/// let v = Vector::from_array([1, 2, 3])
+/// let sum = v + v           // |2, 4, 6|
+/// let scaled = v.left_scale(2)  // |2, 4, 6|
+/// // sum == scaled should be true
+/// ```
+///
 test "a + a = 2 * a" {
   fn prop(v : Vector[Int]) {
     v + v == v.left_scale(2)
@@ -122,6 +456,28 @@ test "a + a = 2 * a" {
 }
 
 ///|
+/// Tests the commutative property of vector addition.
+///
+/// This test verifies that vector addition is commutative, meaning that for any
+/// two vectors `a` and `b` of the same length, `a + b` equals `b + a`. The test
+/// uses property-based testing to generate random vectors and verify this
+/// mathematical property holds across many test cases.
+///
+/// The test implements a property function that checks the commutative law for
+/// two vectors, and a wrapper function that ensures the vectors have equal
+/// lengths before applying the property test. This is necessary because vector
+/// addition is only defined for vectors of the same dimension.
+///
+/// Example:
+///
+/// ```moonbit
+/// // The property being tested:
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
+/// // v1 + v2 should equal v2 + v1
+/// // |5, 7, 9| == |5, 7, 9| ✓
+/// ```
+///
 test "a + b = b + a" {
   fn prop(a : Vector[Int], b) {
     a + b == b + a
@@ -137,6 +493,24 @@ test "a + b = b + a" {
 }
 
 ///|
+/// Performs element-wise multiplication of two vectors.
+///
+/// Parameters:
+///
+/// * `self` : The first vector.
+/// * `other` : The second vector to multiply with.
+///
+/// Returns a new vector where each element is the product of the corresponding
+/// elements from the input vectors.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = @immut.Vector::from_array([1, 2, 3])
+/// let v2 = @immut.Vector::from_array([4, 5, 6])
+/// inspect(v1 * v2, content="|4, 10, 18|")
+/// ```
+///
 pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
   other : Vector[T]
@@ -145,6 +519,22 @@ pub impl[T : Mul] Mul for Vector[T] with op_mul(
 }
 
 ///|
+/// Tests the associativity property of vector element-wise multiplication.
+///
+/// This test verifies that for any three vectors of the same length, the
+/// multiplication operation `*` is associative, meaning `(a * b) * c` equals `a
+/// * (b * c)`. The test uses property-based testing to generate random vectors
+/// and validate this mathematical property across many test cases.
+///
+/// The test implementation includes a guard condition to ensure all three
+/// vectors have the same length, as element-wise multiplication is only defined
+/// for vectors of equal dimensions. When vectors have different lengths, the
+/// test case is considered trivial and passes automatically.
+///
+/// This property is fundamental for vector arithmetic and ensures that the
+/// `Mul` implementation for `Vector[T]` behaves correctly according to
+/// mathematical expectations.
+///
 test "a * b * c = a * (b * c)" {
   fn prop(a : Vector[Int], b, c) {
     a * b * c == a * (b * c)
@@ -160,6 +550,27 @@ test "a * b * c = a * (b * c)" {
 }
 
 ///|
+/// Performs linear interpolation between two vectors.
+///
+/// Parameters:
+///
+/// * `self` : The starting vector.
+/// * `other` : The ending vector.
+/// * `alpha` : The interpolation parameter, where 0 returns `self` and 1
+///   returns `other`.
+///
+/// Returns a new vector that is the linear interpolation between `self` and
+/// `other` at parameter `alpha`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = @immut.Vector::from_array([1, 2, 3])
+/// let v2 = @immut.Vector::from_array([4, 5, 6])
+/// let result = v1.lerp(v2, 0.5)
+/// inspect(result, content="|2, 3, 4|")
+/// ```
+///
 pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
   other : Vector[T],
@@ -169,6 +580,22 @@ pub fn[T : One + Mul + Add + Neg] lerp(
 }
 
 ///|
+/// Converts the vector to its string representation in a readable format.
+///
+/// Parameters:
+///
+/// * `self` : The vector to convert to string.
+///
+/// Returns a string representation of the vector with elements separated by
+/// commas and enclosed in pipe characters (e.g., "|1, 2, 3|").
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// println(v.to_string()) // Prints: |1, 2, 3|
+/// ```
+///
 impl[T : Show] Show for Vector[T] with to_string(self) {
   // Immutable array has no join method
   // we need to convert to mutable array first
@@ -178,22 +605,73 @@ impl[T : Show] Show for Vector[T] with to_string(self) {
 }
 
 ///|
-/// Output the vector to a string.
-/// 
-/// Parameters
-/// * `s`: The string to output the vector to.
-/// * `l`: The length of the vector.
+/// Outputs the vector to a string representation using the `Show` trait's
+/// output method.
+///
+/// Parameters:
+///
+/// * `self` : The vector to be output.
+/// * `output` : The output stream to write the string representation to.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let buffer = Buffer::new()
+/// v.output(buffer)
+/// inspect(buffer.to_string(), content="|1, 2, 3|")
+/// ```
+///
 impl[T : Show] Show for Vector[T] with output(s, l) {
   l.write_string(s.to_string())
 }
 
 ///|
+/// Creates a diagonal matrix where the diagonal elements are the vector
+/// elements and all other elements are zero.
+///
+/// Parameters:
+///
+/// * `self` : The vector whose elements will form the diagonal of the resulting
+///   matrix.
+///
+/// Returns a square matrix of size n×n (where n is the length of the vector)
+/// with the vector elements on the main diagonal and zeros elsewhere.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v = Vector::from_array([1, 2, 3])
+/// let diagonal_matrix = v.scaled_matrix()
+/// // Creates:
+/// // |1, 0, 0|
+/// // |0, 2, 0|
+/// // |0, 0, 3|
+/// ```
+///
 pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
 
 ///|
+/// Verifies that multiplying a scaled matrix by a vector produces the same
+/// result as element-wise multiplication of the vectors.
+///
+/// This property-based test checks the mathematical equivalence: S\_v \* p = v
+/// ⊙ p, where S\_v is a scaled (diagonal) matrix constructed from vector v, p
+/// is another vector, and ⊙ represents element-wise multiplication.
+///
+/// The test uses property-based testing with `quick_check_fn` to verify this
+/// relationship holds across many randomly generated vector pairs of equal
+/// length. This validates the correctness of the `scaled_matrix` implementation
+/// and ensures it behaves as expected when used in matrix-vector
+/// multiplication.
+///
+/// The property being tested is fundamental in linear algebra, where a diagonal
+/// matrix with elements from vector v, when multiplied by another vector p,
+/// should produce the same result as element-wise multiplication of v and p.
+///
 test "S_v * p = v * p" {
   fn prop(v : Vector[Int], p : Vector[Int]) {
     let m = v.scaled_matrix()
@@ -210,6 +688,31 @@ test "S_v * p = v * p" {
 }
 
 ///|
+/// Computes the tensor product (outer product) of two vectors, resulting in a
+/// matrix where each element is the product of corresponding elements from the
+/// input vectors.
+///
+/// Parameters:
+///
+/// * `self` : The first vector, which determines the number of rows in the
+///   resulting matrix.
+/// * `other` : The second vector, which determines the number of columns in the
+///   resulting matrix.
+///
+/// Returns a matrix where the element at position (i, j) is the product of
+/// `self[i]` and `other[j]`.
+///
+/// Example:
+///
+/// ```moonbit
+/// let v1 = Vector::from_array([1, 2])
+/// let v2 = Vector::from_array([3, 4, 5])
+/// let result = v1.tensor_product(v2)
+/// // Result is a 2x3 matrix:
+/// // |3, 4, 5|
+/// // |6, 8, 10|
+/// ```
+///
 pub fn[T : Mul] tensor_product(
   self : Vector[T],
   other : Vector[T]
@@ -219,7 +722,29 @@ pub fn[T : Mul] tensor_product(
   Matrix::make(n, m, fn(i, j) { self[i] * other[j] })
 }
 
-///| utils
+///|
+/// Combines two immutable arrays element-wise using a provided function.
+///
+/// Parameters:
+///
+/// * `a1` : The first immutable array.
+/// * `a2` : The second immutable array.
+/// * `f` : The function to apply to each pair of corresponding elements.
+///
+/// Returns a new immutable array where each element is the result of applying
+/// `f` to the corresponding elements from `a1` and `a2`.
+///
+/// Panics if the two input arrays have different lengths.
+///
+/// Example:
+///
+/// ```moonbit
+/// let arr1 = @immut/array.from_array([1, 2, 3])
+/// let arr2 = @immut/array.from_array([4, 5, 6])
+/// let result = array_zip_with(arr1, arr2, fn(x, y) { x + y })
+/// inspect(result.to_array(), content="[5, 7, 9]")
+/// ```
+///
 fn[X, Y, Z] array_zip_with(
   a1 : IArray[X],
   a2 : IArray[Y],
@@ -231,6 +756,30 @@ fn[X, Y, Z] array_zip_with(
 }
 
 ///|
+/// Tests comprehensive vector operations including arithmetic, scaling, matrix
+/// conversion, and tensor operations.
+///
+/// This test verifies the correctness of various vector operations by creating
+/// two test vectors and checking their behavior under different operations:
+///
+/// 1. **Vector Addition**: Tests element-wise addition of vectors `[1,2,3] +
+/// [4,5,6] = [5,7,9]`
+/// 2. **Vector Multiplication**: Tests element-wise multiplication of vectors
+/// `[1,2,3] * [4,5,6] = [4,10,18]`
+/// 3. **Left Scaling**: Tests scalar multiplication from the left `10 * [1,2,3]
+/// = [10,20,30]`
+/// 4. **Right Scaling**: Tests scalar multiplication from the right `[4,5,6] *
+/// 10 = [40,50,60]`
+/// 5. **Scaled Matrix**: Tests conversion of vector `[1,2,3]` to diagonal
+/// matrix with elements on diagonal
+/// 6. **Tensor Product**: Tests outer product of vectors `[1,2,3] ⊗ [4,5,6]`
+/// resulting in a 3×3 matrix
+/// 7. **Element Setting**: Tests immutable vector element modification
+/// `[4,5,6]` with index 1 set to 10
+///
+/// Each operation is verified using the `inspect` function to ensure the output
+/// matches the expected mathematical results.
+///
 test {
   let v1 = Vector::from_array([1, 2, 3])
   let v2 = Vector::from_array([4, 5, 6])

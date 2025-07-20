@@ -68,7 +68,6 @@ fn[T] Vector::iter(Self[T]) -> Iter[T]
 fn[T : Mul] Vector::left_scale(Self[T], T) -> Self[T]
 fn[T] Vector::length(Self[T]) -> Int
 fn[T : @luna-generic.One + Mul + Add + Neg] Vector::lerp(Self[T], Self[T], T) -> Self[T]
-fn[T] Vector::make(Int, T) -> Self[T]
 fn[T] Vector::makei(Int, (Int) -> T) -> Self[T]
 fn[T, U] Vector::map(Self[T], (T) -> U) -> Self[U]
 fn[T] Vector::op_get(Self[T], Int) -> T
