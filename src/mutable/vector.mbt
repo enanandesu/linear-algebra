@@ -3,7 +3,7 @@ type Vector[A] Array[A]
 
 ///|
 impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
-  Vector::makei(size, fn { i => T::arbitrary(i, rng) })
+  Vector::makei(size, i => T::arbitrary(i, rng))
 }
 
 ///|
@@ -14,7 +14,7 @@ impl[T : Eq] Eq for Vector[T] with op_equal(self, other) {
 ///|
 pub impl[T : Show] Show for Vector[T] with to_string(self) {
   let sep = ", "
-  "|\{self._.map(T::to_string).join(sep)}|"
+  "|\{self.inner().map(T::to_string).join(sep)}|"
 }
 
 ///|
@@ -30,7 +30,7 @@ fn[A, B, C] array_zip_with(
 ) -> Array[C] {
   let n = a1.length()
   guard n == a2.length()
-  let result = Array::makei(n, fn { i => f(a1[i], a2[i]) })
+  let result = Array::makei(n, i => f(a1[i], a2[i]))
   result
 }
 
@@ -95,12 +95,12 @@ pub fn[A] Vector::map_inplace(self : Vector[A], f : (A) -> A) -> Unit {
 
 ///|
 pub fn[A : Mul] Vector::left_scale(self : Vector[A], scalar : A) -> Vector[A] {
-  self.map(fn { x => x * scalar })
+  self.map(x => x * scalar)
 }
 
 ///|
 pub fn[A : Mul] Vector::right_scale(scalar : A, self : Vector[A]) -> Vector[A] {
-  self.map(fn { x => scalar * x })
+  self.map(x => scalar * x)
 }
 
 ///|
@@ -108,7 +108,7 @@ pub fn[A : Mul] Vector::left_scale_inplace(
   self : Vector[A],
   scalar : A
 ) -> Unit {
-  self.map_inplace(fn { x => x * scalar })
+  self.map_inplace(x => x * scalar)
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn[A : Mul] Vector::right_scale_inplace(
   scalar : A,
   self : Vector[A]
 ) -> Unit {
-  self.map_inplace(fn { x => scalar * x })
+  self.map_inplace(x => scalar * x)
 }
 
 ///|
@@ -147,12 +147,13 @@ test "a + b = b + a" {
     a + b == b + a
   }
 
-  quick_check_fn(fn {
-    ((a : Vector[Int]), (b : Vector[Int])) => {
-      guard a.length() == b.length() else { true }
-      prop(a, b)
-    }
-  })
+  fn check(x : (Vector[Int], Vector[Int])) {
+    let (a, b) = x
+    guard a.length() == b.length() else { true }
+    prop(a, b)
+  }
+
+  quick_check_fn(check)
 }
 
 ///|
@@ -169,12 +170,13 @@ test "a * b * c = a * (b * c)" {
     a * b * c == a * (b * c)
   }
 
-  quick_check_fn(fn {
-    ((a : Vector[Int]), (b : Vector[Int]), (c : Vector[Int])) => {
-      guard a.length() == b.length() && b.length() == c.length() else { true }
-      prop(a, b, c)
-    }
-  })
+  fn check(x : (Vector[Int], Vector[Int], Vector[Int])) {
+    let (a, b, c) = x
+    guard a.length() == b.length() && b.length() == c.length() else { true }
+    prop(a, b, c)
+  }
+
+  quick_check_fn(check)
 }
 
 ///|
@@ -204,12 +206,13 @@ test "S_v * p = v * p" {
     m * p.to_col_matrix() == (v * p).to_col_matrix()
   }
 
-  quick_check_fn(fn {
-    ((a : Vector[Int]), (b : Vector[Int])) => {
-      guard a.length() == b.length() else { true }
-      prop(a, b)
-    }
-  })
+  fn check(x : (Vector[Int], Vector[Int])) {
+    let (v, p) = x
+    guard v.length() == p.length() else { true }
+    prop(v, p)
+  }
+
+  quick_check_fn(check)
 }
 
 ///|
