@@ -177,7 +177,7 @@ pub fn[T] Matrix::make(row : Int, col : Int, f : (Int, Int) -> T) -> Matrix[T] {
 /// ```
 /// 
 pub fn[T] Matrix::new(row : Int, col : Int, elem : T) -> Matrix[T] {
-  Matrix::make(row, col, fn { _, _ => elem })
+  Matrix::make(row, col, (_, _) => elem)
 }
 
 ///|
@@ -222,7 +222,7 @@ pub fn[T] Matrix::from_array(
 /// ```
 /// 
 pub fn[T] Matrix::op_get(self : Matrix[T], row : Int) -> Indexed[T] {
-  { index: fn { c => self.data[c + self.col * row] } }
+  { index: c => self.data[c + self.col * row] }
 }
 
 ///|
@@ -287,10 +287,10 @@ test {
   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
   inspect(
     m,
-    content=
+    content=(
       #||2, 3, 4|
       #||1, 2, 3|
-    ,
+    ),
   )
   inspect(m[0][1], content="3")
 }
@@ -549,7 +549,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
     f, n => {
       let mut det = T::zero()
       for i in 0..<n {
-        let sub_view = fn { j, k => f(j + 1, if k < i { k } else { k + 1 }) }
+        let sub_view = (j, k) => f(j + 1, if k < i { k } else { k + 1 })
         let sign = if i % 2 == 0 { T::one() } else { -T::one() }
         det += sign * f(0, i) * go(sub_view, n - 1)
       }
@@ -557,7 +557,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
     }
   }
 
-  go(fn { i, j => self[i][j] }, n)
+  go((i, j) => self[i][j], n)
 }
 
 ///|
@@ -577,10 +577,10 @@ pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
 /// )
 /// ```
 pub fn[T : Semiring] pow(self : Matrix[T], power : Int) -> Matrix[T] {
-  loop identity(self.col), power, self {
-    s, 0, _ => s
-    s, 1, m => s * m
-    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
+  loop (identity(self.col), power, self) {
+    (s, 0, _) => s
+    (s, 1, m) => s * m
+    (s, p, m) => continue (if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m)
   }
 }
 
@@ -660,19 +660,19 @@ test "matrix_combine" {
   let m4 = m1.vertical_combine(m2)
   inspect(
     m3,
-    content=
+    content=(
       #||1, 2, 1, 0|
       #||3, 4, 0, 1|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||1, 2|
       #||3, 4|
       #||1, 0|
       #||0, 1|
-    ,
+    ),
   )
 }
 
@@ -739,17 +739,17 @@ test "swap_matrix" {
   let m4 = m2.swap_cols(0, 1)
   inspect(
     m3,
-    content=
+    content=(
       #||3, 4|
       #||1, 2|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||0, 1|
       #||1, 0|
-    ,
+    ),
   )
 }
 
@@ -761,49 +761,49 @@ test {
   let m4 = m1 + m2
   inspect(
     m3,
-    content=
+    content=(
       #||1, 2|
       #||3, 4|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||2, 2|
       #||3, 5|
-    ,
+    ),
   )
   inspect(
     -m1,
-    content=
+    content=(
       #||-1, -2|
       #||-3, -4|
-    ,
+    ),
   )
   inspect(
     m1.scale(10),
-    content=
+    content=(
       #||10, 20|
       #||30, 40|
-    ,
+    ),
   )
   let m5 : Matrix[Int] = identity(5)
   inspect(
     m5,
-    content=
+    content=(
       #||1, 0, 0, 0, 0|
       #||0, 1, 0, 0, 0|
       #||0, 0, 1, 0, 0|
       #||0, 0, 0, 1, 0|
       #||0, 0, 0, 0, 1|
-    ,
+    ),
   )
   inspect(
     m4.add_constant(10),
-    content=
+    content=(
       #||12, 12|
       #||13, 15|
-    ,
+    ),
   )
   inspect(m4.determinant(), content="4")
   inspect(m1.determinant(), content="-2")
@@ -811,10 +811,10 @@ test {
   let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).pow(10)
   inspect(
     m,
-    content=
+    content=(
       #||0, 0, 0|
       #||19683, 19683, 19683|
       #||39366, 39366, 39366|
-    ,
+    ),
   )
 }

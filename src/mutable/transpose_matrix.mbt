@@ -77,29 +77,29 @@ test "map" {
   let m1 = Transpose::make(3, 4, fn(i, j) { i + j })
   inspect(
     m1,
-    content=
+    content=(
       #||0, 1, 2, 3|
       #||0, 1, 2, 3|
       #||0, 1, 2, 3|
-    ,
+    ),
   )
   m.map_col(0, fn(x) { x * 2 })
   inspect(
     m,
-    content=
+    content=(
       #||0, 3|
       #||2, 4|
       #||4, 5|
-    ,
+    ),
   )
   m.map_row(0, fn(x) { x + 1 })
   inspect(
     m,
-    content=
+    content=(
       #||1, 4|
       #||2, 4|
       #||4, 5|
-    ,
+    ),
   )
 }
 
@@ -111,8 +111,8 @@ pub fn[T] Transpose::copy(self : Transpose[T]) -> Transpose[T] {
 ///| 
 pub fn[T] Transpose::op_get(self : Transpose[T], row : Int) -> LenTranspose[T] {
   {
-    set: fn { c, v => self.data[row + self.row * c] = v },
-    get: fn { c => self.data[row + self.row * c] },
+    set: (c, v) => self.data[row + self.row * c] = v,
+    get: c => self.data[row + self.row * c],
   }
 }
 
@@ -250,10 +250,10 @@ pub fn[T : Semiring] Transpose::pow(
   self : Transpose[T],
   power : Int
 ) -> Transpose[T] {
-  loop identity(self.col).matrix_to_transpose(), power, self {
-    s, 0, _ => s
-    s, 1, m => s * m
-    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
+  loop (identity(self.col).matrix_to_transpose(), power, self) {
+    (s, 0, _) => s
+    (s, 1, m) => s * m
+    (s, p, m) => continue (if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m)
   }
 }
 
@@ -344,11 +344,11 @@ test "add" {
   inspect(m1 + m2, content="|3, 4, 5|")
   inspect(
     m3,
-    content=
+    content=(
       #||3|
       #||4|
       #||5|
-    ,
+    ),
   )
 }
 
@@ -365,27 +365,27 @@ test "swap" {
   }
   inspect(
     m,
-    content=
+    content=(
       #||1, 4|
       #||2, 5|
       #||3, 6|
-    ,
+    ),
   )
   inspect(
     m1,
-    content=
+    content=(
       #||2, 5|
       #||1, 4|
       #||3, 6|
-    ,
+    ),
   )
   inspect(
     m2,
-    content=
+    content=(
       #||4, 1|
       #||5, 2|
       #||6, 3|
-    ,
+    ),
   )
 }
 
@@ -397,19 +397,19 @@ test "matrix_combine" {
   let m4 = Transpose::vertical_combine(m1, m2)
   inspect(
     m3,
-    content=
+    content=(
       #||1, 3, 1, 0|
       #||2, 4, 0, 1|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||1, 3|
       #||2, 4|
       #||1, 0|
       #||0, 1|
-    ,
+    ),
   )
 }
 
@@ -418,10 +418,10 @@ test "to transpose" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
   inspect(
     m1,
-    content=
+    content=(
       #||1, 3|
       #||2, 4|
-    ,
+    ),
   )
 }
 
@@ -436,11 +436,11 @@ test "reduce_row_elimination" {
   ]).matrix_to_transpose()
   inspect(
     m.reduce_row_elimination(),
-    content=
+    content=(
       #||1, 0, 0, 0, 0.48461538461538456|
       #||0, 1, 0, 0, -0.9615384615384615|
       #||0, 0, 1, 0, -0.6769230769230766|
       #||0, 0, 0, 1, 1.9230769230769227|
-    ,
+    ),
   )
 }

@@ -6,7 +6,7 @@ struct MatrixFn[T] {
 
 ///|
 pub fn[T] MatrixFn::op_get(self : MatrixFn[T], i : Int) -> Indexed[T] {
-  { index: fn { c => (self.data)(i, c) } }
+  { index: c => (self.data)(i, c) }
 }
 
 ///|
@@ -43,7 +43,7 @@ pub fn[T : Default] MatrixFn::new(row : Int, col : Int) -> MatrixFn[T] {
 
 ///|
 pub fn[T, U] MatrixFn::map(self : MatrixFn[T], f : (T) -> U) -> MatrixFn[U] {
-  { data: fn { i, j => f((self.data)(i, j)) }, grid: self.grid }
+  { data: (i, j) => f((self.data)(i, j)), grid: self.grid }
 }
 
 ///|
@@ -77,8 +77,10 @@ pub fn[T] MatrixFn::map_row(
   f : (T) -> T
 ) -> MatrixFn[T] {
   {
-    data: fn {
-      i, j => if i == row { f((self.data)(i, j)) } else { (self.data)(i, j) }
+    data: (i, j) => if i == row {
+      f((self.data)(i, j))
+    } else {
+      (self.data)(i, j)
     },
     grid: self.grid,
   }
@@ -91,8 +93,10 @@ pub fn[T] MatrixFn::map_col(
   f : (T) -> T
 ) -> MatrixFn[T] {
   {
-    data: fn {
-      i, j => if j == col { f((self.data)(i, j)) } else { (self.data)(i, j) }
+    data: (i, j) => if j == col {
+      f((self.data)(i, j))
+    } else {
+      (self.data)(i, j)
     },
     grid: self.grid,
   }
@@ -100,7 +104,7 @@ pub fn[T] MatrixFn::map_col(
 
 ///|
 pub fn[T] MatrixFn::transpose(self : MatrixFn[T]) -> MatrixFn[T] {
-  { data: fn { i, j => (self.data)(j, i) }, grid: (self.grid.1, self.grid.0) }
+  { data: (i, j) => (self.data)(j, i), grid: (self.grid.1, self.grid.0) }
 }
 
 ///|
@@ -150,10 +154,10 @@ pub fn[T : Semiring] MatrixFn::pow(
   self : MatrixFn[T],
   power : Int
 ) -> MatrixFn[T] {
-  loop MatrixFn::identity(self.grid.1), power, self {
-    s, 0, _ => s
-    s, 1, m => s * m
-    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
+  loop (MatrixFn::identity(self.grid.1), power, self) {
+    (s, 0, _) => s
+    (s, 1, m) => s * m
+    (s, p, m) => continue (if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m)
   }
 }
 
@@ -239,7 +243,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
     f, n => {
       let mut det = T::zero()
       for i in 0..<n {
-        let sub_view = fn { j, k => f(j + 1, if k < i { k } else { k + 1 }) }
+        let sub_view = (j, k) => f(j + 1, if k < i { k } else { k + 1 })
         let sign = if i % 2 == 0 { T::one() } else { -T::one() }
         det += sign * f(0, i) * go(sub_view, n - 1)
       }
@@ -247,7 +251,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
     }
   }
 
-  go(fn { i, j => self[i][j] }, n)
+  go((i, j) => self[i][j], n)
 }
 
 ///|
@@ -292,19 +296,19 @@ test "matrix_combine" {
   let m4 = MatrixFn::vertical_combine(m1, m2)
   inspect(
     m3,
-    content=
+    content=(
       #||1, 2, 1, 0|
       #||3, 4, 0, 1|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||1, 2|
       #||3, 4|
       #||1, 0|
       #||0, 1|
-    ,
+    ),
   )
 }
 
@@ -316,42 +320,42 @@ test {
   let m4 = m1 + m2
   inspect(
     m3,
-    content=
+    content=(
       #||1, 2|
       #||3, 4|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||2, 2|
       #||3, 5|
-    ,
+    ),
   )
   inspect(
     -m1,
-    content=
+    content=(
       #||-1, -2|
       #||-3, -4|
-    ,
+    ),
   )
   inspect(
     m1.scale(10),
-    content=
+    content=(
       #||10, 20|
       #||30, 40|
-    ,
+    ),
   )
   let m5 : MatrixFn[Int] = MatrixFn::identity(5)
   inspect(
     m5,
-    content=
+    content=(
       #||1, 0, 0, 0, 0|
       #||0, 1, 0, 0, 0|
       #||0, 0, 1, 0, 0|
       #||0, 0, 0, 1, 0|
       #||0, 0, 0, 0, 1|
-    ,
+    ),
   )
   inspect(m4.determinant(), content="4")
   inspect(m1.determinant(), content="-2")
@@ -359,10 +363,10 @@ test {
   let m = Matrix::make(3, 3, fn(i, _) -> Int { i }).pow(10)
   inspect(
     m,
-    content=
+    content=(
       #||0, 0, 0|
       #||19683, 19683, 19683|
       #||39366, 39366, 39366|
-    ,
+    ),
   )
 }

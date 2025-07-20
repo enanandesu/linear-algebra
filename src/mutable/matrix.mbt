@@ -123,7 +123,7 @@ pub fn[A] Matrix::make(row : Int, col : Int, f : (Int, Int) -> A) -> Matrix[A] {
 
 ///|
 pub fn[T] Matrix::new(row : Int, col : Int, elem : T) -> Matrix[T] {
-  Matrix::make(row, col, fn { _, _ => elem })
+  Matrix::make(row, col, (_, _) => elem)
 }
 
 ///|
@@ -144,8 +144,8 @@ pub fn[T] Matrix::from_array(
 ///| 
 pub fn[T] Matrix::op_get(self : Matrix[T], row : Int) -> Lens[T] {
   {
-    set: fn { c, v => self.data[c + self.col * row] = v },
-    get: fn { c => self.data[c + self.col * row] },
+    set: (c, v) => self.data[c + self.col * row] = v,
+    get: c => self.data[c + self.col * row],
   }
 }
 
@@ -299,10 +299,10 @@ test "swap" {
 
 ///|
 pub fn[T : Semiring] pow(self : Matrix[T], power : Int) -> Matrix[T] {
-  loop identity(self.col), power, self {
-    s, 0, _ => s
-    s, 1, m => s * m
-    s, p, m => continue if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m
+  loop (identity(self.col), power, self) {
+    (s, 0, _) => s
+    (s, 1, m) => s * m
+    (s, p, m) => continue (if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m)
   }
 }
 
@@ -353,11 +353,11 @@ test "reduce_row_elimination" {
   ])
   inspect(
     m.reduce_row_elimination(),
-    content=
+    content=(
       #||1, 0, 0, 1|
       #||0, 1, 0, -3|
       #||0, 0, 1, 4|
-    ,
+    ),
   )
 }
 
@@ -389,19 +389,19 @@ test "matrix_combine" {
   let m4 = m1.vertical_combine(m2)
   inspect(
     m3,
-    content=
+    content=(
       #||1, 2, 1, 0|
       #||3, 4, 0, 1|
-    ,
+    ),
   )
   inspect(
     m4,
-    content=
+    content=(
       #||1, 2|
       #||3, 4|
       #||1, 0|
       #||0, 1|
-    ,
+    ),
   )
 }
 
