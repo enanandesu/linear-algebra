@@ -25,7 +25,7 @@
 /// inspect(m2.col(), content="3")
 ///
 /// // Create identity matrix
-/// let id = @mutable.identity[Int](3)
+/// let id : Matrix[Int] = @mutable.identity(3)
 /// ```
 ///
 struct Matrix[T] {
@@ -71,7 +71,7 @@ struct Lens[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let matrix = @luna-algebra.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let matrix =Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
 /// inspect(matrix.row(), content="2")
 /// ```
 ///
@@ -255,15 +255,6 @@ pub fn[T] Matrix::map_col(self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
 ///
 /// * `self` : The matrix whose elements will be processed.
 /// * `f` : The function to apply to each element.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = @mutable.Matrix::from_2d_array([[1, 2], [3, 4]])
-/// m.each(fn(x) { println(x) })
-/// // Prints: 1, 2, 3, 4
-/// ```
-///
 pub fn[T] Matrix::each(self : Matrix[T], f : (T) -> Unit) -> Unit {
   self.data.each(f)
 }
@@ -278,19 +269,6 @@ pub fn[T] Matrix::each(self : Matrix[T], f : (T) -> Unit) -> Unit {
 /// * `f` : A function that takes an index and an element value. The index
 ///   represents the linear position in the underlying array (calculated as `row
 ///   * col_count + col`).
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = @mutable.Matrix::from_2d_array([[1, 2], [3, 4]])
-/// m.eachi(fn(i, x) { println("Index \{i}: \{x}") })
-/// // Output:
-/// // Index 0: 1
-/// // Index 1: 2  
-/// // Index 2: 3
-/// // Index 3: 4
-/// ```
-///
 pub fn[T] Matrix::eachi(self : Matrix[T], f : (Int, T) -> Unit) -> Unit {
   self.data.eachi(f)
 }
@@ -305,23 +283,6 @@ pub fn[T] Matrix::eachi(self : Matrix[T], f : (Int, T) -> Unit) -> Unit {
 /// * `f` : A function that takes three parameters: the row index (Int), the
 ///   column index (Int), and the element value (T). This function is called for
 ///   each element in the matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// m.eachij(fn(i, j, value) {
-///   println("Element at (\{i}, \{j}): \{value}")
-/// })
-/// // Output:
-/// // Element at (0, 0): 1
-/// // Element at (0, 1): 2
-/// // Element at (0, 2): 3
-/// // Element at (1, 0): 4
-/// // Element at (1, 1): 5
-/// // Element at (1, 2): 6
-/// ```
-///
 pub fn[T] Matrix::eachij(self : Matrix[T], f : (Int, Int, T) -> Unit) -> Unit {
   self.data.eachi((index, data) => f(index / self.col, index % self.col, data))
 }
@@ -334,18 +295,10 @@ pub fn[T] Matrix::eachij(self : Matrix[T], f : (Int, Int, T) -> Unit) -> Unit {
 /// * `self` : The matrix to iterate over.
 /// * `row` : The index of the row to iterate through.
 /// * `f` : The function to apply to each element in the row.
-///
-/// Example:
-///
-/// ```moonbit
-/// let matrix = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// matrix.each_row(0, fn(x) { println(x) }) // Prints: 1, 2, 3
-/// ```
-///
 pub fn[T] Matrix::each_row(
   self : Matrix[T],
   row : Int,
-  f : (T) -> Unit
+  f : (T) -> Unit,
 ) -> Unit {
   for i in 0..<self.col {
     f(self.data[row * self.col + i])
@@ -361,18 +314,10 @@ pub fn[T] Matrix::each_row(
 /// * `self` : The matrix to iterate over.
 /// * `col` : The column index to iterate over.
 /// * `f` : The function to apply to each element in the column.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// m.each_col(1, fn(x) { println(x) }) // Prints: 2, 5
-/// ```
-///
 pub fn[T] Matrix::each_col(
   self : Matrix[T],
   col : Int,
-  f : (T) -> Unit
+  f : (T) -> Unit,
 ) -> Unit {
   for i in 0..<self.row {
     f(self.data[i * self.col + col])
@@ -436,12 +381,14 @@ pub fn[T] Matrix::copy(self : Matrix[T]) -> Matrix[T] {
 test "map_function" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
   let m1 = {
-    m.copy()..map_row(0, fn(x) { x * 2 })
-    m
+    let m_ = m.copy()
+    m_.map_row(0, fn(x) { x * 2 })
+    m_
   }
   let m2 = {
-    m.copy()..map_col(0, fn(x) { x * 2 })
-    m
+    let m_ = m.copy()
+    m_.map_col(0, fn(x) { x * 2 })
+    m_
   }
   inspect(m1.to_string(), content="|2, 4, 6|\n|4, 5, 6|")
   inspect(m2.to_string(), content="|2, 2, 3|\n|8, 5, 6|")
@@ -546,7 +493,7 @@ pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
 pub fn[T] Matrix::from_array(
   row : Int,
   col : Int,
-  data : Array[T]
+  data : Array[T],
 ) -> Matrix[T] {
   guard row * col == data.length()
   { row, col, data }
@@ -667,7 +614,7 @@ test "op_set" {
 ///
 pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
   self : Matrix[T],
-  other : Matrix[T]
+  other : Matrix[T],
 ) -> Matrix[T] {
   let row = self.row
   let col = other.col
@@ -710,7 +657,7 @@ pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
 ///
 pub impl[T : Add] Add for Matrix[T] with op_add(
   self : Matrix[T],
-  other : Matrix[T]
+  other : Matrix[T],
 ) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
@@ -756,8 +703,8 @@ pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let m1 = @luna-generic.Matrix::from_2d_array([[5, 7], [9, 11]])
-/// let m2 = @luna-generic.Matrix::from_2d_array([[1, 2], [3, 4]])
+/// let m1 =Matrix::from_2d_array([[5, 7], [9, 11]])
+/// let m2 =Matrix::from_2d_array([[1, 2], [3, 4]])
 /// let result = m1 - m2
 /// // result is |4, 5|
 /// //           |6, 7|
@@ -765,7 +712,7 @@ pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
 ///
 pub impl[T : Add + Neg] Sub for Matrix[T] with op_sub(
   self : Matrix[T],
-  other : Matrix[T]
+  other : Matrix[T],
 ) -> Matrix[T] {
   self + -other
 }
@@ -831,7 +778,7 @@ pub fn[T : Add] add_constant(self : Matrix[T], cst : T) -> Matrix[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let id = @mutable.identity[Int](3)
+/// let id : Matrix[Int] = @mutable.identity(3)
 /// inspect(id, content="|1, 0, 0|\n|0, 1, 0|\n|0, 0, 1|")
 /// ```
 ///
@@ -875,16 +822,6 @@ pub fn[T : Compare + Zero] null(self : Matrix[T]) -> Bool {
 ///
 /// Returns a new matrix where each element is the conjugate of the
 /// corresponding element in the original matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// // For a matrix of complex numbers
-/// let m = Matrix::from_2d_array([[Complex::{ real: 1.0, imag: 2.0 }, Complex::{ real: 3.0, imag: -1.0 }]])
-/// let adj = m.adjoint()
-/// // Result: matrix with conjugated elements
-/// ```
-///
 pub fn[T : Conjugate] adjoint(self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
@@ -1010,12 +947,14 @@ pub fn[T] swap_cols(self : Matrix[T], c1 : Int, c2 : Int) -> Unit {
 test "swap" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
   let m1 = {
-    m.copy()..swap_rows(0, 1)
-    m
+    let m_ = m.copy()
+    m_.swap_rows(0, 1)
+    m_
   }
   let m2 = {
-    m.copy()..swap_cols(0, 1)
-    m
+    let m_ = m.copy()
+    m_.swap_cols(0, 1)
+    m_
   }
   inspect(m1.to_string(), content="|4, 5, 6|\n|1, 2, 3|")
   inspect(m2.to_string(), content="|2, 1, 3|\n|5, 4, 6|")
@@ -1087,7 +1026,7 @@ pub fn[T : Semiring] pow(self : Matrix[T], power : Int) -> Matrix[T] {
 /// ```
 ///
 pub fn[T : Compare + Num + Sub + Inverse] reduce_row_elimination(
-  self : Matrix[T]
+  self : Matrix[T],
 ) -> Matrix[T] {
   let r = self.row
   let c = self.col
@@ -1372,7 +1311,7 @@ pub fn[T] col_to_array(self : Matrix[T], col : Int) -> Array[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let matrix = @"Luna-Flow/linear-algebra/mutable".Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let matrix = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
 /// let array = matrix.to_array()
 /// inspect(array, content="[1, 2, 3, 4, 5, 6]")
 /// ```

@@ -16,16 +16,6 @@
 /// * `row` : Number of rows in the matrix.
 /// * `col` : Number of columns in the matrix.
 /// * `data` : Underlying array storing matrix elements in column-major order.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = @luna-flow.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
-/// inspect(m.row, content="2")
-/// inspect(m.col, content="3") 
-/// inspect(m.data, content="[1, 4, 2, 5, 3, 6]")
-/// ```
-///
 struct Transpose[T] {
   row : Int
   col : Int
@@ -127,14 +117,14 @@ pub impl[T : Show] Show for Transpose[T] with output(s, l) {
 /// Example:
 ///
 /// ```moonbit
-/// let m = Transpose::make(3, 2, fn(i, j) { i * 2 + j })
+/// let m = Transpose::make(3, 2, (i, j) => { i * 2 + j })
 /// // Creates a 3x2 transpose matrix where element at (i,j) equals i*2+j
 /// ```
 ///
-fn[A] Transpose::make(
+pub fn[A] Transpose::make(
   row : Int,
   col : Int,
-  f : (Int, Int) -> A
+  f : (Int, Int) -> A,
 ) -> Transpose[A] {
   { row, col, data: Array::makei(row * col, fn(i) { f(i / row, i % row) }) }
 }
@@ -185,7 +175,7 @@ pub fn[T, U] Transpose::map(self : Transpose[T], f : (T) -> U) -> Transpose[U] {
 pub fn[T] Transpose::map_col(
   self : Transpose[T],
   col : Int,
-  f : (T) -> T
+  f : (T) -> T,
 ) -> Unit {
   for i in 0..<self.row {
     self.data[i + self.row * col] = f(self.data[i + self.row * col])
@@ -213,7 +203,7 @@ pub fn[T] Transpose::map_col(
 pub fn[T] Transpose::map_row(
   self : Transpose[T],
   row : Int,
-  f : (T) -> T
+  f : (T) -> T,
 ) -> Unit {
   for i in 0..<self.col {
     self.data[row + self.row * i] = f(self.data[row + self.row * i])
@@ -258,8 +248,8 @@ test "map" {
     m1,
     content=(
       #||0, 1, 2, 3|
-      #||0, 1, 2, 3|
-      #||0, 1, 2, 3|
+      #||1, 2, 3, 4|
+      #||2, 3, 4, 5|
     ),
   )
   m.map_col(0, fn(x) { x * 2 })
@@ -362,7 +352,7 @@ pub fn[T] LenTranspose::op_get(self : LenTranspose[T], col : Int) -> T {
 pub fn[T] LenTranspose::op_set(
   self : LenTranspose[T],
   col : Int,
-  elem : T
+  elem : T,
 ) -> Unit {
   (self.set)(col, elem)
 }
@@ -389,9 +379,9 @@ pub fn[T] LenTranspose::op_set(
 /// ```moonbit
 /// test {
 ///   let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]]).matrix_to_transpose()
-///   @assertion.assert_eq(m[0][1], 1) // Access element
+///   assert_eq(m[0][1], 1) // Access element
 ///   m[0][1] = 4                       // Modify element  
-///   @assertion.assert_eq(m[0][1], 4)  // Verify modification
+///   assert_eq(m[0][1], 4)  // Verify modification
 /// }
 /// ```
 ///
@@ -426,7 +416,7 @@ test "op_set" {
 ///
 pub impl[T : Mul + Add] Mul for Transpose[T] with op_mul(
   self : Transpose[T],
-  other : Transpose[T]
+  other : Transpose[T],
 ) -> Transpose[T] {
   let row = self.row
   let col = other.col
@@ -469,7 +459,7 @@ pub impl[T : Mul + Add] Mul for Transpose[T] with op_mul(
 ///
 pub impl[T : Add] Add for Transpose[T] with op_add(
   self : Transpose[T],
-  other : Transpose[T]
+  other : Transpose[T],
 ) -> Transpose[T] {
   guard self.col == other.col
   guard self.row == other.row
@@ -495,7 +485,7 @@ pub impl[T : Add] Add for Transpose[T] with op_add(
 /// ```moonbit
 /// let m = Matrix::from_2d_array([[1, -2], [3, -4]]).matrix_to_transpose()
 /// let negated = -m
-/// inspect(negated, content="|−1, −3|\n|2, 4|")
+/// inspect(negated, content="|-1, -3|\n|2, 4|")
 /// ```
 ///
 pub impl[T : Neg] Neg for Transpose[T] with op_neg(self : Transpose[T]) -> Transpose[
@@ -528,7 +518,7 @@ pub impl[T : Neg] Neg for Transpose[T] with op_neg(self : Transpose[T]) -> Trans
 ///
 pub impl[T : Add + Neg] Sub for Transpose[T] with op_sub(
   self : Transpose[T],
-  other : Transpose[T]
+  other : Transpose[T],
 ) -> Transpose[T] {
   self + -other
 }
@@ -576,7 +566,7 @@ pub fn[T : Mul] Transpose::scale(self : Transpose[T], cst : T) -> Transpose[T] {
 ///
 pub fn[T : Add] Transpose::add_constant(
   self : Transpose[T],
-  cst : T
+  cst : T,
 ) -> Transpose[T] {
   self.map(fn(x) { x + cst })
 }
@@ -613,16 +603,6 @@ pub fn[T : Compare + Zero] Transpose::null(self : Transpose[T]) -> Bool {
 ///
 /// Returns a new transpose matrix where each element is the conjugate of the
 /// corresponding element in the input matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// // For complex numbers, adjoint computes conjugate of each element
-/// let m = Matrix::from_2d_array([[Complex::new(1.0, 2.0), Complex::new(3.0, -1.0)]]).matrix_to_transpose()
-/// let adj = m.adjoint()
-/// // adj contains [[Complex::new(1.0, -2.0), Complex::new(3.0, 1.0)]]
-/// ```
-///
 pub fn[T : Conjugate] Transpose::adjoint(self : Transpose[T]) -> Transpose[T] {
   self.map(T::conjugate)
 }
@@ -642,7 +622,7 @@ pub fn[T : Conjugate] Transpose::adjoint(self : Transpose[T]) -> Transpose[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let m = @luna-generic.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
+/// let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
 /// m.swap_cols(0, 1)
 /// // The matrix now has columns 0 and 1 swapped
 /// ```
@@ -678,7 +658,7 @@ pub fn[T] Transpose::swap_cols(self : Transpose[T], c1 : Int, c2 : Int) -> Unit 
 /// Example:
 ///
 /// ```moonbit
-/// let m = @linear-algebra/mutable.Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
+/// let m = Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
 /// m.swap_rows(0, 1)
 /// // The matrix is now: |2, 4| \n |1, 3|
 /// ```
@@ -720,7 +700,7 @@ pub fn[T] Transpose::swap_rows(self : Transpose[T], r1 : Int, r2 : Int) -> Unit 
 ///
 pub fn[T : Semiring] Transpose::pow(
   self : Transpose[T],
-  power : Int
+  power : Int,
 ) -> Transpose[T] {
   loop (identity(self.col).matrix_to_transpose(), power, self) {
     (s, 0, _) => s
@@ -746,7 +726,7 @@ pub fn[T : Semiring] Transpose::pow(
 /// Example:
 ///
 /// ```moonbit
-/// let m = @luna-flow/linear-algebra/mutable.Matrix::from_2d_array([
+/// let m = Matrix::from_2d_array([
 ///   [1.0, 2.0, 3.0],
 ///   [4.0, 5.0, 6.0],
 ///   [7.0, 8.0, 9.0]
@@ -757,7 +737,7 @@ pub fn[T : Semiring] Transpose::pow(
 /// ```
 ///
 pub fn[T : Compare + Num + Sub + Inverse] Transpose::reduce_row_elimination(
-  self : Transpose[T]
+  self : Transpose[T],
 ) -> Transpose[T] {
   let r = self.row
   let c = self.col
@@ -819,7 +799,7 @@ pub fn[T : Compare + Num + Sub + Inverse] Transpose::reduce_row_elimination(
 ///
 pub fn[T] Transpose::horizontal_combine(
   self : Transpose[T],
-  other : Transpose[T]
+  other : Transpose[T],
 ) -> Transpose[T] {
   guard self.row == other.row
   Transpose::make(self.row, self.col + other.col, fn(i, j) {
@@ -860,7 +840,7 @@ pub fn[T] Transpose::horizontal_combine(
 ///
 pub fn[T] Transpose::vertical_combine(
   self : Transpose[T],
-  other : Transpose[T]
+  other : Transpose[T],
 ) -> Transpose[T] {
   guard self.col == other.col
   Transpose::make(self.row + other.row, self.col, fn(i, j) {
@@ -887,8 +867,7 @@ pub fn[T] Transpose::vertical_combine(
 ///
 /// ```moonbit
 /// let transpose_matrix = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
-/// let regular_matrix = transpose_matrix.transpose_to_matrix()
-/// inspect(regular_matrix, content="|1, 2, 3|\n|4, 5, 6|")
+/// inspect(transpose_matrix, content="|1, 4|\n|2, 5|\n|3, 6|")
 /// ```
 ///
 pub fn[T] Transpose::transpose_to_matrix(self : Transpose[T]) -> Matrix[T] {
@@ -970,12 +949,14 @@ test "add" {
 test "swap" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]]).matrix_to_transpose()
   let m1 = {
-    m.copy()..swap_rows(0, 1)
-    m
+    let m_ = m.copy()
+    m_.swap_rows(0, 1)
+    m_
   }
   let m2 = {
-    m.copy()..swap_cols(0, 1)
-    m
+    let m_ = m.copy()
+    m_.swap_cols(0, 1)
+    m_
   }
   inspect(
     m,
@@ -1071,22 +1052,6 @@ test "matrix_combine" {
 ///   ),
 /// )
 /// ```
-///
-/// The original 2×2 matrix:
-///
-/// ```
-/// |1, 2|
-/// |3, 4|
-/// ```
-///
-/// Is converted to transpose representation where the data is stored
-/// column-wise, resulting in the display:
-///
-/// ```
-/// |1, 3|
-/// |2, 4|
-/// ```
-///
 test "to transpose" {
   let m1 = Matrix::from_2d_array([[1, 2], [3, 4]]).matrix_to_transpose()
   inspect(

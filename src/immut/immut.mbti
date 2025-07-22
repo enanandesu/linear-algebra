@@ -1,3 +1,4 @@
+// Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/linear-algebra/immut"
 
 import(
@@ -6,7 +7,6 @@ import(
 )
 
 // Values
-fn[T : @luna-generic.One + @luna-generic.Zero] identity(Int) -> Matrix[T]
 
 // Types and methods
 type Indexed[T]
@@ -20,12 +20,12 @@ fn[T : Mul + Add + @luna-generic.One + Neg + @luna-generic.Zero] Matrix::determi
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, @array.T[T]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
+fn[T : @luna-generic.One + @luna-generic.Zero] Matrix::identity(Int) -> Self[T]
 fn[T] Matrix::make(Int, Int, (Int, Int) -> T) -> Self[T]
 fn[T, U] Matrix::map(Self[T], (T) -> U) -> Self[U]
 fn[T] Matrix::new(Int, Int, T) -> Self[T]
 fn[T : Compare + @luna-generic.Zero] Matrix::null(Self[T]) -> Bool
 fn[T] Matrix::op_get(Self[T], Int) -> Indexed[T]
-fn[T : Add + Neg] Matrix::op_sub(Self[T], Self[T]) -> Self[T]
 fn[T : @luna-generic.Semiring] Matrix::pow(Self[T], Int) -> Self[T]
 fn[T] Matrix::row(Self[T]) -> Int
 fn[T : Mul] Matrix::scale(Self[T], T) -> Self[T]
@@ -39,6 +39,7 @@ impl[T : Eq] Eq for Matrix[T]
 impl[T : Mul + Add] Mul for Matrix[T]
 impl[T : Neg] Neg for Matrix[T]
 impl[T : Show] Show for Matrix[T]
+impl[T : Add + Neg] Sub for Matrix[T]
 
 type MatrixFn[T]
 fn[T : @luna-generic.Conjugate] MatrixFn::adjoint(Self[T]) -> Self[T]
@@ -81,6 +82,7 @@ fn[T, U, V] Vector::zip_with(Self[T], Self[U], (T, U) -> V) -> Self[V]
 impl[T : Add] Add for Vector[T]
 impl[T : Eq] Eq for Vector[T]
 impl[T : Mul] Mul for Vector[T]
+impl[T : Show] Show for Vector[T]
 
 // Type aliases
 
