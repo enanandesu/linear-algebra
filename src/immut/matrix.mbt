@@ -274,7 +274,7 @@ pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
 pub fn[T] Matrix::from_array(
   row : Int,
   col : Int,
-  arr : IArray[T],
+  arr : IArray[T]
 ) -> Matrix[T] {
   guard arr.length() == row * col else {
     abort("Invalid array length for matrix")
@@ -345,7 +345,7 @@ pub fn[T] Matrix::set(
   self : Matrix[T],
   i : Int,
   j : Int,
-  elem : T,
+  elem : T
 ) -> Matrix[T] {
   { row: self.row, col: self.col, data: self.data.set(i * self.col + j, elem) }
 }
@@ -413,7 +413,7 @@ test {
 /// ```
 pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
   self : Matrix[T],
-  other : Matrix[T],
+  other : Matrix[T]
 ) -> Matrix[T] {
   let row = self.row
   let col = other.col
@@ -450,7 +450,7 @@ pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
 /// ```
 pub impl[T : Add] Add for Matrix[T] with op_add(
   self : Matrix[T],
-  other : Matrix[T],
+  other : Matrix[T]
 ) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
@@ -499,7 +499,7 @@ pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
 /// ```
 pub impl[T : Add + Neg] Sub for Matrix[T] with op_sub(
   self : Matrix[T],
-  other : Matrix[T],
+  other : Matrix[T]
 ) -> Matrix[T] {
   self + -other
 }
@@ -636,20 +636,20 @@ pub fn[T] transpose(self : Matrix[T]) -> Matrix[T] {
 pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
   let n = self.row
   guard n == self.col
-  fn go {
-    f, 1 => f(0, 0)
-    f, n => {
+  letrec view = (f, j) => match j {
+    1 => f(0, 0)
+    n => {
       let mut det = T::zero()
       for i in 0..<n {
         let sub_view = (j, k) => f(j + 1, if k < i { k } else { k + 1 })
         let sign = if i % 2 == 0 { T::one() } else { -T::one() }
-        det += sign * f(0, i) * go(sub_view, n - 1)
+        det += sign * f(0, i) * view(sub_view, n - 1)
       }
       det
     }
   }
 
-  go((i, j) => self[i][j], n)
+  view((i, j) => self[i][j], n)
 }
 
 ///|

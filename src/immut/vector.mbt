@@ -612,7 +612,7 @@ pub impl[T : Show] Show for Vector[T] with output(s, l) {
 /// // |0, 0, 3|
 /// ```
 ///
-pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
+pub fn[T : Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }

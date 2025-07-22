@@ -54,7 +54,7 @@ pub fn[T] MatrixFn::op_get(self : MatrixFn[T], i : Int) -> Indexed[T] {
 ///
 /// Panics if the matrices have different dimensions during the `zip_with`
 /// operation.
-impl[T : Eq] Eq for MatrixFn[T] with op_equal(self, other) {
+pub impl[T : Eq] Eq for MatrixFn[T] with op_equal(self, other) {
   self.zip_with(other, T::op_equal).fold(init=true, fn(acc, x) { acc && x })
 }
 
@@ -117,9 +117,11 @@ pub fn[T, U] MatrixFn::fold(
 ///
 pub fn[T : Default] MatrixFn::new(row : Int, col : Int) -> MatrixFn[T] {
   {
-    data: fn {
-      i, j if 0 <= i && i < row && 0 <= j && j < col => T::default()
-      _, _ => abort("Index out of bounds")
+    data: (i, j) => {
+      guard 0 <= i && i < row && 0 <= j && j < col else {
+        abort("Index out of bounds")
+      }
+      T::default()
     },
     grid: (row, col),
   }
@@ -362,7 +364,7 @@ pub fn[T] MatrixFn::from_2d_array(arr : Array[Array[T]]) -> MatrixFn[T] {
 /// elements from the input matrices.
 ///
 /// Panics if the dimensions of the two matrices do not match.
-impl[T : Add] Add for MatrixFn[T] with op_add(self, other) {
+pub impl[T : Add] Add for MatrixFn[T] with op_add(self, other) {
   self.zip_with(other, Add::op_add)
 }
 
@@ -375,7 +377,7 @@ impl[T : Add] Add for MatrixFn[T] with op_add(self, other) {
 ///
 /// Returns a new MatrixFn where each element is the negation of the
 /// corresponding element in the input matrix.
-impl[T : Neg] Neg for MatrixFn[T] with op_neg(self) {
+pub impl[T : Neg] Neg for MatrixFn[T] with op_neg(self) {
   self.map(T::op_neg)
 }
 
@@ -394,7 +396,7 @@ impl[T : Neg] Neg for MatrixFn[T] with op_neg(self) {
 /// two matrices.
 ///
 /// Panics if the dimensions of the two matrices do not match.
-impl[T : Add + Neg] Sub for MatrixFn[T] with op_sub(self, other) {
+pub impl[T : Add + Neg] Sub for MatrixFn[T] with op_sub(self, other) {
   self + -other
 }
 
@@ -640,20 +642,20 @@ pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
 ) -> T {
   let (n, m) = self.grid
   guard m == n else { abort("determinant: not a square matrix") }
-  fn go {
-    f, 1 => f(0, 0)
-    f, n => {
+  letrec view = (f, i) => match i {
+    1 => f(0, 0)
+    n => {
       let mut det = T::zero()
       for i in 0..<n {
         let sub_view = (j, k) => f(j + 1, if k < i { k } else { k + 1 })
         let sign = if i % 2 == 0 { T::one() } else { -T::one() }
-        det += sign * f(0, i) * go(sub_view, n - 1)
+        det += sign * f(0, i) * view(sub_view, n - 1)
       }
       det
     }
   }
 
-  go((i, j) => self[i][j], n)
+  view((i, j) => self[i][j], n)
 }
 
 ///|

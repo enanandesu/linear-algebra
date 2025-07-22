@@ -734,7 +734,7 @@ pub fn[T : One + Mul + Add + Neg] lerp(
 /// ))
 /// ```
 ///
-pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
+pub fn[T : Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
   let n = self.length()
   Matrix::make(n, n, fn(i, j) { if i == j { self[i] } else { T::zero() } })
 }
