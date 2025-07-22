@@ -1,3 +1,4 @@
+// Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/linear-algebra/mutable"
 
 import(
@@ -62,6 +63,7 @@ fn[T : Add] Transpose::add_constant(Self[T], T) -> Self[T]
 fn[T : @luna-generic.Conjugate] Transpose::adjoint(Self[T]) -> Self[T]
 fn[T] Transpose::copy(Self[T]) -> Self[T]
 fn[T] Transpose::horizontal_combine(Self[T], Self[T]) -> Self[T]
+fn[A] Transpose::make(Int, Int, (Int, Int) -> A) -> Self[A]
 fn[T, U] Transpose::map(Self[T], (T) -> U) -> Self[U]
 fn[T] Transpose::map_col(Self[T], Int, (T) -> T) -> Unit
 fn[T] Transpose::map_row(Self[T], Int, (T) -> T) -> Unit

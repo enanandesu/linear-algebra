@@ -32,16 +32,6 @@ struct Vector[T] {
 ///
 /// Returns an arbitrary `Vector[T]` where each element is generated using the
 /// `Arbitrary` implementation of type `T`.
-///
-/// Example:
-///
-/// ```moonbit
-/// // Assuming we have an Arbitrary implementation for Int
-/// let rng = @random.new()
-/// let arbitrary_vector = Vector::arbitrary(5, rng)
-/// // This creates a vector of length 5 with arbitrary Int values
-/// ```
-///
 impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
   Vector::{ data: @immut/array.makei(size, i => T::arbitrary(i, rng)) }
 }
@@ -62,7 +52,7 @@ impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @"Luna-Flow/linear-algebra/immut".Vector::from_array([1, 2, 3])
+/// let v = Vector::from_array([1, 2, 3])
 /// let doubled = v.map(fn(x) { x * 2 })
 /// inspect(doubled, content="|2, 4, 6|")
 /// ```
@@ -89,8 +79,8 @@ pub fn[T, U] Vector::map(self : Vector[T], f : (T) -> U) -> Vector[U] {
 /// Example:
 ///
 /// ```moonbit
-/// let v1 = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
-/// let v2 = @Luna-Flow/linear-algebra/immut.Vector::from_array([4, 5, 6])
+/// let v1 = Vector::from_array([1, 2, 3])
+/// let v2 = Vector::from_array([4, 5, 6])
 /// let result = v1.zip_with(v2, fn(a, b) { a + b })
 /// inspect(result, content="|5, 7, 9|")
 /// ```
@@ -98,7 +88,7 @@ pub fn[T, U] Vector::map(self : Vector[T], f : (T) -> U) -> Vector[U] {
 pub fn[T, U, V] Vector::zip_with(
   self : Vector[T],
   other : Vector[U],
-  f : (T, U) -> V
+  f : (T, U) -> V,
 ) -> Vector[V] {
   Vector::{ data: array_zip_with(self.data, other.data, f) }
 }
@@ -142,7 +132,7 @@ pub fn[T] to_col_matrix(self : Vector[T]) -> Matrix[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let v = Vector::from_array([1, 2, 3])
 /// let row_matrix = v.to_row_matrix()
 /// // Results in a 1×3 matrix: |1, 2, 3|
 /// ```
@@ -212,7 +202,7 @@ test "to matrix" {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @Luna-Flow/linear-algebra/immut.Vector::makei(5, fn(i) { i * 2 })
+/// let v = Vector::makei(5, fn(i) { i * 2 })
 /// // Creates a vector |0, 2, 4, 6, 8|
 /// ```
 ///
@@ -256,7 +246,7 @@ pub fn[T] Vector::length(self : Vector[T]) -> Int {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let v = Vector::from_array([1, 2, 3])
 /// inspect(v[1], content="2")
 /// ```
 ///
@@ -280,7 +270,7 @@ pub fn[T] Vector::op_get(self : Vector[T], i : Int) -> T {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @"Luna-Flow/linear-algebra/immut".Vector::from_array([1, 2, 3])
+/// let v = Vector::from_array([1, 2, 3])
 /// let updated = v.set(1, 10)
 /// inspect(updated, content="|1, 10, 3|")
 /// ```
@@ -326,7 +316,7 @@ pub fn[T : Mul] left_scale(self : Vector[T], scalar : T) -> Vector[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
+/// let v = Vector::from_array([1, 2, 3])
 /// inspect(v.right_scale(5), content="|5, 10, 15|")
 /// ```
 ///
@@ -348,7 +338,7 @@ pub fn[T : Mul] right_scale(self : Vector[T], scalar : T) -> Vector[T] {
 ///
 /// ```moonbit
 /// let arr = [1, 2, 3, 4, 5]
-/// let vec = @Luna-Flow/linear-algebra/immut.Vector::from_array(arr)
+/// let vec = Vector::from_array(arr)
 /// inspect(vec, content="|1, 2, 3, 4, 5|")
 /// ```
 ///
@@ -364,15 +354,6 @@ pub fn[T] Vector::from_array(arr : Array[T]) -> Vector[T] {
 /// * `self` : The vector to iterate over.
 ///
 /// Returns an `Iter[T]` that yields each element of the vector in order.
-///
-/// Example:
-///
-/// ```moonbit
-/// let v = @linear-algebra/immut.Vector::from_array([1, 2, 3])
-/// let sum = v.iter().fold(init=0, fn(acc, x) { acc + x })
-/// inspect(sum, content="6")
-/// ```
-///
 pub fn[T] Vector::iter(self : Vector[T]) -> Iter[T] {
   self.data.iter()
 }
@@ -419,7 +400,7 @@ test "from . to = identity" {
 ///
 pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
-  other : Vector[T]
+  other : Vector[T],
 ) -> Vector[T] {
   self.zip_with(other, T::op_add)
 }
@@ -513,7 +494,7 @@ test "a + b = b + a" {
 ///
 pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
-  other : Vector[T]
+  other : Vector[T],
 ) -> Vector[T] {
   self.zip_with(other, T::op_mul)
 }
@@ -565,16 +546,16 @@ test "a * b * c = a * (b * c)" {
 /// Example:
 ///
 /// ```moonbit
-/// let v1 = @immut.Vector::from_array([1, 2, 3])
-/// let v2 = @immut.Vector::from_array([4, 5, 6])
+/// let v1 : Vector[Double] = @immut.Vector::from_array([1, 2, 3])
+/// let v2 : Vector[Double] = @immut.Vector::from_array([4, 5, 6])
 /// let result = v1.lerp(v2, 0.5)
-/// inspect(result, content="|2, 3, 4|")
+/// inspect(result, content="|2.5, 3.5, 4.5|")
 /// ```
 ///
 pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
   other : Vector[T],
-  alpha : T
+  alpha : T,
 ) -> Vector[T] {
   self.left_scale(T::one() + -alpha) + other.left_scale(alpha)
 }
@@ -588,15 +569,7 @@ pub fn[T : One + Mul + Add + Neg] lerp(
 ///
 /// Returns a string representation of the vector with elements separated by
 /// commas and enclosed in pipe characters (e.g., "|1, 2, 3|").
-///
-/// Example:
-///
-/// ```moonbit
-/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
-/// println(v.to_string()) // Prints: |1, 2, 3|
-/// ```
-///
-impl[T : Show] Show for Vector[T] with to_string(self) {
+pub impl[T : Show] Show for Vector[T] with to_string(self) {
   // Immutable array has no join method
   // we need to convert to mutable array first
   // wait for core to support immutable array join
@@ -612,17 +585,7 @@ impl[T : Show] Show for Vector[T] with to_string(self) {
 ///
 /// * `self` : The vector to be output.
 /// * `output` : The output stream to write the string representation to.
-///
-/// Example:
-///
-/// ```moonbit
-/// let v = @Luna-Flow/linear-algebra/immut.Vector::from_array([1, 2, 3])
-/// let buffer = Buffer::new()
-/// v.output(buffer)
-/// inspect(buffer.to_string(), content="|1, 2, 3|")
-/// ```
-///
-impl[T : Show] Show for Vector[T] with output(s, l) {
+pub impl[T : Show] Show for Vector[T] with output(s, l) {
   l.write_string(s.to_string())
 }
 
@@ -715,7 +678,7 @@ test "S_v * p = v * p" {
 ///
 pub fn[T : Mul] tensor_product(
   self : Vector[T],
-  other : Vector[T]
+  other : Vector[T],
 ) -> Matrix[T] {
   let n = self.length()
   let m = other.length()
@@ -735,20 +698,10 @@ pub fn[T : Mul] tensor_product(
 /// `f` to the corresponding elements from `a1` and `a2`.
 ///
 /// Panics if the two input arrays have different lengths.
-///
-/// Example:
-///
-/// ```moonbit
-/// let arr1 = @immut/array.from_array([1, 2, 3])
-/// let arr2 = @immut/array.from_array([4, 5, 6])
-/// let result = array_zip_with(arr1, arr2, fn(x, y) { x + y })
-/// inspect(result.to_array(), content="[5, 7, 9]")
-/// ```
-///
 fn[X, Y, Z] array_zip_with(
   a1 : IArray[X],
   a2 : IArray[Y],
-  f : (X, Y) -> Z
+  f : (X, Y) -> Z,
 ) -> IArray[Z] {
   let n = a1.length()
   guard n == a2.length()

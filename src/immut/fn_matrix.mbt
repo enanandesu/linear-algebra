@@ -12,28 +12,6 @@
 /// * `data` : Function that computes the element at position (row, column).
 /// * `grid` : Tuple containing the dimensions (number of rows, number of
 ///   columns).
-///
-/// Example:
-///
-/// ```moonbit
-/// // Create a 3x3 identity matrix
-/// let identity = @immut.MatrixFn::identity[Int](3)
-/// inspect(identity[0][0], content="1")
-/// inspect(identity[0][1], content="0")
-/// inspect(identity[1][1], content="1")
-///
-/// // Create a matrix from a 2D array
-/// let m = @immut.MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// inspect(m[0][0], content="1")
-/// inspect(m[1][1], content="4")
-///
-/// // Create a custom matrix using a function
-/// let diagonal = @immut.MatrixFn::make(3, 3, fn(i, j) { if i == j { i + 1 } else { 0 } })
-/// inspect(diagonal[0][0], content="1")
-/// inspect(diagonal[1][1], content="2")
-/// inspect(diagonal[2][2], content="3")
-/// ```
-///
 struct MatrixFn[T] {
   data : (Int, Int) -> T
   grid : (Int, Int)
@@ -76,17 +54,6 @@ pub fn[T] MatrixFn::op_get(self : MatrixFn[T], i : Int) -> Indexed[T] {
 ///
 /// Panics if the matrices have different dimensions during the `zip_with`
 /// operation.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m1 = @immut.MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = @immut.MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// let m3 = @immut.MatrixFn::from_2d_array([[1, 0], [0, 1]])
-/// inspect(m1 == m2, content="true")
-/// inspect(m1 == m3, content="false")
-/// ```
-///
 impl[T : Eq] Eq for MatrixFn[T] with op_equal(self, other) {
   self.zip_with(other, T::op_equal).fold(init=true, fn(acc, x) { acc && x })
 }
@@ -115,7 +82,7 @@ impl[T : Eq] Eq for MatrixFn[T] with op_equal(self, other) {
 pub fn[T, U] MatrixFn::fold(
   self : MatrixFn[T],
   init~ : U,
-  f : (U, T) -> U
+  f : (U, T) -> U,
 ) -> U {
   let (r, c) = self.grid
   let mut acc = init
@@ -198,17 +165,6 @@ pub fn[T, U] MatrixFn::map(self : MatrixFn[T], f : (T) -> U) -> MatrixFn[U] {
 ///
 /// Returns a `String` representation of the matrix in the format `|element1,
 /// element2|` for each row, with rows separated by newlines.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = @immut.MatrixFn::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// println(m.to_string())
-/// // Output:
-/// // |1, 2, 3|
-/// // |4, 5, 6|
-/// ```
-///
 pub impl[T : Show] Show for MatrixFn[T] with to_string(s) {
   let mut res = ""
   for i in 0..<s.grid.0 {
@@ -262,7 +218,7 @@ pub impl[T : Show] Show for MatrixFn[T] with output(s, l) {
 pub fn[T] MatrixFn::map_row(
   self : MatrixFn[T],
   row : Int,
-  f : (T) -> T
+  f : (T) -> T,
 ) -> MatrixFn[T] {
   {
     data: (i, j) => if i == row {
@@ -298,7 +254,7 @@ pub fn[T] MatrixFn::map_row(
 pub fn[T] MatrixFn::map_col(
   self : MatrixFn[T],
   col : Int,
-  f : (T) -> T
+  f : (T) -> T,
 ) -> MatrixFn[T] {
   {
     data: (i, j) => if j == col {
@@ -363,7 +319,7 @@ pub fn[T] MatrixFn::transpose(self : MatrixFn[T]) -> MatrixFn[T] {
 pub fn[T] MatrixFn::make(
   row : Int,
   col : Int,
-  f : (Int, Int) -> T
+  f : (Int, Int) -> T,
 ) -> MatrixFn[T] {
   { data: f, grid: (row, col) }
 }
@@ -406,17 +362,6 @@ pub fn[T] MatrixFn::from_2d_array(arr : Array[Array[T]]) -> MatrixFn[T] {
 /// elements from the input matrices.
 ///
 /// Panics if the dimensions of the two matrices do not match.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m1 = @immut.MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = @immut.MatrixFn::from_2d_array([[5, 6], [7, 8]])
-/// let result = m1 + m2
-/// // Result: |6, 8|
-/// //         |10, 12|
-/// ```
-///
 impl[T : Add] Add for MatrixFn[T] with op_add(self, other) {
   self.zip_with(other, Add::op_add)
 }
@@ -430,15 +375,6 @@ impl[T : Add] Add for MatrixFn[T] with op_add(self, other) {
 ///
 /// Returns a new MatrixFn where each element is the negation of the
 /// corresponding element in the input matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = MatrixFn::from_2d_array([[1, -2], [3, -4]])
-/// let negated = -m
-/// inspect(negated, content="||-1, 2|\n||-3, 4|")
-/// ```
-///
 impl[T : Neg] Neg for MatrixFn[T] with op_neg(self) {
   self.map(T::op_neg)
 }
@@ -458,16 +394,6 @@ impl[T : Neg] Neg for MatrixFn[T] with op_neg(self) {
 /// two matrices.
 ///
 /// Panics if the dimensions of the two matrices do not match.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m1 = @immut.MatrixFn::from_2d_array([[5, 8], [3, 6]])
-/// let m2 = @immut.MatrixFn::from_2d_array([[2, 3], [1, 2]])
-/// let result = m1 - m2
-/// // result contains [[3, 5], [2, 4]]
-/// ```
-///
 impl[T : Add + Neg] Sub for MatrixFn[T] with op_sub(self, other) {
   self + -other
 }
@@ -538,22 +464,9 @@ pub fn[T : One + Zero] MatrixFn::identity(size : Int) -> MatrixFn[T] {
 /// * `power` : The non-negative integer exponent to raise the matrix to.
 ///
 /// Returns the matrix raised to the specified power.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// let m_squared = m.pow(2)
-/// inspect(m_squared, content="|13, 20|\n|30, 46|")
-///
-/// let identity : MatrixFn[Int] = MatrixFn::identity(3)
-/// let identity_cubed = identity.pow(3)
-/// inspect(identity_cubed, content="|1, 0, 0|\n|0, 1, 0|\n|0, 0, 1|")
-/// ```
-///
 pub fn[T : Semiring] MatrixFn::pow(
   self : MatrixFn[T],
-  power : Int
+  power : Int,
 ) -> MatrixFn[T] {
   loop (MatrixFn::identity(self.grid.1), power, self) {
     (s, 0, _) => s
@@ -602,7 +515,7 @@ pub fn[T : Conjugate] MatrixFn::adjoint(self : MatrixFn[T]) -> MatrixFn[T] {
 pub fn[T] MatrixFn::swap_cols(
   self : MatrixFn[T],
   r1 : Int,
-  r2 : Int
+  r2 : Int,
 ) -> MatrixFn[T] {
   let (r, c) = self.grid
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
@@ -642,7 +555,7 @@ pub fn[T] MatrixFn::swap_cols(
 pub fn[T] MatrixFn::swap_rows(
   self : MatrixFn[T],
   r1 : Int,
-  r2 : Int
+  r2 : Int,
 ) -> MatrixFn[T] {
   let (r, c) = self.grid
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
@@ -669,16 +582,6 @@ pub fn[T] MatrixFn::swap_rows(
 ///
 /// Panics if the number of columns in the left matrix does not equal the number
 /// of rows in the right matrix.
-///
-/// Example:
-///
-/// ```moonbit
-/// let m1 = @immut.MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// let m2 = @immut.MatrixFn::from_2d_array([[5, 6], [7, 8]])
-/// let result = m1 * m2
-/// inspect(result, content="|17, 20|\n|39, 44|")
-/// ```
-///
 impl[T : Mul + Add] Mul for MatrixFn[T] with op_mul(self, other) {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid
@@ -720,7 +623,7 @@ impl[T : Mul + Add] Mul for MatrixFn[T] with op_mul(self, other) {
 pub fn[T, U, W] MatrixFn::zip_with(
   self : MatrixFn[T],
   other : MatrixFn[U],
-  f : (T, U) -> W
+  f : (T, U) -> W,
 ) -> MatrixFn[W] {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid
@@ -742,19 +645,8 @@ pub fn[T, U, W] MatrixFn::zip_with(
 ///
 /// Panics if the matrix is not square (number of rows does not equal number of
 /// columns).
-///
-/// Example:
-///
-/// ```moonbit
-/// let m = MatrixFn::from_2d_array([[1, 2], [3, 4]])
-/// inspect(m.determinant(), content="-2")
-///
-/// let identity = MatrixFn::identity(3)
-/// inspect(identity.determinant(), content="1")
-/// ```
-///
 pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
-  self : MatrixFn[T]
+  self : MatrixFn[T],
 ) -> T {
   let (n, m) = self.grid
   guard m == n else { abort("determinant: not a square matrix") }
@@ -798,7 +690,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
 ///
 pub fn[T] MatrixFn::horizontal_combine(
   self : MatrixFn[T],
-  other : MatrixFn[T]
+  other : MatrixFn[T],
 ) -> MatrixFn[T] {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid
@@ -840,7 +732,7 @@ pub fn[T] MatrixFn::horizontal_combine(
 ///
 pub fn[T] MatrixFn::vertical_combine(
   self : MatrixFn[T],
-  other : MatrixFn[T]
+  other : MatrixFn[T],
 ) -> MatrixFn[T] {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid

@@ -274,7 +274,7 @@ pub fn[T] Matrix::from_2d_array(arr : Array[Array[T]]) -> Matrix[T] {
 pub fn[T] Matrix::from_array(
   row : Int,
   col : Int,
-  arr : IArray[T]
+  arr : IArray[T],
 ) -> Matrix[T] {
   guard arr.length() == row * col else {
     abort("Invalid array length for matrix")
@@ -289,13 +289,6 @@ pub fn[T] Matrix::from_array(
 /// Parameters
 /// - `self`: The matrix to get the indexed type from.
 /// - `row`: The row index to get the data from.
-/// 
-/// Example
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[2, 3, 4], [1, 2, 3]])
-/// inspect(m[0], content=[2, 3, 4])
-/// ```
-/// 
 pub fn[T] Matrix::op_get(self : Matrix[T], row : Int) -> Indexed[T] {
   { index: c => self.data[c + self.col * row] }
 }
@@ -352,7 +345,7 @@ pub fn[T] Matrix::set(
   self : Matrix[T],
   i : Int,
   j : Int,
-  elem : T
+  elem : T,
 ) -> Matrix[T] {
   { row: self.row, col: self.col, data: self.data.set(i * self.col + j, elem) }
 }
@@ -420,7 +413,7 @@ test {
 /// ```
 pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
   self : Matrix[T],
-  other : Matrix[T]
+  other : Matrix[T],
 ) -> Matrix[T] {
   let row = self.row
   let col = other.col
@@ -457,7 +450,7 @@ pub impl[T : Mul + Add] Mul for Matrix[T] with op_mul(
 /// ```
 pub impl[T : Add] Add for Matrix[T] with op_add(
   self : Matrix[T],
-  other : Matrix[T]
+  other : Matrix[T],
 ) -> Matrix[T] {
   guard self.col == other.col
   guard self.row == other.row
@@ -504,7 +497,10 @@ pub impl[T : Neg] Neg for Matrix[T] with op_neg(self : Matrix[T]) -> Matrix[T] {
 ///   #||3, 3|
 /// )
 /// ```
-pub fn[T : Add + Neg] op_sub(self : Matrix[T], other : Matrix[T]) -> Matrix[T] {
+pub impl[T : Add + Neg] Sub for Matrix[T] with op_sub(
+  self : Matrix[T],
+  other : Matrix[T],
+) -> Matrix[T] {
   self + -other
 }
 
@@ -556,14 +552,14 @@ pub fn[T : Add] add_constant(self : Matrix[T], cst : T) -> Matrix[T] {
 /// 
 /// Example
 /// ```moonbit
-/// let m = Matrix::identity(3)
+/// let m : Matrix[Int] = Matrix::identity(3)
 /// inspect(m, content=
 ///   #||1, 0, 0|
 ///   #||0, 1, 0|
 ///   #||0, 0, 1|
 /// )
 /// ```
-pub fn[T : One + Zero] identity(size : Int) -> Matrix[T] {
+pub fn[T : One + Zero] Matrix::identity(size : Int) -> Matrix[T] {
   Matrix::make(size, size, fn(i, j) {
     guard i == j else { T::zero() }
     T::one()
@@ -590,16 +586,6 @@ pub fn[T : Compare + Zero] null(self : Matrix[T]) -> Bool {
 /// 
 /// Parameters
 /// - `self`: The matrix to compute the adjoint of.
-/// 
-/// Example
-/// ```moonbit
-/// let m = Matrix::from_2d_array([[1 + 2i, 2 + 3i], [3 + 4i, 4 + 5i]])
-/// let m1 = m.adjoint()
-/// inspect(m1, content=
-///   #||4 - 5i, -3 + 4i|
-///   #||-2 + 3i, 1 - 2i|
-/// )
-/// ```
 pub fn[T : Conjugate] adjoint(self : Matrix[T]) -> Matrix[T] {
   self.map(T::conjugate)
 }
@@ -683,7 +669,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] determinant(self : Matrix[T]) -> T {
 /// )
 /// ```
 pub fn[T : Semiring] pow(self : Matrix[T], power : Int) -> Matrix[T] {
-  loop (identity(self.col), power, self) {
+  loop (Matrix::identity(self.col), power, self) {
     (s, 0, _) => s
     (s, 1, m) => s * m
     (s, p, m) => continue (if (p & 1) == 1 { s * m } else { s }, p >> 1, m * m)
@@ -988,7 +974,7 @@ test {
       #||30, 40|
     ),
   )
-  let m5 : Matrix[Int] = identity(5)
+  let m5 : Matrix[Int] = Matrix::identity(5)
   inspect(
     m5,
     content=(

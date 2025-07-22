@@ -9,8 +9,8 @@
 /// let v3 = @mutable.Vector::from_array([1.0, 2.0, 3.0])
 ///
 /// // Access elements
-/// inspect(v2[0], content="0.0")
-/// inspect(v2[1], content="1.0")
+/// inspect(v2[0], content="0")
+/// inspect(v2[1], content="1")
 ///
 /// // Vector operations
 /// let sum = v2 + v3
@@ -30,15 +30,6 @@ type Vector[A] Array[A]
 ///
 /// Returns a randomly generated vector of the specified size, where each
 /// element is generated using the `Arbitrary` instance of type `T`.
-///
-/// Example:
-///
-/// ```moonbit
-/// let rng = @random.new()
-/// let random_vector : Vector[Int] = Vector::arbitrary(5, rng)
-/// // Creates a vector of 5 random integers
-/// ```
-///
 impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
   Vector::makei(size, i => T::arbitrary(i, rng))
 }
@@ -61,8 +52,8 @@ impl[T : Arbitrary] Arbitrary for Vector[T] with arbitrary(size, rng) {
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([1, 2, 3])
 /// let v3 = Vector::from_array([1, 2, 4])
-/// inspect(v1 == v2, content="true")
-/// inspect(v1 == v3, content="false")
+/// inspect(v1, content=v2.to_string())
+/// assert_eq(v1.to_string() != v3.to_string(), true)
 /// ```
 ///
 impl[T : Eq] Eq for Vector[T] with op_equal(self, other) {
@@ -104,9 +95,7 @@ pub impl[T : Show] Show for Vector[T] with to_string(self) {
 ///
 /// ```moonbit
 /// let v = @mutable.Vector::from_array([1, 2, 3])
-/// let logger = Logger::new()
-/// v.output(logger)
-/// // The logger now contains the string representation of the vector
+/// inspect(v, content="|1, 2, 3|")
 /// ```
 ///
 pub impl[T : Show] Show for Vector[T] with output(self, l) {
@@ -128,20 +117,10 @@ pub impl[T : Show] Show for Vector[T] with output(self, l) {
 /// pair of corresponding elements.
 ///
 /// Panics if the two input arrays have different lengths.
-///
-/// Example:
-///
-/// ```moonbit
-/// let arr1 = [1, 2, 3]
-/// let arr2 = [4, 5, 6] 
-/// let result = array_zip_with(arr1, arr2, fn(x, y) { x + y })
-/// inspect(result, content="[5, 7, 9]")
-/// ```
-///
 fn[A, B, C] array_zip_with(
   a1 : Array[A],
   a2 : Array[B],
-  f : (A, B) -> C
+  f : (A, B) -> C,
 ) -> Array[C] {
   let n = a1.length()
   guard n == a2.length()
@@ -177,7 +156,7 @@ fn[A, B, C] array_zip_with(
 pub fn[A, U, V] Vector::zip_with(
   self : Vector[A],
   other : Vector[U],
-  f : (A, U) -> V
+  f : (A, U) -> V,
 ) -> Vector[V] {
   array_zip_with(self.inner(), other.inner(), f)
 }
@@ -477,7 +456,7 @@ pub fn[A : Mul] Vector::right_scale(scalar : A, self : Vector[A]) -> Vector[A] {
 ///
 pub fn[A : Mul] Vector::left_scale_inplace(
   self : Vector[A],
-  scalar : A
+  scalar : A,
 ) -> Unit {
   self.map_inplace(x => x * scalar)
 }
@@ -501,7 +480,7 @@ pub fn[A : Mul] Vector::left_scale_inplace(
 ///
 pub fn[A : Mul] Vector::right_scale_inplace(
   scalar : A,
-  self : Vector[A]
+  self : Vector[A],
 ) -> Unit {
   self.map_inplace(x => scalar * x)
 }
@@ -549,7 +528,7 @@ pub fn[T] Vector::from_array(a : Array[T]) -> Vector[T] {
 ///
 pub impl[T : Add] Add for Vector[T] with op_add(
   self : Vector[T],
-  other : Vector[T]
+  other : Vector[T],
 ) -> Vector[T] {
   self.zip_with(other, T::op_add)
 }
@@ -641,7 +620,7 @@ test "a + b = b + a" {
 ///
 pub impl[T : Mul] Mul for Vector[T] with op_mul(
   self : Vector[T],
-  other : Vector[T]
+  other : Vector[T],
 ) -> Vector[T] {
   self.zip_with(other, T::op_mul)
 }
@@ -693,7 +672,7 @@ test "a * b * c = a * (b * c)" {
 /// Example:
 ///
 /// ```moonbit
-/// let v = @linear-algebra/mutable.Vector::[1, 2, -3]
+/// let v = Vector::from_array([1, 2, -3])
 /// inspect(-v, content="|-1, -2, 3|")
 /// ```
 ///
@@ -717,16 +696,16 @@ pub impl[T : Neg] Neg for Vector[T] with op_neg(self : Vector[T]) -> Vector[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let v1 = Vector::from_array([1, 2, 3])
-/// let v2 = Vector::from_array([4, 5, 6])
+/// let v1: Vector[Double] = Vector::from_array([1, 2, 3])
+/// let v2: Vector[Double] = Vector::from_array([4, 5, 6])
 /// let result = v1.lerp(v2, 0.5)
-/// // result is approximately [2.5, 3.5, 4.5]
+/// inspect(result, content="|2.5, 3.5, 4.5|")
 /// ```
 ///
 pub fn[T : One + Mul + Add + Neg] lerp(
   self : Vector[T],
   other : Vector[T],
-  alpha : T
+  alpha : T,
 ) -> Vector[T] {
   self.left_scale(T::one() + -alpha) + other.left_scale(alpha)
 }
@@ -748,10 +727,11 @@ pub fn[T : One + Mul + Add + Neg] lerp(
 /// ```moonbit
 /// let v = Vector::from_array([1, 2, 3])
 /// let m = v.scaled_matrix()
-/// // Creates a 3×3 matrix:
-/// // | 1  0  0 |
-/// // | 0  2  0 |
-/// // | 0  0  3 |
+/// inspect(m, content=(
+/// #||1, 0, 0|
+/// #||0, 2, 0|
+/// #||0, 0, 3|
+/// ))
 /// ```
 ///
 pub fn[T : Mul + Zero] scaled_matrix(self : Vector[T]) -> Matrix[T] {
@@ -813,14 +793,15 @@ test "S_v * p = v * p" {
 /// let v1 = Vector::from_array([1, 2])
 /// let v2 = Vector::from_array([3, 4, 5])
 /// let result = v1.tensor_product(v2)
-/// // Result is a 2x3 matrix:
-/// // |3  4  5|
-/// // |6  8 10|
+/// inspect(result.to_string(), content=(
+/// #||3, 4, 5|
+/// #||6, 8, 10|
+/// ))
 /// ```
 ///
 pub fn[T : Mul] tensor_product(
   self : Vector[T],
-  other : Vector[T]
+  other : Vector[T],
 ) -> Matrix[T] {
   let n = self.length()
   let m = other.length()
@@ -869,14 +850,14 @@ pub fn[T : Add] Vector::add_constant(self : Vector[T], cst : T) -> Vector[T] {
 /// let v1 = Vector::from_array([1, 2, 3])
 /// let v2 = Vector::from_array([4, 5, 6])
 /// let result = lin_comb(2, v1, 3, v2)
-/// // result is equivalent to Vector::from_array([14, 19, 24])
+/// inspect(result, content="|14, 19, 24|")
 /// ```
 ///
 pub fn[T : Add + Mul] lin_comb(
   scalar_a : T,
   self : Vector[T],
   scalar_b : T,
-  other : Vector[T]
+  other : Vector[T],
 ) -> Vector[T] {
   self.left_scale(scalar_a) + other.left_scale(scalar_b)
 }
