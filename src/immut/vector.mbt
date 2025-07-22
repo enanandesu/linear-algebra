@@ -671,6 +671,10 @@ test "S_v * p = v * p" {
 /// let v1 = Vector::from_array([1, 2])
 /// let v2 = Vector::from_array([3, 4, 5])
 /// let result = v1.tensor_product(v2)
+/// inspect(result, content=(
+///   #||3, 4, 5|
+///   #||6, 8, 10|
+/// ))
 /// // Result is a 2x3 matrix:
 /// // |3, 4, 5|
 /// // |6, 8, 10|

@@ -82,7 +82,7 @@ impl[T : Eq] Eq for MatrixFn[T] with op_equal(self, other) {
 pub fn[T, U] MatrixFn::fold(
   self : MatrixFn[T],
   init~ : U,
-  f : (U, T) -> U,
+  f : (U, T) -> U
 ) -> U {
   let (r, c) = self.grid
   let mut acc = init
@@ -218,7 +218,7 @@ pub impl[T : Show] Show for MatrixFn[T] with output(s, l) {
 pub fn[T] MatrixFn::map_row(
   self : MatrixFn[T],
   row : Int,
-  f : (T) -> T,
+  f : (T) -> T
 ) -> MatrixFn[T] {
   {
     data: (i, j) => if i == row {
@@ -254,7 +254,7 @@ pub fn[T] MatrixFn::map_row(
 pub fn[T] MatrixFn::map_col(
   self : MatrixFn[T],
   col : Int,
-  f : (T) -> T,
+  f : (T) -> T
 ) -> MatrixFn[T] {
   {
     data: (i, j) => if j == col {
@@ -319,7 +319,7 @@ pub fn[T] MatrixFn::transpose(self : MatrixFn[T]) -> MatrixFn[T] {
 pub fn[T] MatrixFn::make(
   row : Int,
   col : Int,
-  f : (Int, Int) -> T,
+  f : (Int, Int) -> T
 ) -> MatrixFn[T] {
   { data: f, grid: (row, col) }
 }
@@ -466,7 +466,7 @@ pub fn[T : One + Zero] MatrixFn::identity(size : Int) -> MatrixFn[T] {
 /// Returns the matrix raised to the specified power.
 pub fn[T : Semiring] MatrixFn::pow(
   self : MatrixFn[T],
-  power : Int,
+  power : Int
 ) -> MatrixFn[T] {
   loop (MatrixFn::identity(self.grid.1), power, self) {
     (s, 0, _) => s
@@ -515,19 +515,9 @@ pub fn[T : Conjugate] MatrixFn::adjoint(self : MatrixFn[T]) -> MatrixFn[T] {
 pub fn[T] MatrixFn::swap_cols(
   self : MatrixFn[T],
   r1 : Int,
-  r2 : Int,
+  r2 : Int
 ) -> MatrixFn[T] {
-  let (r, c) = self.grid
-  guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
-  if r1 == r2 {
-    self
-  } else {
-    MatrixFn::make(r, c, fn {
-      i, j if i == r1 => (self.data)(r2, j)
-      i, j if i == r2 => (self.data)(r1, j)
-      i, j => (self.data)(i, j)
-    })
-  }
+  self.transpose().swap_rows(r1, r2).transpose()
 }
 
 ///|
@@ -555,17 +545,17 @@ pub fn[T] MatrixFn::swap_cols(
 pub fn[T] MatrixFn::swap_rows(
   self : MatrixFn[T],
   r1 : Int,
-  r2 : Int,
+  r2 : Int
 ) -> MatrixFn[T] {
   let (r, c) = self.grid
   guard r1 < r && r2 < r && r1 >= 0 && r2 >= 0
   if r1 == r2 {
     self
   } else {
-    MatrixFn::make(r, c, fn {
-      i, j if j == r1 => (self.data)(i, r2)
-      i, j if j == r2 => (self.data)(i, r1)
-      i, j => (self.data)(i, j)
+    MatrixFn::make(r, c, (i, j) => match (i, j) {
+      (i, j) if i == r1 => (self.data)(r2, j)
+      (i, j) if i == r2 => (self.data)(r1, j)
+      (i, j) => (self.data)(i, j)
     })
   }
 }
@@ -623,7 +613,7 @@ impl[T : Mul + Add] Mul for MatrixFn[T] with op_mul(self, other) {
 pub fn[T, U, W] MatrixFn::zip_with(
   self : MatrixFn[T],
   other : MatrixFn[U],
-  f : (T, U) -> W,
+  f : (T, U) -> W
 ) -> MatrixFn[W] {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid
@@ -646,7 +636,7 @@ pub fn[T, U, W] MatrixFn::zip_with(
 /// Panics if the matrix is not square (number of rows does not equal number of
 /// columns).
 pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
-  self : MatrixFn[T],
+  self : MatrixFn[T]
 ) -> T {
   let (n, m) = self.grid
   guard m == n else { abort("determinant: not a square matrix") }
@@ -690,7 +680,7 @@ pub fn[T : Mul + Add + One + Neg + Zero] MatrixFn::determinant(
 ///
 pub fn[T] MatrixFn::horizontal_combine(
   self : MatrixFn[T],
-  other : MatrixFn[T],
+  other : MatrixFn[T]
 ) -> MatrixFn[T] {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid
@@ -732,7 +722,7 @@ pub fn[T] MatrixFn::horizontal_combine(
 ///
 pub fn[T] MatrixFn::vertical_combine(
   self : MatrixFn[T],
-  other : MatrixFn[T],
+  other : MatrixFn[T]
 ) -> MatrixFn[T] {
   let (r1, c1) = self.grid
   let (r2, c2) = other.grid
