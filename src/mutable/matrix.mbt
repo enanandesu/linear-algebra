@@ -177,6 +177,28 @@ pub fn[T, U] Matrix::map(self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 }
 
 ///|
+/// Applies a transformation function to all elements in the matrix in-place,
+/// modifying the original matrix.
+///
+/// Parameters:
+///
+/// * `self` : The matrix whose elements will be transformed.
+/// * `f` : The transformation function to apply to each element, taking a value
+///   of type `T` and returning a transformed value of the same type.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2], [3, 4]])
+/// m.map_inplace(fn(x) { x * 2 })
+/// inspect(m, content="|2, 4|\n|6, 8|")
+/// ```
+///
+pub fn[T] Matrix::map_inplace(self : Matrix[T], f : (T) -> T) -> Unit {
+  self.data.map_inplace(f)
+}
+
+///|
 /// Converts a matrix to its transpose representation without copying the
 /// underlying data.
 ///
@@ -192,11 +214,11 @@ pub fn[T, U] Matrix::map(self : Matrix[T], f : (T) -> U) -> Matrix[U] {
 ///
 /// ```moonbit
 /// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// let t = m.matrix_to_transpose()
+/// let t = m.to_transpose()
 /// // The transpose has 3 rows and 2 columns (original was 2x3)
 /// ```
 ///
-pub fn[T] matrix_to_transpose(self : Matrix[T]) -> Transpose[T] {
+pub fn[T] to_transpose(self : Matrix[T]) -> Transpose[T] {
   { row: self.col, col: self.row, data: self.data }
 }
 
@@ -214,11 +236,15 @@ pub fn[T] matrix_to_transpose(self : Matrix[T]) -> Transpose[T] {
 ///
 /// ```moonbit
 /// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// m.map_row(0, fn(x) { x * 2 })
+/// m.map_row_inplace(0, fn(x) { x * 2 })
 /// // The first row becomes [2, 4, 6], second row remains [4, 5, 6]
 /// ```
 ///
-pub fn[T] Matrix::map_row(self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
+pub fn[T] Matrix::map_row_inplace(
+  self : Matrix[T],
+  row : Int,
+  f : (T) -> T,
+) -> Unit {
   for i in 0..<self.col {
     self.data[row * self.col + i] = f(self.data[row * self.col + i])
   }
@@ -238,11 +264,15 @@ pub fn[T] Matrix::map_row(self : Matrix[T], row : Int, f : (T) -> T) -> Unit {
 ///
 /// ```moonbit
 /// let matrix = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-/// matrix.map_col(1, fn(x) { x * 2 })
+/// matrix.map_col_inplace(1, fn(x) { x * 2 })
 /// // matrix is now [[1, 4, 3], [4, 10, 6]]
 /// ```
 ///
-pub fn[T] Matrix::map_col(self : Matrix[T], col : Int, f : (T) -> T) -> Unit {
+pub fn[T] Matrix::map_col_inplace(
+  self : Matrix[T],
+  col : Int,
+  f : (T) -> T,
+) -> Unit {
   for i in 0..<self.row {
     self.data[i * self.col + col] = f(self.data[i * self.col + col])
   }
@@ -283,7 +313,10 @@ pub fn[T] Matrix::eachi(self : Matrix[T], f : (Int, T) -> Unit) -> Unit {
 /// * `f` : A function that takes three parameters: the row index (Int), the
 ///   column index (Int), and the element value (T). This function is called for
 ///   each element in the matrix.
-pub fn[T] Matrix::eachij(self : Matrix[T], f : (Int, Int, T) -> Unit) -> Unit {
+pub fn[T] Matrix::each_row_col(
+  self : Matrix[T],
+  f : (Int, Int, T) -> Unit,
+) -> Unit {
   self.data.eachi((index, data) => f(index / self.col, index % self.col, data))
 }
 
@@ -382,12 +415,12 @@ test "map_function" {
   let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
   let m1 = {
     let m_ = m.copy()
-    m_.map_row(0, fn(x) { x * 2 })
+    m_.map_row_inplace(0, fn(x) { x * 2 })
     m_
   }
   let m2 = {
     let m_ = m.copy()
-    m_.map_col(0, fn(x) { x * 2 })
+    m_.map_col_inplace(0, fn(x) { x * 2 })
     m_
   }
   inspect(m1.to_string(), content="|2, 4, 6|\n|4, 5, 6|")
@@ -1047,7 +1080,7 @@ pub fn[T : Compare + Num + Sub + Inverse] reduce_row_elimination(
       continue
     }
     let val = self[i][col]
-    ignore(self.map_row(i, fn(x) { x * val.inv() }))
+    ignore(self.map_row_inplace(i, fn(x) { x * val.inv() }))
     for j in 0..<r {
       if j == i {
         continue
