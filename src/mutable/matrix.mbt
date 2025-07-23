@@ -1358,3 +1358,18 @@ pub fn[T] to_2d_array(self : Matrix[T]) -> Array[Array[T]] {
   }
   arr_2d
 }
+
+///|
+pub fn[T] row_to_vector(self : Matrix[T], row : Int) -> Vector[T] {
+  self.row_to_array(row)
+}
+
+///|
+pub fn[T] col_to_vector(self : Matrix[T], col : Int) -> Vector[T] {
+  self.col_to_array(col)
+}
+
+///|
+pub fn[T] to_vector(self : Matrix[T]) -> Vector[T] {
+  self.data.copy()
+}

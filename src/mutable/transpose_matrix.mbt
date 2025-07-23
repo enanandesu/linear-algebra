@@ -870,7 +870,7 @@ pub fn[T] Transpose::vertical_combine(
 /// inspect(transpose_matrix, content="|1, 4|\n|2, 5|\n|3, 6|")
 /// ```
 ///
-pub fn[T] Transpose::transpose_to_matrix(self : Transpose[T]) -> Matrix[T] {
+pub fn[T] Transpose::to_matrix(self : Transpose[T]) -> Matrix[T] {
   let data = Array::makei(self.col * self.row, fn(i) {
     let row = i / self.col
     let col = i % self.col
@@ -895,7 +895,7 @@ pub fn[T] Transpose::transpose_to_matrix(self : Transpose[T]) -> Matrix[T] {
 /// test "add" {
 ///   let m1 = Matrix::from_2d_array([[1], [1], [1]]).to_transpose()
 ///   let m2 = Matrix::from_2d_array([[2], [3], [4]]).to_transpose()
-///   let m3 = (m1 + m2).transpose_to_matrix()
+///   let m3 = (m1 + m2).to_matrix()
 ///   inspect(m1 + m2, content="|3, 4, 5|")
 ///   inspect(
 ///     m3,
@@ -911,7 +911,7 @@ pub fn[T] Transpose::transpose_to_matrix(self : Transpose[T]) -> Matrix[T] {
 test "add" {
   let m1 = Matrix::from_2d_array([[1], [1], [1]]).to_transpose()
   let m2 = Matrix::from_2d_array([[2], [3], [4]]).to_transpose()
-  let m3 = (m1 + m2).transpose_to_matrix()
+  let m3 = (m1 + m2).to_matrix()
   inspect(m1 + m2, content="|3, 4, 5|")
   inspect(
     m3,
