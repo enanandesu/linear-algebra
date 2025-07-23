@@ -219,7 +219,7 @@ pub fn[T] Matrix::map_inplace(self : Matrix[T], f : (T) -> T) -> Unit {
 /// ```
 ///
 pub fn[T] to_transpose(self : Matrix[T]) -> Transpose[T] {
-  { row: self.col, col: self.row, data: self.data }
+  self
 }
 
 ///|
@@ -770,7 +770,7 @@ pub impl[T : Add + Neg] Sub for Matrix[T] with op_sub(
 /// ```
 ///
 pub fn[T : Mul] scale(self : Matrix[T], cst : T) -> Matrix[T] {
-  self.map(fn(x) { x * cst })
+  self.map(x => x * cst)
 }
 
 ///|
@@ -793,7 +793,7 @@ pub fn[T : Mul] scale(self : Matrix[T], cst : T) -> Matrix[T] {
 /// ```
 ///
 pub fn[T : Add] add_constant(self : Matrix[T], cst : T) -> Matrix[T] {
-  self.map(fn(x) { x + cst })
+  self.map(x => x + cst)
 }
 
 ///|
@@ -1350,6 +1350,25 @@ pub fn[T] to_array(self : Matrix[T]) -> Array[T] {
 }
 
 ///|
+/// Converts a matrix to a 2D array representation where each sub-array
+/// represents a row of the matrix.
+///
+/// Parameters:
+///
+/// * `self` : The matrix to convert to a 2D array.
+///
+/// Returns a 2D array where each element is an array representing a row from
+/// the original matrix, preserving the order of rows and elements within each
+/// row.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let array_2d = m.to_2d_array()
+/// inspect(array_2d, content="[[1, 2, 3], [4, 5, 6]]")
+/// ```
+///
 pub fn[T] to_2d_array(self : Matrix[T]) -> Array[Array[T]] {
   let row = self.row
   let arr_2d = []
@@ -1360,16 +1379,73 @@ pub fn[T] to_2d_array(self : Matrix[T]) -> Array[Array[T]] {
 }
 
 ///|
+/// Extracts a specific row from the matrix and returns it as a vector.
+///
+/// Parameters:
+///
+/// * `self` : The matrix from which to extract the row.
+/// * `row` : The zero-based index of the row to extract.
+///
+/// Returns a new vector containing all elements from the specified row in
+/// column order.
+///
+/// Panics if `row` is negative or greater than or equal to the number of rows
+/// in the matrix.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let row_vector = m.row_to_vector(1)
+/// // row_vector contains [4, 5, 6]
+/// ```
+///
 pub fn[T] row_to_vector(self : Matrix[T], row : Int) -> Vector[T] {
   self.row_to_array(row)
 }
 
 ///|
+/// Extracts a specific column from the matrix and returns it as a Vector.
+///
+/// Parameters:
+///
+/// * `self` : The matrix from which to extract the column.
+/// * `col` : The zero-based index of the column to extract.
+///
+/// Returns a Vector containing all elements from the specified column, ordered
+/// from top to bottom.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let col1 = m.col_to_vector(1)
+/// // col1 is a Vector containing [2, 5]
+/// ```
+///
 pub fn[T] col_to_vector(self : Matrix[T], col : Int) -> Vector[T] {
   self.col_to_array(col)
 }
 
 ///|
+/// Converts the matrix to a vector by copying its internal array
+/// representation.
+///
+/// Parameters:
+///
+/// * `self` : The matrix to be converted to a vector.
+///
+/// Returns a new vector containing all elements of the matrix in row-major
+/// order (elements are stored row by row from left to right, top to bottom).
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let vector = m.to_vector()
+/// inspect(vector, content="|1, 2, 3, 4, 5, 6|")
+/// ```
+///
 pub fn[T] to_vector(self : Matrix[T]) -> Vector[T] {
   self.data.copy()
 }
