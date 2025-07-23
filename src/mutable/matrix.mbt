@@ -1293,11 +1293,7 @@ pub fn[T] row_to_array(self : Matrix[T], row : Int) -> Array[T] {
   guard row >= 0 && row < self.row
   let start = row * self.col
   let end = start + self.col
-  let arr = []
-  for i in start..<end {
-    arr.push(self.data[i])
-  }
-  arr
+  self.data[start:end].to_array()
 }
 
 ///|
@@ -1351,4 +1347,14 @@ pub fn[T] col_to_array(self : Matrix[T], col : Int) -> Array[T] {
 ///
 pub fn[T] to_array(self : Matrix[T]) -> Array[T] {
   self.data.copy()
+}
+
+///|
+pub fn[T] to_2d_array(self : Matrix[T]) -> Array[Array[T]] {
+  let row = self.row
+  let arr_2d = []
+  for i in 0..<row {
+    arr_2d.push(self.row_to_array(i))
+  }
+  arr_2d
 }
