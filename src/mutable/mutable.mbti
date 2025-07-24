@@ -27,6 +27,8 @@ fn[T] Matrix::each_col(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Matrix::each_row(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Matrix::each_row_col(Self[T], (Int, Int, T) -> Unit) -> Unit
 fn[T] Matrix::eachi(Self[T], (Int, T) -> Unit) -> Unit
+fn[T] Matrix::eachi_col(Self[T], Int, (Int, T) -> Unit) -> Unit
+fn[T] Matrix::eachi_row(Self[T], Int, (Int, T) -> Unit) -> Unit
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, Array[T]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
@@ -70,6 +72,8 @@ fn[T] Transpose::each_col(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Transpose::each_row(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Transpose::each_row_col(Self[T], (Int, Int, T) -> Unit) -> Unit
 fn[T] Transpose::eachi(Self[T], (Int, T) -> Unit) -> Unit
+fn[T] Transpose::eachi_col(Self[T], Int, (Int, T) -> Unit) -> Unit
+fn[T] Transpose::eachi_row(Self[T], Int, (Int, T) -> Unit) -> Unit
 fn[T] Transpose::horizontal_combine(Self[T], Self[T]) -> Self[T]
 fn[T] Transpose::map(Self[T], (T) -> T) -> Self[T]
 fn[T] Transpose::map_col_inplace(Self[T], Int, (T) -> T) -> Unit

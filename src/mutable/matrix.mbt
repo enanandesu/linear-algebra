@@ -120,21 +120,21 @@ pub fn[T] col(self : Matrix[T]) -> Int {
 /// ```
 ///
 pub impl[T : Show] Show for Matrix[T] with to_string(s) {
-  let mut res = ""
+  let res = StringBuilder::new()
   for i in 0..<s.row {
-    res = res + "|"
-    for j in 0..<s.col {
-      res = res + s.data[i * s.col + j].to_string()
-      if j < s.col - 1 {
-        res = res + ", "
+    res.write_char('|')
+    s.eachi_row(i, (c, x) => {
+      res.write_string(x.to_string())
+      if c < s.col - 1 {
+        res.write_string(", ")
       }
-    }
-    res = res + "|"
+    })
+    res.write_char('|')
     if i < s.row - 1 {
-      res = res + "\n"
+      res.write_string("\n")
     }
   }
-  res
+  res.to_string()
 }
 
 ///|
@@ -339,6 +339,41 @@ pub fn[T] Matrix::each_row(
 }
 
 ///|
+/// Iterates over all elements in a specific row of the matrix with their column
+/// indices, applying a function to each element.
+///
+/// Parameters:
+///
+/// * `self` : The matrix to iterate over.
+/// * `row` : The zero-based index of the row to iterate through.
+/// * `f` : A function that takes two parameters: the column index (Int) and the
+///   element value (T). This function is called for each element in the
+///   specified row.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// m.eachi_row(1, fn(col_index, value) {
+///   println("Row 1, Column \{col_index}: \{value}")
+/// })
+/// // Prints:
+/// // Row 1, Column 0: 4
+/// // Row 1, Column 1: 5
+/// // Row 1, Column 2: 6
+/// ```
+///
+pub fn[T] Matrix::eachi_row(
+  self : Matrix[T],
+  row : Int,
+  f : (Int, T) -> Unit,
+) -> Unit {
+  for i in 0..<self.col {
+    f(i, self.data[row * self.col + i])
+  }
+}
+
+///|
 /// Iterates over all elements in a specific column of the matrix, applying a
 /// function to each element.
 ///
@@ -354,6 +389,40 @@ pub fn[T] Matrix::each_col(
 ) -> Unit {
   for i in 0..<self.row {
     f(self.data[i * self.col + col])
+  }
+}
+
+///|
+/// Iterates over all elements in a specific column of the matrix with their row
+/// indices, applying a function to each element and its corresponding row
+/// index.
+///
+/// Parameters:
+///
+/// * `self` : The matrix to iterate over.
+/// * `col` : The zero-based index of the column to iterate through.
+/// * `f` : The function to apply to each element in the column, which takes the
+///   row index and the element value as parameters.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// m.eachi_col(1, fn(row_idx, value) {
+///   println("Row \{row_idx}: \{value}")
+/// })
+/// // Output:
+/// // Row 0: 2
+/// // Row 1: 5
+/// ```
+///
+pub fn[T] Matrix::eachi_col(
+  self : Matrix[T],
+  col : Int,
+  f : (Int, T) -> Unit,
+) -> Unit {
+  for i in 0..<self.row {
+    f(i, self.data[i * self.col + col])
   }
 }
 
