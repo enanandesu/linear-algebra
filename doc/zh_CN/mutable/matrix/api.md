@@ -569,3 +569,88 @@ struct Lens[T] {
 
     - **返回值**
       `Unit` - 无返回值
+
+---
+
+## 运算符重载
+
+### 算术运算符
+
+- **`impl[T : Mul + Add] Mul for Matrix[T] with op_mul`**
+  - **描述**
+      矩阵乘法运算符重载，计算两个矩阵的乘积
+
+  - **示例**
+
+    ```moonbit
+    let a = Matrix::from_2d_array([[1, 2], [3, 4]])
+    let b = Matrix::from_2d_array([[5, 6], [7, 8]])
+    let result = a * b  // 矩阵乘法
+    ```
+
+- **`impl[T : Add] Add for Matrix[T] with op_add`**
+  - **描述**
+      矩阵加法运算符重载，计算两个矩阵的元素级相加
+
+  - **示例**
+
+    ```moonbit
+    let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+    let m2 = Matrix::from_2d_array([[5, 6], [7, 8]])
+    let result = m1 + m2  // 矩阵加法
+    ```
+
+- **`impl[T : Add + Neg] Sub for Matrix[T] with op_sub`**
+  - **描述**
+      矩阵减法运算符重载，计算两个矩阵的元素级相减
+
+  - **示例**
+
+    ```moonbit
+    let m1 = Matrix::from_2d_array([[5, 7], [9, 11]])
+    let m2 = Matrix::from_2d_array([[1, 2], [3, 4]])
+    let result = m1 - m2  // 矩阵减法
+    ```
+
+- **`impl[T : Neg] Neg for Matrix[T] with op_neg`**
+  - **描述**
+      矩阵取负运算符重载，对矩阵所有元素取负
+
+  - **示例**
+
+    ```moonbit
+    let m = Matrix::from_2d_array([[1, -2], [3, -4]])
+    let negated = -m  // 矩阵取负
+    ```
+
+### 显示和输出
+
+- **`impl[T : Show] Show for Matrix[T] with to_string`**
+  - **描述**
+      将矩阵转换为可读的字符串表示
+
+  - **示例**
+
+    ```moonbit
+    let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+    inspect(m.to_string(), content="|1, 2, 3|\n|4, 5, 6|")
+    ```
+
+- **`impl[T : Show] Show for Matrix[T] with output`**
+  - **描述**
+      将矩阵的字符串表示输出到日志记录器
+
+### 索引访问
+
+- **`Matrix::op_get(self, row) -> Lens[T]`**
+  - **描述**
+      使用方括号语法访问矩阵行，返回该行的透镜对象
+
+  - **示例**
+
+    ```moonbit
+    let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+    let row_lens = m[1]  // 获取第2行的透镜
+    let value = row_lens[0]  // 访问该行第1列的元素
+    row_lens[2] = 10  // 修改该行第3列的元素
+    ```  
