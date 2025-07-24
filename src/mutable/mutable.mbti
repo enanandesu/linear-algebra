@@ -92,6 +92,7 @@ impl[T : Add] Add for Transpose[T]
 impl[T : Eq] Eq for Transpose[T]
 impl[T : Add + Mul] Mul for Transpose[T]
 impl[T : Neg] Neg for Transpose[T]
+impl[T : Show] Show for Transpose[T]
 impl[T : Add + Neg] Sub for Transpose[T]
 
 type Vector[A]
