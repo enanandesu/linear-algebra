@@ -213,6 +213,41 @@ pub fn[T] Transpose::each_row(
 }
 
 ///|
+/// Iterates over each element in the specified row of the transposed matrix
+/// with its column index, applying the given function to each index-element
+/// pair.
+///
+/// Parameters:
+///
+/// * `self` : The transposed matrix to iterate over.
+/// * `row` : The zero-based index of the row to iterate over.
+/// * `f` : The function to apply to each column index and element in the row.
+///   The first parameter is the column index, and the second parameter is the
+///   element value.
+///
+/// Panics if `row` is out of bounds (less than 0 or greater than or equal to
+/// the number of rows).
+///
+/// Example:
+///
+/// ```moonbit
+/// let matrix = @mutable.Matrix::make(2, 3, fn(i, j) { i + j })
+/// let transpose = matrix.to_transpose()
+/// // Print each element in row 1 with its column index
+/// transpose.eachi_row(1, fn(col_idx, value) { 
+///   println("Column \{col_idx}: \{value}") 
+/// })
+/// ```
+///
+pub fn[T] Transpose::eachi_row(
+  self : Transpose[T],
+  row : Int,
+  f : (Int, T) -> Unit,
+) -> Unit {
+  self.inner().eachi_col(row, f)
+}
+
+///|
 /// Iterates over all elements in the specified column of the transposed matrix,
 /// applying the given function to each element.
 ///
@@ -230,6 +265,39 @@ pub fn[T] Transpose::each_col(
   f : (T) -> Unit,
 ) -> Unit {
   self.inner().each_row(col, f)
+}
+
+///|
+/// Iterates over each element in the specified column of the transposed matrix
+/// with their indices within that column.
+///
+/// Parameters:
+///
+/// * `self` : The transposed matrix to iterate over.
+/// * `col` : The zero-based index of the column to iterate through.
+/// * `f` : A function that takes the element index within the column and the
+///   element value.
+///
+/// Panics if `col` is out of bounds (negative or greater than or equal to the
+/// number of columns).
+///
+/// Example:
+///
+/// ```moonbit
+/// let matrix = @mutable.Matrix::make(3, 2, fn(i, j) { i + j })
+/// let transpose = matrix.to_transpose()
+/// // Print each element in column 0 with its index
+/// transpose.eachi_col(0, fn(idx, value) { 
+///   println("Index: \{idx}, Value: \{value}") 
+/// })
+/// ```
+///
+pub fn[T] Transpose::eachi_col(
+  self : Transpose[T],
+  col : Int,
+  f : (Int, T) -> Unit,
+) -> Unit {
+  self.inner().eachi_row(col, f)
 }
 
 ///|
