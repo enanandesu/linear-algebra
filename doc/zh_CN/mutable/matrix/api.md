@@ -547,10 +547,10 @@ struct Lens[T] {
 
   - **`fn[T] op_get(self, col) -> T`**
     - **描述**
-        从透镜中获取指定列索引的值
+        从访问器中获取指定列索引的值
 
     - **参数**
-      - `self: Lens[T]` - 要访问的透镜
+      - `self: Lens[T]` - 要访问的访问器
       - `col: Int` - 列索引
 
     - **返回值**
@@ -560,10 +560,10 @@ struct Lens[T] {
 
   - **`fn[T] Lens::op_set(self, col, elem) -> Unit`**
     - **描述**
-        在透镜中设置指定列索引的值
+        在访问器中设置指定列索引的值
 
     - **参数**
-      - `self: Lens[T]` - 要修改的透镜
+      - `self: Lens[T]` - 要修改的访问器
       - `col: Int` - 列索引
       - `elem: T` - 要设置的值
 
@@ -644,13 +644,13 @@ struct Lens[T] {
 
 - **`Matrix::op_get(self, row) -> Lens[T]`**
   - **描述**
-      使用方括号语法访问矩阵行，返回该行的透镜对象
+      使用方括号语法访问矩阵行，返回该行的访问器对象
 
   - **示例**
 
     ```moonbit
     let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
-    let row_lens = m[1]  // 获取第2行的透镜
+    let row_lens = m[1]  // 获取第2行的访问器
     let value = row_lens[0]  // 访问该行第1列的元素
     row_lens[2] = 10  // 修改该行第3列的元素
-    ```  
+    ```
