@@ -39,6 +39,57 @@ pub impl[T : Add] Add for Transpose[T] with op_add(a, b) {
 }
 
 ///|
+/// Converts a transposed matrix to its string representation with elements
+/// arranged in rows and columns.
+///
+/// Parameters:
+///
+/// * `s` : The transposed matrix to convert to a string.
+///
+/// Returns a string representation where each row is enclosed in pipe
+/// characters (`|`) and elements within each row are separated by commas and
+/// spaces. Rows are separated by newlines.
+///
+/// Example:
+///
+/// ```moonbit
+/// let m = @mutable.Matrix::make(2, 3, (i, j) => i + j)
+/// let t = m.to_transpose()
+/// inspect(t.to_string(), content="|0, 1|\n|1, 2|\n|2, 3|")
+/// ```
+///
+pub impl[T : Show] Show for Transpose[T] with to_string(s) {
+  let res = StringBuilder::new()
+  for i in 0..<s.row() {
+    res.write_char('|')
+    s.eachi_row(i, (c, x) => {
+      res.write_string(x.to_string())
+      if c < s.row - 1 {
+        res.write_string(", ")
+      }
+    })
+    res.write_char('|')
+    if i < s.row() - 1 {
+      res.write_string("\n")
+    }
+  }
+  res.to_string()
+}
+
+///|
+/// Provides default output formatting for transposed matrices by delegating to
+/// their string representation.
+///
+/// Parameters:
+///
+/// * `s` : The transposed matrix to output.
+/// * `l` : The logger or output stream to write the formatted representation
+///   to.
+pub impl[T : Show] Show for Transpose[T] with output(s, l) {
+  l.write_string(s.to_string())
+}
+
+///|
 /// Implements matrix multiplication for transposed matrices.
 ///
 /// Parameters:
@@ -227,18 +278,6 @@ pub fn[T] Transpose::each_row(
 ///
 /// Panics if `row` is out of bounds (less than 0 or greater than or equal to
 /// the number of rows).
-///
-/// Example:
-///
-/// ```moonbit
-/// let matrix = @mutable.Matrix::make(2, 3, fn(i, j) { i + j })
-/// let transpose = matrix.to_transpose()
-/// // Print each element in row 1 with its column index
-/// transpose.eachi_row(1, fn(col_idx, value) { 
-///   println("Column \{col_idx}: \{value}") 
-/// })
-/// ```
-///
 pub fn[T] Transpose::eachi_row(
   self : Transpose[T],
   row : Int,
@@ -280,18 +319,6 @@ pub fn[T] Transpose::each_col(
 ///
 /// Panics if `col` is out of bounds (negative or greater than or equal to the
 /// number of columns).
-///
-/// Example:
-///
-/// ```moonbit
-/// let matrix = @mutable.Matrix::make(3, 2, fn(i, j) { i + j })
-/// let transpose = matrix.to_transpose()
-/// // Print each element in column 0 with its index
-/// transpose.eachi_col(0, fn(idx, value) { 
-///   println("Index: \{idx}, Value: \{value}") 
-/// })
-/// ```
-///
 pub fn[T] Transpose::eachi_col(
   self : Transpose[T],
   col : Int,
