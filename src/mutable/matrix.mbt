@@ -1536,7 +1536,7 @@ pub fn[T] to_vector(self : Matrix[T]) -> Vector[T] {
 /// let rank = m.rank()
 /// inspect(rank, content="2")  // The rank of the matrix is 2
 /// ```
-pub fn[T : Compare + Num + Inverse + Sub] rank(self : Matrix[T]) -> Int {
+pub fn[T : Compare + Num + Inverse + Sub] Matrix::rank(self : Matrix[T]) -> Int {
   let m = self.copy()
   let _ = m.reduce_row_elimination()
   let mut rank = 0
