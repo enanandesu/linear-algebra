@@ -1518,3 +1518,87 @@ pub fn[T] col_to_vector(self : Matrix[T], col : Int) -> Vector[T] {
 pub fn[T] to_vector(self : Matrix[T]) -> Vector[T] {
   self.data.copy()
 }
+
+///|
+/// Calculates the rank of the matrix using row reduction.
+/// 
+/// Parameters:
+/// 
+/// * `self` : The matrix to get the rank of.
+///
+/// Returns the rank of the matrix, which is the dimension of the vector space
+/// spanned by its rows or columns.
+/// 
+/// Example:
+/// 
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1.0, 2.0, 3.0], [2.0, 4.0, 6.0], [7.0, 8.0, 9.0]])
+/// let rank = m.rank()
+/// inspect(rank, content="2")  // The rank of the matrix is 2
+/// ```
+pub fn[T : Compare + Num + Inverse + Sub] Matrix::rank(self : Matrix[T]) -> Int {
+  let m = self.copy()
+  let _ = m.reduce_row_elimination()
+  let mut rank = 0
+  for i in 0..<m.row {
+    let mut has_nonzero = false
+    for j in 0..<m.col {
+      if m[i][j] != T::zero() {
+        has_nonzero = true
+        break
+      }
+    }
+    if has_nonzero {
+      rank += 1
+    }
+  }
+  rank
+}
+
+///|
+pub fn[T : @internal.HomomorphismNat] Matrix::from_nat_matrix(
+  self : Matrix[Int],
+) -> Matrix[T] {
+  self.map(@internal.HomomorphismNat::from_nat)
+}
+
+///|
+/// Tests the rank calculation of a matrix.
+test "rank of matrix" {
+  let m1 = Matrix::from_2d_array([[1.0, 2.0], [3.0, 4.0]])
+  let m2 = Matrix::from_2d_array([[1.0, 2.0], [2.0, 4.0]])
+  let m3 = Matrix::from_2d_array([[0.0, 0.0], [0.0, 0.0]])
+  let m4 = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0],
+    [7.0, 8.0, 9.0],
+  ])
+  let r1 = m1.rank()
+  let r2 = m2.rank()
+  let r3 = m3.rank()
+  let r4 = m4.rank()
+  inspect(r1, content="2")
+  inspect(r2, content="1")
+  inspect(r3, content="0")
+  inspect(r4, content="2")
+}
+
+///|
+test "rank of matrix" {
+  let m1 : Matrix[Float] = Matrix::from_2d_array([[1, 2], [3, 4]]).from_nat_matrix()
+  let m2 : Matrix[Double] = Matrix::from_2d_array([[1, 2], [2, 4]]).from_nat_matrix()
+  let m3 : Matrix[Float] = Matrix::from_2d_array([[0, 0], [0, 0]]).from_nat_matrix()
+  let m4 : Matrix[Double] = Matrix::from_2d_array([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ]).from_nat_matrix()
+  let r1 = m1.rank()
+  let r2 = m2.rank()
+  let r3 = m3.rank()
+  let r4 = m4.rank()
+  inspect(r1, content="2")
+  inspect(r2, content="1")
+  inspect(r3, content="0")
+  inspect(r4, content="2")
+}
