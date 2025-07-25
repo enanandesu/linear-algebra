@@ -1541,15 +1541,11 @@ pub fn[T : Compare + Num + Inverse + Sub] Matrix::rank(self : Matrix[T]) -> Int 
   let _ = m.reduce_row_elimination()
   let mut rank = 0
   for i in 0..<m.row {
-    let mut has_nonzero = false
     for j in 0..<m.col {
       if m[i][j] != T::zero() {
-        has_nonzero = true
+        rank += 1
         break
       }
-    }
-    if has_nonzero {
-      rank += 1
     }
   }
   rank
