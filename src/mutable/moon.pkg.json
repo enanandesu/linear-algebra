@@ -1,12 +1,16 @@
 {
   "import": [
-		{
-			"path": "Luna-Flow/luna-generic",
-			"alias": "lg"
-		},
-		{
-			"path": "moonbitlang/quickcheck",
-			"alias": "qc"
-		}
-	]
+    {
+      "path": "Luna-Flow/luna-generic",
+      "alias": "lg"
+    },
+    {
+      "path": "moonbitlang/quickcheck",
+      "alias": "qc"
+    },
+    {
+      "path": "Luna-Flow/linear-algebra/internal",
+      "alias": "internal"
+    }
+  ]
 }

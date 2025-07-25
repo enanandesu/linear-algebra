@@ -1556,6 +1556,13 @@ pub fn[T : Compare + Num + Inverse + Sub] Matrix::rank(self : Matrix[T]) -> Int 
 }
 
 ///|
+pub fn[T : @internal.HomomorphismNat] Matrix::from_nat_matrix(
+  self : Matrix[Int],
+) -> Matrix[T] {
+  self.map(@internal.HomomorphismNat::from_nat)
+}
+
+///|
 /// Tests the rank calculation of a matrix.
 test "rank of matrix" {
   let m1 = Matrix::from_2d_array([[1.0, 2.0], [3.0, 4.0]])
@@ -1565,6 +1572,25 @@ test "rank of matrix" {
     [1.0, 2.0, 3.0],
     [4.0, 5.0, 6.0],
     [7.0, 8.0, 9.0],
+  ])
+  let r1 = m1.rank()
+  let r2 = m2.rank()
+  let r3 = m3.rank()
+  let r4 = m4.rank()
+  inspect(r1, content="2")
+  inspect(r2, content="1")
+  inspect(r3, content="0")
+  inspect(r4, content="2")
+}
+
+test "rank of matrix" {
+  let m1: Matrix[Float] = Matrix::from_2d_array([[1, 2], [3, 4]])
+  let m2: Matrix[Double] = Matrix::from_2d_array([[1, 2], [2, 4]])
+  let m3: Matrix[Float] = Matrix::from_2d_array([[0, 0], [0, 0]])
+  let m4: Matrix[Double] = Matrix::from_2d_array([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
   ])
   let r1 = m1.rank()
   let r2 = m2.rank()
