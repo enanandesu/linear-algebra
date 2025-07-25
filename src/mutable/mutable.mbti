@@ -41,6 +41,7 @@ fn[T] Matrix::new(Int, Int, T) -> Self[T]
 fn[T : Compare + @luna-generic.Zero] Matrix::null(Self[T]) -> Bool
 fn[T] Matrix::op_get(Self[T], Int) -> Lens[T]
 fn[T : @luna-generic.Semiring] Matrix::pow(Self[T], Int) -> Self[T]
+fn[T : Compare + @luna-generic.Num + @luna-generic.Inverse + Sub] Matrix::rank(Self[T]) -> Int
 fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] Matrix::reduce_row_elimination(Self[T]) -> Self[T]
 fn[T] Matrix::row(Self[T]) -> Int
 fn[T] Matrix::row_to_array(Self[T], Int) -> Array[T]
