@@ -1692,3 +1692,109 @@ test "trace with different types" {
 pub fn[T] Matrix::is_square(self : Matrix[T]) -> Bool {
   self.row == self.col
 }
+
+///|
+/// Make a iterator over the matrix elements.
+/// 
+/// Parameters:
+/// * `self` : The matrix to iterate over.
+/// 
+/// Returns an iterator that yields each element of the matrix in row-major
+/// 
+/// Example:
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2], [3, 4]])
+/// let iter = m.iter()
+/// inspect(iter.collect(), content="[1, 2, 3, 4]") // Collects all elements in row-major order
+/// ```
+pub fn[T] iter(self : Matrix[T]) -> Iter[T] {
+  self.data.iter()
+}
+
+///|
+/// Creates an iterator over the elements of a specific row in the matrix.
+/// 
+/// Parameters:
+/// * `self` : The matrix to iterate over.
+/// * `row` : The zero-based index of the row to iterate.
+/// 
+/// Returns an iterator that yields each element in the specified row from left to right.
+/// 
+/// Panics if `row` is negative or greater than or equal to the number of rows.
+/// 
+/// Example:
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let row_iter = m.iter_row(1)
+/// for elem in row_iter {
+///   println(elem) // prints: 4, 5, 6
+/// }
+/// ```
+pub fn[T] iter_row(self : Matrix[T], row : Int) -> Iter[T] {
+  guard row >= 0 && row < self.row else { abort("Row index out of bounds") }
+  let start = row * self.col
+  let end = start + self.col
+  self.data[start:end].iter()
+}
+
+///|
+/// Creates an iterator over the elements of a specific column in the matrix.
+/// 
+/// Parameters:
+/// * `self` : The matrix to iterate over.
+/// * `col` : The zero-based index of the column to iterate.
+/// 
+/// Returns an iterator that yields each element in the specified column from top to bottom.
+/// 
+/// Panics if `col` is negative or greater than or equal to the number of columns.
+/// 
+/// Example:
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// let col_iter = m.iter_col(1)
+/// for elem in col_iter {
+///   println(elem) // prints: 2, 5
+/// }
+/// ```
+pub fn[T] iter_col(self : Matrix[T], col : Int) -> Iter[T] {
+  guard col >= 0 && col < self.col else { abort("Column index out of bounds") }
+  self.transpose().iter_row(col)
+}
+
+///|
+/// Tests the row and column iterator functionality.
+test "row and column iterators" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+
+  // Test row iterator
+  let row1_elements = m.iter_row(1).collect()
+  inspect(row1_elements, content="[4, 5, 6]")
+
+  // Test column iterator
+  let col1_elements = m.iter_col(1).collect()
+  inspect(col1_elements, content="[2, 5]")
+}
+
+///|
+/// Tests iterator functionality with functional operations.
+test "iterator operations" {
+  let m = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+
+  // Sum elements in row 1
+  let row1_sum = m.iter_row(1).fold(init=0, (acc, x) => acc + x)
+  inspect(row1_sum, content="15") // 4 + 5 + 6 = 15
+
+  // Find max element in column 0
+  let col0_max = m
+    .iter_col(0)
+    .fold(init=0, (acc, x) => if x > acc { x } else { acc })
+  inspect(col0_max, content="4") // max(1, 4) = 4
+
+  // Double all elements in row 0
+  let row0_doubled = m.iter_row(0).map(fn(x) { x * 2 }).collect()
+  inspect(row0_doubled, content="[2, 4, 6]")
+
+  // Filter even elements in column 1
+  let col1_evens = m.iter_col(1).filter(fn(x) { x % 2 == 0 }).collect()
+  inspect(col1_evens, content="[2]")
+}
