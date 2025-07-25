@@ -1602,3 +1602,97 @@ test "rank of matrix" {
   inspect(r3, content="0")
   inspect(r4, content="2")
 }
+
+///|
+/// Calculates the trace of a square matrix.
+/// 
+/// The trace is the sum of all diagonal elements of the matrix.
+/// This function only works on square matrices (where row count equals column count).
+/// 
+/// Parameters:
+/// 
+/// * `self` : The square matrix to calculate the trace of.
+///
+/// Returns the sum of all diagonal elements.
+/// 
+/// Panics if the matrix is not square (row count != column count).
+/// 
+/// Example:
+/// 
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+/// let trace = m.trace()
+/// inspect(trace, content="15")  // 1 + 5 + 9 = 15
+/// ```
+pub fn[T : Add + Zero] trace(self : Matrix[T]) -> T {
+  guard self.is_square() else {
+    abort("Matrix must be square to calculate trace")
+  }
+  let mut sum = T::zero()
+  for i in 0..<self.row {
+    sum = sum + self[i][i]
+  }
+  sum
+}
+
+///|
+/// Tests the trace calculation of matrices.
+test "trace of matrix" {
+  // Test 2x2 matrix
+  let m1 = Matrix::from_2d_array([[1, 2], [3, 4]])
+  let trace1 = m1.trace()
+  inspect(trace1, content="5") // 1 + 4 = 5
+
+  // Test 3x3 matrix
+  let m2 = Matrix::from_2d_array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+  let trace2 = m2.trace()
+  inspect(trace2, content="15") // 1 + 5 + 9 = 15
+
+  // Test identity matrix
+  let id : Matrix[Int] = identity(3)
+  let trace_id = id.trace()
+  inspect(trace_id, content="3") // 1 + 1 + 1 = 3
+
+  // Test zero matrix
+  let zero = Matrix::new(2, 2, 0)
+  let trace_zero = zero.trace()
+  inspect(trace_zero, content="0") // 0 + 0 = 0
+
+  // Test with floating point numbers
+  let m3 = Matrix::from_2d_array([[1.5, 2.0], [3.0, 4.5]])
+  let trace3 = m3.trace()
+  inspect(trace3, content="6") // 1.5 + 4.5 = 6.0
+}
+
+///|
+/// Tests trace calculation with different numeric types.
+test "trace with different types" {
+  // Test with Float type
+  let m_float : Matrix[Float] = Matrix::from_2d_array([[1, 2], [3, 4]]).from_nat_matrix()
+  let trace_float = m_float.trace()
+  inspect(trace_float, content="5")
+
+  // Test with Double type  
+  let m_double : Matrix[Double] = Matrix::from_2d_array([[2, 1], [1, 3]]).from_nat_matrix()
+  let trace_double = m_double.trace()
+  inspect(trace_double, content="5")
+}
+
+///|
+/// Checks if the matrix is square (i.e., has the same number of rows and columns).
+/// 
+/// Parameters:
+/// * `self` : The matrix to check for squareness.
+/// 
+/// Returns `true` if the matrix is square, `false` otherwise.
+/// 
+/// Example:
+/// ```moonbit
+/// let m1 = @mutable.Matrix::from_2d_array([[1, 2], [3, 4]])
+/// let m2 = @mutable.Matrix::from_2d_array([[1, 2, 3], [4, 5, 6]])
+/// inspect(m1.is_square(), content="true")  // 2x2 matrix is
+/// inspect(m2.is_square(), content="false") // 2x3 matrix is not square
+/// ```
+pub fn[T] Matrix::is_square(self : Matrix[T]) -> Bool {
+  self.row == self.col
+}

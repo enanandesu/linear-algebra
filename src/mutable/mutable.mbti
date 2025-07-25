@@ -2,6 +2,7 @@
 package "Luna-Flow/linear-algebra/mutable"
 
 import(
+  "Luna-Flow/linear-algebra/internal"
   "Luna-Flow/luna-generic"
 )
 
@@ -31,7 +32,9 @@ fn[T] Matrix::eachi_col(Self[T], Int, (Int, T) -> Unit) -> Unit
 fn[T] Matrix::eachi_row(Self[T], Int, (Int, T) -> Unit) -> Unit
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, Array[T]) -> Self[T]
+fn[T : @internal.HomomorphismNat] Matrix::from_nat_matrix(Self[Int]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
+fn[T] Matrix::is_square(Self[T]) -> Bool
 fn[A] Matrix::make(Int, Int, (Int, Int) -> A) -> Self[A]
 fn[T, U] Matrix::map(Self[T], (T) -> U) -> Self[U]
 fn[T] Matrix::map_col_inplace(Self[T], Int, (T) -> T) -> Unit
@@ -53,6 +56,7 @@ fn[T] Matrix::to_2d_array(Self[T]) -> Array[Array[T]]
 fn[T] Matrix::to_array(Self[T]) -> Array[T]
 fn[T] Matrix::to_transpose(Self[T]) -> Transpose[T]
 fn[T] Matrix::to_vector(Self[T]) -> Vector[T]
+fn[T : Add + @luna-generic.Zero] Matrix::trace(Self[T]) -> T
 fn[T] Matrix::transpose(Self[T]) -> Self[T]
 fn[T] Matrix::vertical_combine(Self[T], Self[T]) -> Self[T]
 impl[T : Add] Add for Matrix[T]
