@@ -1583,15 +1583,16 @@ test "rank of matrix" {
   inspect(r4, content="2")
 }
 
+///|
 test "rank of matrix" {
-  let m1: Matrix[Float] = Matrix::from_2d_array([[1, 2], [3, 4]])
-  let m2: Matrix[Double] = Matrix::from_2d_array([[1, 2], [2, 4]])
-  let m3: Matrix[Float] = Matrix::from_2d_array([[0, 0], [0, 0]])
-  let m4: Matrix[Double] = Matrix::from_2d_array([
+  let m1 : Matrix[Float] = Matrix::from_2d_array([[1, 2], [3, 4]]).from_nat_matrix()
+  let m2 : Matrix[Double] = Matrix::from_2d_array([[1, 2], [2, 4]]).from_nat_matrix()
+  let m3 : Matrix[Float] = Matrix::from_2d_array([[0, 0], [0, 0]]).from_nat_matrix()
+  let m4 : Matrix[Double] = Matrix::from_2d_array([
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
-  ])
+  ]).from_nat_matrix()
   let r1 = m1.rank()
   let r2 = m2.rank()
   let r3 = m3.rank()
