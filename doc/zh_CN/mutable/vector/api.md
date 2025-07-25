@@ -282,84 +282,90 @@ struct Vector[T] {
     - **返回值**
       `Array[T]` - 包含向量所有元素的数组
 
+  ---
+  
+  - **`fn[T] Vector::op_get(self, index) -> T`**
+    - **描述**
+        使用方括号语法访问向量元素
+
+    - **示例**
+
+      ```moonbit
+      let v = Vector::from_array([1, 2, 3])
+      let value = v[1]  // 获取索引1处的元素，值为2
+      ```
+
+  - **`fn[T] Vector::op_set(self, index, elem) -> Unit`**
+    - **描述**
+        使用方括号语法设置向量元素
+
+    - **示例**
+
+      ```moonbit
+      let v = Vector::from_array([1, 2, 3])
+      v[1] = 10  // 设置索引1处的元素为10
+      ```
+
+- **特征实现**
+  
+  **运算符重载**
+
+  - **`impl[T : Add] Add for Vector[T] with op_add`**
+    - **描述**
+        向量加法运算符重载，计算两个向量的元素级相加
+
+    - **示例**
+
+      ```moonbit
+      let v1 = Vector::from_array([1, 2, 3])
+      let v2 = Vector::from_array([4, 5, 6])
+      let result = v1 + v2  // 向量加法
+      ```
+
+  ---
+
+  - **`impl[T : Add + Neg] Sub for Vector[T] with op_sub`**
+    - **描述**
+        向量减法运算符重载，计算两个向量的元素级相减
+
+    - **示例**
+
+      ```moonbit
+      let v1 = Vector::from_array([5, 7, 9])
+      let v2 = Vector::from_array([1, 2, 3])
+      let result = v1 - v2  // 向量减法
+      ```
+
+  ---
+
+  - **`impl[T : Neg] Neg for Vector[T] with op_neg`**
+    - **描述**
+        向量取负运算符重载，对向量所有元素取负
+
+    - **示例**
+
+      ```moonbit
+      let v = Vector::from_array([1, -2, 3])
+      let negated = -v  // 向量取负
+      ```
+
+  **显示和输出**
+
+  - **`impl[T : Show] Show for Vector[T] with to_string`**
+    - **描述**
+        将向量转换为可读的字符串表示
+
+    - **示例**
+
+      ```moonbit
+      let v = Vector::from_array([1, 2, 3])
+      inspect(v.to_string(), content="[1, 2, 3]")
+      ```
+
+  ---
+
+  - **`impl[T : Show] Show for Vector[T] with output`**
+    - **描述**
+        将向量的字符串表示输出到日志记录器
+
 ---
-
-## 运算符重载
-
-### 算术运算符
-
-- **`impl[T : Add] Add for Vector[T] with op_add`**
-  - **描述**
-      向量加法运算符重载，计算两个向量的元素级相加
-
-  - **示例**
-
-    ```moonbit
-    let v1 = Vector::from_array([1, 2, 3])
-    let v2 = Vector::from_array([4, 5, 6])
-    let result = v1 + v2  // 向量加法
-    ```
-
-- **`impl[T : Add + Neg] Sub for Vector[T] with op_sub`**
-  - **描述**
-      向量减法运算符重载，计算两个向量的元素级相减
-
-  - **示例**
-
-    ```moonbit
-    let v1 = Vector::from_array([5, 7, 9])
-    let v2 = Vector::from_array([1, 2, 3])
-    let result = v1 - v2  // 向量减法
-    ```
-
-- **`impl[T : Neg] Neg for Vector[T] with op_neg`**
-  - **描述**
-      向量取负运算符重载，对向量所有元素取负
-
-  - **示例**
-
-    ```moonbit
-    let v = Vector::from_array([1, -2, 3])
-    let negated = -v  // 向量取负
-    ```
-
-### 显示和输出
-
-- **`impl[T : Show] Show for Vector[T] with to_string`**
-  - **描述**
-      将向量转换为可读的字符串表示
-
-  - **示例**
-
-    ```moonbit
-    let v = Vector::from_array([1, 2, 3])
-    inspect(v.to_string(), content="[1, 2, 3]")
-    ```
-
-- **`impl[T : Show] Show for Vector[T] with output`**
-  - **描述**
-      将向量的字符串表示输出到日志记录器
-
-### 索引访问
-
-- **`Vector::op_get(self, index) -> T`**
-  - **描述**
-      使用方括号语法访问向量元素
-
-  - **示例**
-
-    ```moonbit
-    let v = Vector::from_array([1, 2, 3])
-    let value = v[1]  // 获取索引1处的元素，值为2
-    ```
-
-- **`Vector::op_set(self, index, elem) -> Unit`**
-  - **描述**
-      使用方括号语法设置向量元素
-
-  - **示例**
-
-    ```moonbit
-    let v = Vector::from_array([1, 2, 3])
-    v[1] = 10  // 设置索引1处的元素为10
-    ```
