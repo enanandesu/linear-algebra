@@ -35,6 +35,9 @@ fn[T] Matrix::from_array(Int, Int, Array[T]) -> Self[T]
 fn[T : @internal.HomomorphismNat] Matrix::from_nat_matrix(Self[Int]) -> Self[T]
 fn[T] Matrix::horizontal_combine(Self[T], Self[T]) -> Self[T]
 fn[T] Matrix::is_square(Self[T]) -> Bool
+fn[T] Matrix::iter(Self[T]) -> Iter[T]
+fn[T] Matrix::iter_col(Self[T], Int) -> Iter[T]
+fn[T] Matrix::iter_row(Self[T], Int) -> Iter[T]
 fn[A] Matrix::make(Int, Int, (Int, Int) -> A) -> Self[A]
 fn[T, U] Matrix::map(Self[T], (T) -> U) -> Self[U]
 fn[T] Matrix::map_col_inplace(Self[T], Int, (T) -> T) -> Unit
