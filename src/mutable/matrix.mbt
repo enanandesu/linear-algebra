@@ -1896,26 +1896,26 @@ fn[T : Compare + Add + Mul + Sub + Num + Div + Tolerance + Sqrt] qr_decompositio
       // Compute r[k][j] = q_k^T * q_j
       let mut dot_product = T::zero()
       for i in 0..<m {
-        dot_product = dot_product + q[i][k] * q[i][j]
+        dot_product += q[i][k] * q[i][j]
       }
       r[k][j] = dot_product
 
       // q_j = q_j - r[k][j] * q_k
       for i in 0..<m {
-        q[i][j] = q[i][j] - r[k][j] * q[i][k]
+        q[i][j] -= r[k][j] * q[i][k]
       }
     }
 
     // Normalize q_j
     let mut norm = T::zero()
     for i in 0..<m {
-      norm = norm + q[i][j] * q[i][j]
+      norm += q[i][j] * q[i][j]
     }
     norm = norm.sqrt()
     r[j][j] = norm
     if norm > T::tolerance() {
       for i in 0..<m {
-        q[i][j] = q[i][j] / norm
+        q[i][j] /= norm
       }
     }
   }
@@ -1959,7 +1959,7 @@ pub fn[T : Compare + Add + Mul + Sub + Div + Num + Tolerance] power_method(
     abort("Matrix must be square for power method")
   }
   let n = self.row
-  let mut x = Vector::makei(n, fn(_) { T::one() })
+  let mut x = Vector::makei(n, _ => T::one())
   let mut lambda = T::zero()
   for _ in 0..<max_iterations {
     let y = matrix_vector_multiply(self, x)
@@ -1990,10 +1990,10 @@ fn[T : Add + Mul + Zero] matrix_vector_multiply(
   guard n == vector.length() else {
     abort("Matrix and vector dimensions are not compatible for multiplication")
   }
-  Vector::makei(m, fn(i) {
+  Vector::makei(m, i => {
     let mut sum = T::zero()
     for j in 0..<n {
-      sum = sum + matrix[i][j] * vector[j]
+      sum += matrix[i][j] * vector[j]
     }
     sum
   })
@@ -2139,7 +2139,7 @@ test "eigenvector verification" {
   let v1 = eigenvecs.col_to_vector(0)
   let lambda1 = eigenvals[0]
   let m_v1 = matrix_vector_multiply(m, v1)
-  let lambda1_v1 = v1.map(fn(x) { x * lambda1 })
+  let lambda1_v1 = v1.map(x => x * lambda1)
   inspect(
     vectors_are_close(m_v1, lambda1_v1, Tolerance::tolerance()),
     content="true",
@@ -2150,7 +2150,7 @@ test "eigenvector verification" {
   let v2 = eigenvecs.col_to_vector(1)
   let lambda2 = eigenvals[1]
   let m_v2 = matrix_vector_multiply(m, v2)
-  let lambda2_v2 = v2.map(fn(x) { x * lambda2 })
+  let lambda2_v2 = v2.map(x => x * lambda2)
   inspect(
     vectors_are_close(m_v2, lambda2_v2, Tolerance::tolerance()),
     content="true",
