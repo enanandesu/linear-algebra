@@ -30,6 +30,8 @@ fn[T] Matrix::each_row_col(Self[T], (Int, Int, T) -> Unit) -> Unit
 fn[T] Matrix::eachi(Self[T], (Int, T) -> Unit) -> Unit
 fn[T] Matrix::eachi_col(Self[T], Int, (Int, T) -> Unit) -> Unit
 fn[T] Matrix::eachi_row(Self[T], Int, (Int, T) -> Unit) -> Unit
+fn[T : Compare + Add + Mul + Sub + Neg + @luna-generic.Num + Div + Sqrt + Tolerance] Matrix::eigen(Self[T]) -> (Vector[T], Self[T])
+fn[T : Compare + Add + Mul + Sub + @luna-generic.Num + Div + Sqrt + SMul] Matrix::eigen_2x2(Self[T]) -> Vector[T]
 fn[T] Matrix::from_2d_array(Array[Array[T]]) -> Self[T]
 fn[T] Matrix::from_array(Int, Int, Array[T]) -> Self[T]
 fn[T : @internal.HomomorphismNat] Matrix::from_nat_matrix(Self[Int]) -> Self[T]
@@ -47,6 +49,7 @@ fn[T] Matrix::new(Int, Int, T) -> Self[T]
 fn[T : Compare + @luna-generic.Zero] Matrix::null(Self[T]) -> Bool
 fn[T] Matrix::op_get(Self[T], Int) -> Lens[T]
 fn[T : @luna-generic.Semiring] Matrix::pow(Self[T], Int) -> Self[T]
+fn[T : Compare + Add + Mul + Sub + Div + @luna-generic.Num + Tolerance] Matrix::power_method(Self[T], Int) -> (T, Vector[T])
 fn[T : Compare + @luna-generic.Num + @luna-generic.Inverse + Sub] Matrix::rank(Self[T]) -> Int
 fn[T : Compare + @luna-generic.Num + Sub + @luna-generic.Inverse] Matrix::reduce_row_elimination(Self[T]) -> Self[T]
 fn[T] Matrix::row(Self[T]) -> Int
@@ -132,4 +135,21 @@ impl[T : Show] Show for Vector[T]
 // Type aliases
 
 // Traits
+pub trait SMul {
+  scalar(Self, Double) -> Self
+}
+impl SMul for Float
+impl SMul for Double
+
+pub trait Sqrt {
+  sqrt(Self) -> Self
+}
+impl Sqrt for Float
+impl Sqrt for Double
+
+pub trait Tolerance {
+  tolerance() -> Self
+}
+impl Tolerance for Float
+impl Tolerance for Double
 
