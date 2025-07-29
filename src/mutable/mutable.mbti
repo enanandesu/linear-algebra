@@ -23,6 +23,7 @@ fn[T] Matrix::col(Self[T]) -> Int
 fn[T] Matrix::col_to_array(Self[T], Int) -> Array[T]
 fn[T] Matrix::col_to_vector(Self[T], Int) -> Vector[T]
 fn[T] Matrix::copy(Self[T]) -> Self[T]
+fn[T : Compare + Sub + Mul + Div + @luna-generic.Zero + @luna-generic.One + @luna-generic.Num + Tolerance] Matrix::determinant(Self[T]) -> T
 fn[T] Matrix::each(Self[T], (T) -> Unit) -> Unit
 fn[T] Matrix::each_col(Self[T], Int, (T) -> Unit) -> Unit
 fn[T] Matrix::each_row(Self[T], Int, (T) -> Unit) -> Unit

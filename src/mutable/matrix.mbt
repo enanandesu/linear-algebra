@@ -2157,3 +2157,126 @@ test "eigenvector verification" {
     // "Second eigenvector check (A*v2 == λ2*v2)"
   )
 }
+
+///|
+/// Calculates the determinant of a square matrix.
+///
+/// This method uses an efficient algorithm based on self decomposition with partial
+/// pivoting. It transforms the matrix into an upper triangular form while tracking
+/// row swaps. The determinant is then the product of the diagonal elements of
+/// the resulting matrix, adjusted by the sign determined by the number of swaps.
+/// This approach is numerically stable and has a time complexity of O(n³).
+///
+/// Parameters:
+/// * `self`: The square matrix.
+///
+/// Returns the determinant of the matrix.
+///
+/// Panics if the matrix is not square.
+///
+/// Example:
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[4.0, 3.0], [6.0, 3.0]])
+/// inspect(m.determinant(), content="-6")
+/// ```
+pub fn[T : Compare + Sub + Mul + Div + Zero + One + Num + Tolerance] determinant(
+  self : Matrix[T],
+) -> T {
+  guard self.is_square() else {
+    abort("Matrix must be square to calculate determinant")
+  }
+
+  let m = self.copy()
+  let n = m.row
+  if n == 0 {
+    return T::one() // By definition, determinant of a 0x0 matrix is 1.
+  }
+  let mut det_sign = T::one()
+  for j in 0..<n {
+    // Find pivot using partial pivoting for numerical stability.
+    let mut max_row = j
+    for i in (j + 1)..<n {
+      if m[i][j].abs() > m[max_row][j].abs() {
+        max_row = i
+      }
+    }
+    if max_row != j {
+      m.swap_rows(j, max_row)
+      det_sign = -det_sign
+    }
+    let pivot = m[j][j]
+    if pivot.abs() < T::tolerance() {
+      // If a pivot is zero (or very close to it), the matrix is singular.
+      return T::zero()
+    }
+
+    // Perform elimination for rows below the pivot.
+    for i in (j + 1)..<n {
+      let factor = m[i][j] / pivot
+      for k in (j + 1)..<n {
+        m[i][k] -= factor * m[j][k]
+      }
+    }
+  }
+
+  // The determinant is the product of the diagonal elements of the
+  // resulting upper triangular matrix, adjusted by the sign.
+  let mut det = det_sign
+  for i in 0..<n {
+    det *= m[i][i]
+  }
+  det
+}
+
+///|
+/// Tests the determinant calculation for various matrices.
+test "determinant calculation" {
+  // Test 2x2 matrix
+  let m1 = Matrix::from_2d_array([[4.0, 3.0], [6.0, 3.0]])
+  // Expected: 4*3 - 3*6 = 12 - 18 = -6
+  inspect(
+    (m1.determinant() - -6.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+
+  // Test 3x3 matrix
+  let m2 = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0],
+    [0.0, 1.0, 4.0],
+    [5.0, 6.0, 0.0],
+  ])
+  // Expected: 1*(1*0 - 4*6) - 2*(0*0 - 4*5) + 3*(0*6 - 1*5) = -24 + 40 - 15 = 1
+  inspect(
+    (m2.determinant() - 1.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+
+  // Test matrix that requires a row swap
+  let m3 = Matrix::from_2d_array([
+    [0.0, 1.0, 4.0],
+    [1.0, 2.0, 3.0],
+    [5.0, 6.0, 0.0],
+  ])
+  // Expected: After swapping rows, determinant should be -1
+  // Determinant should be the negative of m2's determinant
+  inspect(
+    (m3.determinant() - -1.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+
+  // Test singular matrix (linearly dependent rows)
+  let m4 = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0],
+    [7.0, 8.0, 9.0],
+  ])
+  // Expected: Determinant should be 0 since rows are linearly dependent
+  inspect(m4.determinant().abs() < Tolerance::tolerance(), content="true")
+
+  // Test identity matrix
+  let id : Matrix[Double] = identity(4)
+  inspect(
+    (id.determinant() - 1.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+}
