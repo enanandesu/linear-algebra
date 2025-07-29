@@ -525,6 +525,329 @@ struct Matrix[T] {
     - **返回值**
       `Vector[T]` - 包含矩阵所有元素的向量
 
+  ---
+
+  - **`fn[T : SMul[T] + Tolerance[T] + Ord + Neg + Add + Mul + Div + Sqrt[T] + Default] determinant(self) -> T`**
+    - **描述**
+        计算方阵的行列式值
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算行列式的方阵
+
+    - **返回值**
+      `T` - 行列式的值
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1.0, 2.0], [3.0, 4.0]])
+      let det = m.determinant()  // 计算2x2矩阵的行列式
+      ```
+
+  ---
+
+  - **`fn[T : Add + Default] trace(self) -> T`**
+    - **描述**
+        计算方阵的迹（主对角线元素之和）
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算迹的方阵
+
+    - **返回值**
+      `T` - 矩阵的迹
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1, 2], [3, 4]])
+      let tr = m.trace()  // 计算迹：1 + 4 = 5
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Tolerance[T] + Ord + Neg + Add + Mul + Div + Sqrt[T] + Default] eigen(self) -> (Array[T], Matrix[T])`**
+    - **描述**
+        计算方阵的特征值和特征向量
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算特征值和特征向量的方阵
+
+    - **返回值**
+      `(Array[T], Matrix[T])` - 第一个元素是特征值数组，第二个元素是特征向量矩阵
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[4.0, 2.0], [1.0, 3.0]])
+      let (eigenvalues, eigenvectors) = m.eigen()
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Tolerance[T] + Ord + Neg + Add + Mul + Div + Sqrt[T] + Default] power_method(self, ~max_iterations : Int = 1000, ~tolerance_val : T? = None) -> (T, Vector[T])`**
+    - **描述**
+        使用幂法计算矩阵的主特征值和特征向量
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算的方阵
+      - `max_iterations: Int` - 最大迭代次数（默认1000）
+      - `tolerance_val: T?` - 收敛容忍度（可选）
+
+    - **返回值**
+      `(T, Vector[T])` - 主特征值和对应的特征向量
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[4.0, 2.0], [1.0, 3.0]])
+      let (eigenvalue, eigenvector) = m.power_method()
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Tolerance[T] + Ord + Neg + Add + Mul + Div + Sqrt[T] + Default] qr_decomposition(self) -> (Matrix[T], Matrix[T])`**
+    - **描述**
+        进行QR分解，将矩阵分解为正交矩阵Q和上三角矩阵R
+
+    - **参数**
+      - `self: Matrix[T]` - 要分解的矩阵
+
+    - **返回值**
+      `(Matrix[T], Matrix[T])` - Q矩阵和R矩阵
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1.0, 2.0], [3.0, 4.0]])
+      let (q, r) = m.qr_decomposition()
+      ```
+
+  ---
+
+  - **`fn[T : Add + Div + Default] mean(self) -> T`**
+    - **描述**
+        计算矩阵所有元素的平均值
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算平均值的矩阵
+
+    - **返回值**
+      `T` - 矩阵元素的平均值
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1, 2], [3, 4]])
+      let avg = m.mean()  // 计算平均值：(1+2+3+4)/4 = 2.5
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Add + Div + Default] variance(self) -> T`**
+    - **描述**
+        计算矩阵所有元素的方差
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算方差的矩阵
+
+    - **返回值**
+      `T` - 矩阵元素的方差
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1.0, 2.0], [3.0, 4.0]])
+      let var = m.variance()  // 计算方差
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Add + Div + Sqrt[T] + Default] std_dev(self) -> T`**
+    - **描述**
+        计算矩阵所有元素的标准差
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算标准差的矩阵
+
+    - **返回值**
+      `T` - 矩阵元素的标准差
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1.0, 2.0], [3.0, 4.0]])
+      let std = m.std_dev()  // 计算标准差
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Tolerance[T] + Ord + Neg + Add + Mul + Div + Sqrt[T] + Default] is_symmetric(self) -> Bool`**
+    - **描述**
+        检查矩阵是否为对称矩阵
+
+    - **参数**
+      - `self: Matrix[T]` - 要检查的矩阵
+
+    - **返回值**
+      `Bool` - 如果是对称矩阵返回true，否则返回false
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1.0, 2.0], [2.0, 3.0]])
+      let is_sym = m.is_symmetric()  // 检查是否对称
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Tolerance[T] + Ord + Neg + Add + Mul + Div + Sqrt[T] + Default] is_positive_definite(self) -> Bool`**
+    - **描述**
+        检查矩阵是否为正定矩阵
+
+    - **参数**
+      - `self: Matrix[T]` - 要检查的方阵
+
+    - **返回值**
+      `Bool` - 如果是正定矩阵返回true，否则返回false
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[2.0, 1.0], [1.0, 2.0]])
+      let is_pos_def = m.is_positive_definite()  // 检查是否正定
+      ```
+
+  ---
+
+  - **`fn[T : SMul[T] + Add + Neg + Mul + Default] matrix_power(self, n) -> Matrix[T]`**
+    - **描述**
+        计算矩阵的n次幂
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算幂的方阵
+      - `n: Int` - 幂次
+
+    - **返回值**
+      `Matrix[T]` - 矩阵的n次幂
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[2, 1], [1, 2]])
+      let m_squared = m.matrix_power(2)  // 计算矩阵的平方
+      ```
+
+  ---
+
+  - **`fn[T : Add + Mul + Neg + Div + Default] frobenius_norm(self) -> T`**
+    - **描述**
+        计算矩阵的Frobenius范数
+
+    - **参数**
+      - `self: Matrix[T]` - 要计算范数的矩阵
+
+    - **返回值**
+      `T` - 矩阵的Frobenius范数
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1, 2], [3, 4]])
+      let norm = m.frobenius_norm()  // 计算Frobenius范数
+      ```
+
+  ---
+
+  - **`fn[T : Ord + Default] max_element(self) -> T`**
+    - **描述**
+        找到矩阵中的最大元素
+
+    - **参数**
+      - `self: Matrix[T]` - 要搜索的矩阵
+
+    - **返回值**
+      `T` - 矩阵中的最大元素
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[1, 5, 3], [2, 8, 1]])
+      let max_val = m.max_element()  // 找到最大值：8
+      ```
+
+  ---
+
+  - **`fn[T : Ord + Default] min_element(self) -> T`**
+    - **描述**
+        找到矩阵中的最小元素
+
+    - **参数**
+      - `self: Matrix[T]` - 要搜索的矩阵
+
+    - **返回值**
+      `T` - 矩阵中的最小元素
+
+    - **示例**
+
+      ```moonbit
+      let m = Matrix::from_2d_array([[5, 2, 8], [1, 9, 3]])
+      let min_val = m.min_element()  // 找到最小值：1
+      ```
+
+---
+
+## 数值特征定义
+
+### SMul[T]
+
+```moonbit
+trait SMul[T] {
+  op_smul(T, T) -> T
+}
+```
+
+- **描述**
+  标量乘法特征，定义了类型 T 的标量乘法操作
+
+- **方法**
+  - **`op_smul(T, T) -> T`**
+    - **描述**: 执行标量乘法运算
+    - **参数**: 两个类型为 T 的值
+    - **返回值**: 乘法结果
+
+### Tolerance[T]
+
+```moonbit
+trait Tolerance[T] {
+  tolerance() -> T
+}
+```
+
+- **描述**
+  容忍度特征，定义了数值计算中的容忍度阈值
+
+- **方法**
+  - **`tolerance() -> T`**
+    - **描述**: 返回类型 T 的容忍度值
+    - **返回值**: 容忍度阈值
+
+### Sqrt[T]
+
+```moonbit
+trait Sqrt[T] {
+  sqrt(T) -> T
+}
+```
+
+- **描述**
+  平方根特征，定义了类型 T 的平方根运算
+
+- **方法**
+  - **`sqrt(T) -> T`**
+    - **描述**: 计算平方根
+    - **参数**: 要计算平方根的值
+    - **返回值**: 平方根结果
+
 ---
 
 ## @mutable.Lens[T]
