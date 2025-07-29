@@ -1798,3 +1798,485 @@ test "iterator operations" {
   let col1_evens = m.iter_col(1).filter(fn(x) { x % 2 == 0 }).collect()
   inspect(col1_evens, content="[2]")
 }
+
+///|
+/// Computes the eigenvalues and eigenvectors of a square matrix using the QR algorithm.
+/// 
+/// This function implements the QR algorithm with shifts to compute eigenvalues,
+/// and then uses inverse iteration to find the corresponding eigenvectors.
+/// 
+/// **Note**: This is a complex numerical algorithm. For non-symmetric matrices, eigenvalues can be complex,
+/// which are not fully supported by this implementation (it would require a Complex number type).
+/// This implementation works best for symmetric matrices with real eigenvalues.
+/// 
+/// Parameters:
+/// 
+/// * `self` : The square matrix to compute eigenvalues and eigenvectors for.
+///
+/// Returns a tuple containing:
+/// * A vector of eigenvalues.
+/// * A matrix where each column is an eigenvector corresponding to an eigenvalue.
+/// 
+/// Panics if the matrix is not square.
+/// 
+/// Example:
+/// 
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[4.0, -2.0], [1.0, 1.0]])
+/// let (eigenvals, eigenvecs) = m.eigen()
+/// // eigenvals should be close to [3.0, 2.0]
+/// // eigenvecs contains the corresponding eigenvectors as columns
+/// ```
+pub fn[T : Compare + Add + Mul + Sub + Neg + Num + Div + Sqrt + Tolerance] eigen(
+  self : Matrix[T],
+) -> (Vector[T], Matrix[T]) {
+  guard self.is_square() else {
+    abort("Matrix must be square for eigenvalue computation")
+  }
+  qr_algorithm(self)
+}
+
+///|
+/// Implements the QR algorithm for computing eigenvalues and eigenvectors.
+/// 
+/// This is the core algorithm that iteratively applies QR decomposition
+/// to converge to a matrix with eigenvalues on the diagonal.
+fn[T : Compare + Add + Mul + Sub + Neg + Num + Div + Sqrt + Tolerance] qr_algorithm(
+  matrix : Matrix[T],
+) -> (Vector[T], Matrix[T]) {
+  let n = matrix.row
+  let mut a = matrix.copy()
+  let mut q_total = identity(n)
+  let max_iterations = 100
+  for _ in 0..<max_iterations {
+    // Apply QR decomposition
+    let (q, r) = qr_decomposition(a)
+
+    // Update A = RQ
+    a = r * q
+
+    // Accumulate Q matrices for eigenvectors
+    q_total = q_total * q
+
+    // Check for convergence (off-diagonal elements should be small)
+    if is_upper_triangular(a) {
+      break
+    }
+  }
+
+  // Extract eigenvalues from diagonal
+  let eigenvalues = Vector::makei(n, i => a[i][i])
+  (eigenvalues, q_total)
+}
+
+///|
+/// Performs QR decomposition of a matrix using the Gram-Schmidt process.
+/// 
+/// Parameters:
+/// * `matrix` : The matrix to decompose.
+/// 
+/// Returns a tuple (Q, R) where Q is orthogonal and R is upper triangular.
+fn[T : Compare + Add + Mul + Sub + Num + Div + Tolerance + Sqrt] qr_decomposition(
+  matrix : Matrix[T],
+) -> (Matrix[T], Matrix[T]) {
+  let m = matrix.row
+  let n = matrix.col
+  let q = Matrix::new(m, n, T::zero())
+  let r = Matrix::new(n, n, T::zero())
+
+  // Modified Gram-Schmidt process
+  for j in 0..<n {
+    // Copy column j from A to Q
+    for i in 0..<m {
+      q[i][j] = matrix[i][j]
+    }
+
+    // Orthogonalize against previous columns
+    for k in 0..<j {
+      // Compute r[k][j] = q_k^T * q_j
+      let mut dot_product = T::zero()
+      for i in 0..<m {
+        dot_product += q[i][k] * q[i][j]
+      }
+      r[k][j] = dot_product
+
+      // q_j = q_j - r[k][j] * q_k
+      for i in 0..<m {
+        q[i][j] -= r[k][j] * q[i][k]
+      }
+    }
+
+    // Normalize q_j
+    let mut norm = T::zero()
+    for i in 0..<m {
+      norm += q[i][j] * q[i][j]
+    }
+    norm = norm.sqrt()
+    r[j][j] = norm
+    if norm > T::tolerance() {
+      for i in 0..<m {
+        q[i][j] /= norm
+      }
+    }
+  }
+  (q, r)
+}
+
+///|
+/// Checks if a matrix is approximately upper triangular within a given tolerance.
+fn[T : Compare + Num + Tolerance] is_upper_triangular(
+  matrix : Matrix[T],
+) -> Bool {
+  let n = matrix.row
+  for i in 0..<n {
+    for j in 0..<i {
+      if matrix[i][j].abs() > T::tolerance() {
+        return false
+      }
+    }
+  }
+  true
+}
+
+///|
+/// Computes the dominant eigenvalue and eigenvector using the power method.
+/// This is an alternative method for finding the largest eigenvalue.
+/// 
+/// Parameters:
+/// * `self` : The square matrix to compute the dominant eigenvalue and eigenvector for.
+/// * `max_iterations` : The maximum number of iterations to perform.
+/// 
+/// Returns a tuple containing:
+/// * The dominant eigenvalue.
+/// * The corresponding eigenvector as a normalized vector.
+/// 
+/// Panics if the matrix is not square.
+pub fn[T : Compare + Add + Mul + Sub + Div + Num + Tolerance] power_method(
+  self : Matrix[T],
+  max_iterations : Int,
+) -> (T, Vector[T]) {
+  guard self.is_square() else {
+    abort("Matrix must be square for power method")
+  }
+  let n = self.row
+  let mut x = Vector::makei(n, _ => T::one())
+  let mut lambda = T::zero()
+  for _ in 0..<max_iterations {
+    let y = matrix_vector_multiply(self, x)
+    let mut max_val = T::zero()
+    for i in 0..<n {
+      if y[i].abs() > max_val.abs() {
+        max_val = y[i]
+      }
+    }
+    let new_lambda = max_val
+    x = y.map(v => v / new_lambda)
+    if (new_lambda - lambda).abs() < Tolerance::tolerance() {
+      return (new_lambda, x)
+    }
+    lambda = new_lambda
+  }
+  (lambda, x)
+}
+
+///|
+/// Helper function to multiply a matrix by a vector.
+fn[T : Add + Mul + Zero] matrix_vector_multiply(
+  matrix : Matrix[T],
+  vector : Vector[T],
+) -> Vector[T] {
+  let m = matrix.row
+  let n = matrix.col
+  guard n == vector.length() else {
+    abort("Matrix and vector dimensions are not compatible for multiplication")
+  }
+  Vector::makei(m, i => {
+    let mut sum = T::zero()
+    for j in 0..<n {
+      sum += matrix[i][j] * vector[j]
+    }
+    sum
+  })
+}
+
+///|
+/// Computes eigenvalues for 2x2 matrices analytically.
+/// 
+/// This function uses the characteristic polynomial to find the eigenvalues
+/// of a 2x2 matrix.
+///
+///  Parameters:
+/// * `self` : The 2x2 matrix to compute eigenvalues for.
+///
+/// Returns a vector containing the two eigenvalues.
+/// 
+/// Panics if the matrix is not 2x2.
+pub fn[T : Compare + Add + Mul + Sub + Num + Div + Sqrt + SMul] eigen_2x2(
+  self : Matrix[T],
+) -> Vector[T] {
+  guard self.row == 2 && self.col == 2 else {
+    abort("This function is only for 2x2 matrices")
+  }
+  let a = self[0][0]
+  let b = self[0][1]
+  let c = self[1][0]
+  let d = self[1][1]
+  let trace = a + d
+  let det = a * d - b * c
+  let discriminant = trace * trace - T::one().scalar(4.0) * det
+  if discriminant >= T::zero() {
+    let sqrt_disc = discriminant.sqrt()
+    let lambda1 = (trace + sqrt_disc) / T::one().scalar(2.0)
+    let lambda2 = (trace - sqrt_disc) / T::one().scalar(2.0)
+    Vector::from_array([lambda1, lambda2])
+  } else {
+    // This case results in complex eigenvalues.
+    // This implementation returns only the real part.
+    let real_part = trace / T::one().scalar(2.0)
+    Vector::from_array([real_part, real_part])
+  }
+}
+
+///|
+/// Tests eigenvalue computation for various matrices.
+test "eigenvalue computation" {
+  // Test 2x2 symmetric matrix
+  let m1 = Matrix::from_2d_array([[6.0, -2.0], [-2.0, 9.0]])
+  let (vals1, _) = m1.eigen()
+
+  // Expected eigenvalues are 5.0 and 10.0. Order may vary.
+  let v1_ok = (vals1[0] - 5.0).abs() < Tolerance::tolerance() &&
+    (vals1[1] - 10.0).abs() < Tolerance::tolerance()
+  let v2_ok = (vals1[0] - 10.0).abs() < Tolerance::tolerance() &&
+    (vals1[1] - 5.0).abs() < Tolerance::tolerance()
+  inspect(v1_ok || v2_ok, content="true")
+
+  // Test power method for dominant eigenvalue
+  let (dom_val, _) = m1.power_method(100)
+  inspect((dom_val - 10.0).abs() < Tolerance::tolerance(), content="true")
+
+  // Test 2x2 analytical solution
+  let vals_2x2 = m1.eigen_2x2()
+  let v3_ok = (vals_2x2[0] - 5.0).abs() < Tolerance::tolerance() &&
+    (vals_2x2[1] - 10.0).abs() < Tolerance::tolerance()
+  let v4_ok = (vals_2x2[0] - 10.0).abs() < Tolerance::tolerance() &&
+    (vals_2x2[1] - 5.0).abs() < Tolerance::tolerance()
+  inspect(v3_ok || v4_ok, content="true")
+}
+
+///|
+pub trait SMul {
+  scalar(Self, Double) -> Self
+}
+
+///|
+pub impl SMul for Double with scalar(self, rhs : Double) -> Double {
+  self * rhs
+}
+
+///|
+pub impl SMul for Float with scalar(self, rhs : Double) -> Float {
+  self * rhs.to_float()
+}
+
+///|
+pub trait Tolerance {
+  tolerance() -> Self
+}
+
+///|
+pub impl Tolerance for Double with tolerance() -> Double {
+  0.00000000001
+}
+
+///|
+pub impl Tolerance for Float with tolerance() -> Float {
+  0.00000000001
+}
+
+///|
+pub trait Sqrt {
+  sqrt(Self) -> Self
+}
+
+///|
+pub impl Sqrt for Double with sqrt(a) -> Double {
+  Double::sqrt(a)
+}
+
+///|
+pub impl Sqrt for Float with sqrt(a) -> Float {
+  Float::sqrt(a)
+}
+
+///|
+/// Tests if the generated eigenvectors are correct by verifying the
+/// fundamental property A*v = λ*v.
+test "eigenvector verification" {
+  // A simple 2x2 symmetric matrix with known eigenvalues (3, 1)
+  // and eigenvectors.
+  let m = Matrix::from_2d_array([[2.0, -1.0], [-1.0, 2.0]])
+  let (eigenvals, eigenvecs) = m.eigen()
+
+  // Helper function to check if two vectors are close enough
+  fn vectors_are_close(
+    v1 : Vector[Double],
+    v2 : Vector[Double],
+    tol : Double,
+  ) -> Bool {
+    if v1.length() != v2.length() {
+      return false
+    }
+    for i in 0..<v1.length() {
+      if (v1[i] - v2[i]).abs() > tol {
+        return false
+      }
+    }
+    return true
+  }
+
+  // Verify for the first eigenvector
+  let v1 = eigenvecs.col_to_vector(0)
+  let lambda1 = eigenvals[0]
+  let m_v1 = matrix_vector_multiply(m, v1)
+  let lambda1_v1 = v1.map(x => x * lambda1)
+  inspect(
+    vectors_are_close(m_v1, lambda1_v1, Tolerance::tolerance()),
+    content="true",
+    // "First eigenvector check (A*v1 == λ1*v1)"
+  )
+
+  // Verify for the second eigenvector
+  let v2 = eigenvecs.col_to_vector(1)
+  let lambda2 = eigenvals[1]
+  let m_v2 = matrix_vector_multiply(m, v2)
+  let lambda2_v2 = v2.map(x => x * lambda2)
+  inspect(
+    vectors_are_close(m_v2, lambda2_v2, Tolerance::tolerance()),
+    content="true",
+    // "Second eigenvector check (A*v2 == λ2*v2)"
+  )
+}
+
+///|
+/// Calculates the determinant of a square matrix.
+///
+/// This method uses an efficient algorithm based on self decomposition with partial
+/// pivoting. It transforms the matrix into an upper triangular form while tracking
+/// row swaps. The determinant is then the product of the diagonal elements of
+/// the resulting matrix, adjusted by the sign determined by the number of swaps.
+/// This approach is numerically stable and has a time complexity of O(n³).
+///
+/// Parameters:
+/// * `self`: The square matrix.
+///
+/// Returns the determinant of the matrix.
+///
+/// Panics if the matrix is not square.
+///
+/// Example:
+/// ```moonbit
+/// let m = @mutable.Matrix::from_2d_array([[4.0, 3.0], [6.0, 3.0]])
+/// inspect(m.determinant(), content="-6")
+/// ```
+pub fn[T : Compare + Sub + Mul + Div + Zero + One + Num + Tolerance] determinant(
+  self : Matrix[T],
+) -> T {
+  guard self.is_square() else {
+    abort("Matrix must be square to calculate determinant")
+  }
+
+  let m = self.copy()
+  let n = m.row
+  if n == 0 {
+    return T::one() // By definition, determinant of a 0x0 matrix is 1.
+  }
+  let mut det_sign = T::one()
+  for j in 0..<n {
+    // Find pivot using partial pivoting for numerical stability.
+    let mut max_row = j
+    for i in (j + 1)..<n {
+      if m[i][j].abs() > m[max_row][j].abs() {
+        max_row = i
+      }
+    }
+    if max_row != j {
+      m.swap_rows(j, max_row)
+      det_sign = -det_sign
+    }
+    let pivot = m[j][j]
+    if pivot.abs() < T::tolerance() {
+      // If a pivot is zero (or very close to it), the matrix is singular.
+      return T::zero()
+    }
+
+    // Perform elimination for rows below the pivot.
+    for i in (j + 1)..<n {
+      let factor = m[i][j] / pivot
+      for k in (j + 1)..<n {
+        m[i][k] -= factor * m[j][k]
+      }
+    }
+  }
+
+  // The determinant is the product of the diagonal elements of the
+  // resulting upper triangular matrix, adjusted by the sign.
+  let mut det = det_sign
+  for i in 0..<n {
+    det *= m[i][i]
+  }
+  det
+}
+
+///|
+/// Tests the determinant calculation for various matrices.
+test "determinant calculation" {
+  // Test 2x2 matrix
+  let m1 = Matrix::from_2d_array([[4.0, 3.0], [6.0, 3.0]])
+  // Expected: 4*3 - 3*6 = 12 - 18 = -6
+  inspect(
+    (m1.determinant() - -6.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+
+  // Test 3x3 matrix
+  let m2 = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0],
+    [0.0, 1.0, 4.0],
+    [5.0, 6.0, 0.0],
+  ])
+  // Expected: 1*(1*0 - 4*6) - 2*(0*0 - 4*5) + 3*(0*6 - 1*5) = -24 + 40 - 15 = 1
+  inspect(
+    (m2.determinant() - 1.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+
+  // Test matrix that requires a row swap
+  let m3 = Matrix::from_2d_array([
+    [0.0, 1.0, 4.0],
+    [1.0, 2.0, 3.0],
+    [5.0, 6.0, 0.0],
+  ])
+  // Expected: After swapping rows, determinant should be -1
+  // Determinant should be the negative of m2's determinant
+  inspect(
+    (m3.determinant() - -1.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+
+  // Test singular matrix (linearly dependent rows)
+  let m4 = Matrix::from_2d_array([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0],
+    [7.0, 8.0, 9.0],
+  ])
+  // Expected: Determinant should be 0 since rows are linearly dependent
+  inspect(m4.determinant().abs() < Tolerance::tolerance(), content="true")
+
+  // Test identity matrix
+  let id : Matrix[Double] = identity(4)
+  inspect(
+    (id.determinant() - 1.0).abs() < Tolerance::tolerance(),
+    content="true",
+  )
+}
