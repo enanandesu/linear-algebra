@@ -4,3 +4,4 @@ target/
 .vscode/
 _coverage/
 coverage_summary.txt
+src/mutable/test.mbt
